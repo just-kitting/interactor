@@ -17,6 +17,6 @@ Of course, I think there is a major personality bias when it comes to creating s
 
 ## Silly AI videos
 
-![](https://zulip.openbeagle.org/user_uploads/2/KvPeLYgGIGEzYuWBiQ13W3V4/The_Classroom_Coding_Future.mp4)
+[![Watch The Classroom Coding Future](assets/The_Classroom_Coding_Future.jpg)](https://zulip.openbeagle.org/user_uploads/2/KvPeLYgGIGEzYuWBiQ13W3V4/The_Classroom_Coding_Future.mp4)
 
-![](https://zulip.openbeagle.org/user_uploads/2/qnlPfqOdxg1fEDS_EjZ5p5Hz/The_Phases_of_Play.mp4)
+[![Watch The Phases of Play](assets/The_Phases_of_Play.jpg)](https://zulip.openbeagle.org/user_uploads/2/qnlPfqOdxg1fEDS_EjZ5p5Hz/The_Phases_of_Play.mp4)
