@@ -26,7 +26,7 @@
 ## Host Runtime
 
 - [X] Choose implementation language for the BadgeSnake host runtime
-- [ ] Build a local simulation mode that runs without attached hardware
+- [~] Build a local simulation mode that runs without attached hardware
 - [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution
@@ -44,7 +44,7 @@
 
 ## Build And Test
 
-- [ ] Add a host-side smoke test for the game engine
+- [~] Add a host-side smoke test for the game engine
 - [X] Add protocol tests with recorded fixtures
 - [X] Add a hardware bring-up checklist for a fresh board
 - [X] Add a demo-start script that validates prerequisites before launch
@@ -72,3 +72,5 @@
 - [X] Determine whether current `/boot/tiboot3.bin`, `tispl.bin`, and `u-boot.img` are the intended production boot artifacts
 - [X] Confirm how BeagleBadge currently reaches serial console during recovery work
 - [X] Pick the host runtime language and the initial simulation target
+- [ ] Run and capture one successful `components/battlesnake-rules` simulated CLI game on-device
+- [ ] Decide whether the current Armbian kernel packaging should grow `i2c-stub` support or whether BadgeSnake testing should stay on `sim://` until real Zepto devices are attached

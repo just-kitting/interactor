@@ -218,6 +218,31 @@ Initial protocol fixture set added for simulation and future tests.
 
 A demo preflight script was added.
 
+## 2026-04-14 (rules CLI transport)
+
+BadgeSnake transport work started inside `components/battlesnake-rules`.
+
+### Changes in progress
+
+- added CLI request-path support for:
+  - `sim://` deterministic local players
+  - `i2c://` BadgeSnake transport-shaped simulated players
+- added focused tests for simulated metadata and move handling
+- added local wrapper scripts and docs in the superproject to exercise the upstream CLI path
+
+### Current board findings
+
+- `go` is installed locally as `go1.24.4`
+- first-run `go build` and `go test` on this board remain slow because the runtime and standard library compile locally
+- `i2c-tools` are installed
+- `modinfo i2c-stub` currently fails because this kernel package does not provide the `i2c-stub` module
+
+### Implication
+
+- the fastest executable path for CLI integration on this board today is `sim://`
+- `i2c://` is useful now for transport-shape and token-mapping tests
+- true `i2c-stub` bus emulation will require a kernel/module packaging change or a different test host
+
 ### Added
 
 - `scripts/demo_preflight.sh`
