@@ -66,3 +66,8 @@ That means:
 - true `i2c-stub` adapter emulation still depends on kernel/module availability
 
 Use `scripts/check_i2c_stub_support.sh` to confirm local readiness before depending on `i2c-stub` in test plans.
+
+Quick wrappers:
+
+- `scripts/run_rules_cli_sim.sh`
+- `scripts/run_rules_cli_i2c_sim.sh`
