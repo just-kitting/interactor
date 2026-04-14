@@ -41,3 +41,41 @@ Initial planning pass completed.
 - Serial-console wiring/access details
 - Preferred source of truth for U-Boot and kernel artifacts
 - BadgeSnake gameplay and protocol requirements
+
+## 2026-04-14 (later)
+
+Repository inputs expanded by the user and reviewed.
+
+### New repository assets confirmed
+
+- Added submodules:
+  - `components/armbian-build`
+  - `components/battlesnake-rules`
+  - `components/beaglebadge`
+  - `components/beagleconnect-zepto`
+- Added architecture note: `docs/Architecture.md`
+- Added AM62L reference PDFs under `docs/`
+
+### Architecture findings now grounded in repo content
+
+- BadgeSnake is currently targeting I2C over the two BeagleBadge QWIIC connectors
+- `components/beaglebadge/docs/FAQ.md` confirms:
+  - J6 is on I2C1
+  - J7 is on I2C2
+  - the OSPI flash device is ISSI `IS25WX256-JHLE` at 256Mbit
+- `components/beagleconnect-zepto` hardware files expose explicit BSL-related nets for:
+  - I2C
+  - UART
+  - bootloader invocation
+
+### Important remaining gaps after review
+
+- No board recovery guide was found in the imported BeagleBadge docs
+- No serial-console access instructions were found in the imported BeagleBadge docs
+- No exact `fw_env.config` offsets were found for the OSPI environment partitions
+- No Zepto firmware SDK/examples repo was added yet beyond the hardware-design repo
+- The BadgeSnake gameplay contract and host-side protocol remain undefined
+
+### Documentation added in this follow-up
+
+- `docs/MissingInputs.md` to keep the missing component/document list explicit

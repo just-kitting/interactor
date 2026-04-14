@@ -3,7 +3,7 @@
 ## Repository Setup
 
 - [X] Create `components/` and establish the first submodules
-- [ ] Add `docs/` structure for hardware, protocol, build, and recovery notes
+- [X] Add `docs/` structure for hardware, protocol, build, and recovery notes
 - [ ] Decide initial local code layout (`src/`, `app/`, or similar)
 - [ ] Add a `scripts/` directory for setup, flashing, and demo launch tooling
 
@@ -65,8 +65,8 @@
 
 ## Immediate Next Actions
 
-- [ ] Decide the first set of upstream repos to add under `components/`
-- [ ] Add a recovery/boot documentation file with real commands and offsets
+- [X] Decide the first set of upstream repos to add under `components/`
+- [ ] Add a recovery/boot documentation file with real commands, offsets, and serial-console expectations
 - [ ] Determine whether current `/boot/tiboot3.bin`, `tispl.bin`, and `u-boot.img` are the intended production boot artifacts
 - [ ] Confirm how BeagleBadge currently reaches serial console during recovery work
 - [ ] Pick the host runtime language and the initial simulation target
