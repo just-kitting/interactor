@@ -13,6 +13,7 @@ Use this checklist before a live BadgeSnake demo or classroom session.
 
 - [ ] Board boots reliably from the intended medium
 - [ ] Recovery path has been re-verified recently
+- [ ] `scripts/demo_preflight.sh` passes
 - [ ] `scripts/check_uboot_artifacts.sh` output has been reviewed
 - [ ] Display and button probes show expected devices
 

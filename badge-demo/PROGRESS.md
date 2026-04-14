@@ -213,3 +213,15 @@ Initial protocol fixture set added for simulation and future tests.
 - provide a stable initial contract for endpoint-token mapping
 - support future simulation work
 - seed protocol and regression tests without waiting on hardware
+
+## 2026-04-14 (preflight)
+
+A demo preflight script was added.
+
+### Added
+
+- `scripts/demo_preflight.sh`
+
+### Purpose
+
+- provide a single entry point to validate repo state, helper availability, core device exposure, and unresolved-input status before a demo run
