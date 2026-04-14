@@ -35,3 +35,8 @@ BeagleConnect Zepto serves as the programmable "game controller" for the student
 ### What is [BeagleBadge](https://github.com/beagleboard/beaglebadge)?
 
 BeagleBadge acts as the main "game board" and rules engine for this demonstration. It is a $99 open-hardware wearable device powered by a low-power Texas Instruments AM62L32 Dual-core 1.2GHz Arm Cortex-A53 processor. It features a 4.2" ePaper display to visualize the game state, along with built-in status elements like an RGB LED, dual 7-segment displays, and a passive buzzer. What makes it ideal as a central hub for "The Interactor" concept is its unmatched expansion flexibility; it features dual QWIIC connectors, a Grove connector, and a mikroBUS header. This allows multiple external microcontrollers to be physically plugged into it so their code can interact simultaneously.
+
+## Architecture
+
+I2C will be used to transport data between BeagleBadge's QWIIC connectors and up to 2 BeagleConnect Zepto's QWIIC connectors for both flashing and game play. The BOOT/RESET buttons on BeagleConnect Zepto will be utilize to enter into the MSPM0 BSL boot mode to perform flashing.
+

@@ -2,7 +2,7 @@
 
 ## Repository Setup
 
-- [ ] Create `components/` and establish the first submodules
+- [X] Create `components/` and establish the first submodules
 - [ ] Add `docs/` structure for hardware, protocol, build, and recovery notes
 - [ ] Decide initial local code layout (`src/`, `app/`, or similar)
 - [ ] Add a `scripts/` directory for setup, flashing, and demo launch tooling
@@ -18,7 +18,7 @@
 ## Hardware Integration
 
 - [ ] Document BeagleBadge connectors used for Zepto players
-- [ ] Choose the Zepto transport layer: I2C, UART, SPI, or mixed
+- [X] Choose the Zepto transport layer: I2C, UART, SPI, or mixed
 - [ ] Define hot-plug and disconnect behavior
 - [ ] Define power budget and connector limits for multiple attached Zeptos
 - [ ] Capture display, LED, buzzer, and segment-display interface notes
