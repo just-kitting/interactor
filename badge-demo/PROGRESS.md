@@ -242,6 +242,26 @@ BadgeSnake transport work started inside `components/battlesnake-rules`.
 - the fastest executable path for CLI integration on this board today is `sim://`
 - `i2c://` is useful now for transport-shape and token-mapping tests
 - true `i2c-stub` bus emulation will require a kernel/module packaging change or a different test host
+- initial `go run` attempts can also fail if they rely on the board's 104MB `/tmp` zram mount for compiler scratch space
+- the local wrapper scripts now redirect Go temporary build output into a repo-local `.cache/` directory on the root filesystem
+- the local wrapper scripts now also force `CGO_ENABLED=0` for faster and more reliable on-device CLI smoke runs
+- the local smoke wrappers were reduced to a deterministic 3x3 zero-food game so they terminate quickly instead of running a long standard match
+
+### Verified smoke runs
+
+- `scripts/run_rules_cli_sim.sh`
+  - completed on-device
+  - 3x3 deterministic zero-food game
+  - completed after 2 turns as a draw
+- `scripts/run_rules_cli_i2c_sim.sh`
+  - completed on-device
+  - 3x3 deterministic zero-food game
+  - completed after 2 turns with `ZeptoB` as winner
+
+### Remaining gap
+
+- `i2c://` is still transport-shaped simulation inside the CLI layer
+- the next implementation step is to connect that scheme to a real I2C adapter path or a kernel-backed emulation path when available
 
 ### Added
 

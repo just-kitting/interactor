@@ -71,3 +71,18 @@ Quick wrappers:
 
 - `scripts/run_rules_cli_sim.sh`
 - `scripts/run_rules_cli_i2c_sim.sh`
+
+Both wrappers pin Go build scratch space into the repo-local `.cache/` directory and set `CGO_ENABLED=0` so they do not fail against the board's small `/tmp` zram mount or spend time on unnecessary C toolchain work during first-run compilation.
+
+Both wrappers also use a deterministic 3x3, zero-food smoke scenario so the CLI run terminates quickly on-device.
+
+## Verified On This Board
+
+On 2026-04-14, both smoke wrappers were executed successfully on BeagleBadge after moving Go scratch space out of `/tmp`:
+
+- `scripts/run_rules_cli_sim.sh`
+  - completed after 2 turns
+  - result: draw
+- `scripts/run_rules_cli_i2c_sim.sh`
+  - completed after 2 turns
+  - result: `ZeptoB` won
