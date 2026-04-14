@@ -4,3 +4,6 @@
 [submodule "badge-demo/components/beagleconnect-zepto"]
 	path = badge-demo/components/beagleconnect-zepto
 	url = https://openbeagle.org/beagleconnect/zepto
+[submodule "badge-demo/components/battlesnake-rules"]
+	path = badge-demo/components/battlesnake-rules
+	url = https://github.com/just-kitting/battlesnake-rules
