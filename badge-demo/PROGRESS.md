@@ -179,3 +179,18 @@ Live hardware-output probing completed.
 
 - `docs/HardwareOutputs.md`
 - `scripts/probe_badge_outputs.sh`
+
+## 2026-04-14 (execution checklists)
+
+Operational checklists and simulation planning were added.
+
+### Documentation added
+
+- `docs/SimulationPlan.md`
+- `docs/BringUpChecklist.md`
+- `docs/ReleaseChecklist.md`
+
+### TODO updates
+
+- Hardware bring-up checklist is now documented
+- Release checklist is now documented

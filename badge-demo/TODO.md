@@ -21,7 +21,7 @@
 - [X] Choose the Zepto transport layer: I2C, UART, SPI, or mixed
 - [ ] Define hot-plug and disconnect behavior
 - [ ] Define power budget and connector limits for multiple attached Zeptos
-- [ ] Capture display, LED, buzzer, and segment-display interface notes
+- [ ] Capture display, LED, buzzer, and segment-display interface notes with control paths
 
 ## Host Runtime
 
@@ -45,9 +45,9 @@
 
 - [ ] Add a host-side smoke test for the game engine
 - [ ] Add protocol tests with recorded fixtures
-- [ ] Add a hardware bring-up checklist for a fresh board
+- [X] Add a hardware bring-up checklist for a fresh board
 - [ ] Add a demo-start script that validates prerequisites before launch
-- [ ] Add a release checklist for live classroom/demo use
+- [X] Add a release checklist for live classroom/demo use
 
 ## Bootloader And Reliability
 
