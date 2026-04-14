@@ -89,3 +89,29 @@ Collaboration workflow clarified by the user.
 - Every wrap-up must include a git commit
 - `docs/MissingInputs.md` is now reserved for immediate blocking questions in a Q&A format
 - Non-immediate items were moved out of `docs/MissingInputs.md`
+
+## 2026-04-14 (user answers)
+
+The user answered the immediate blocking questions in `docs/MissingInputs.md`.
+
+### Decisions captured
+
+- Recovery is operator-assisted, not agent-autonomous, because the serial console is only available through an external USB-to-serial host
+- Holding `SEL` at power-on is the standard recovery path to boot from microSD instead of OSPI
+- Bootloader source of truth is the Armbian build tree, currently targeting branch `2025.12-beaglebadge`
+- Current `/boot/tiboot3.bin`, `/boot/tispl.bin`, and `/boot/u-boot.img` are intermediate artifacts and should not be treated as proven OSPI install images yet
+- Gameplay should keep Battlesnake HTTP semantics and translate them over I2C
+- Student-facing firmware should target MicroBlocks
+- Example BadgeSnake player firmware should live in this repository
+- Zepto flashing should use I2C BSL
+- Preferred flashing tool today is `bb-imager-rs`
+
+### Follow-up documentation added
+
+- `docs/BootAndRecovery.md` for recovery, boot order, artifact provenance, and candidate U-Boot environment layout
+
+### U-Boot environment status
+
+- The live MTD layout clearly identifies `ospi.env` and `ospi.env.backup`
+- A candidate `fw_env.config` can be derived from the partition table
+- `fw_printenv` still does not read a valid environment with that candidate config, so environment handling remains unvalidated and should be treated carefully

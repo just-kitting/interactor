@@ -4,7 +4,15 @@ This document provides a quick reference around the technical architecture of Ba
 
 ## Transport
 
-I2C will be used to transport data between BeagleBadge's QWIIC connectors and up to 2 BeagleConnect Zepto's QWIIC connectors for both flashing and game play. The BOOT/RESET buttons on BeagleConnect Zepto will be utilize to enter into the MSPM0 BSL boot mode to perform flashing.
+I2C will be used to transport data between BeagleBadge's QWIIC connectors and up to 2 BeagleConnect Zepto's QWIIC connectors for both flashing and game play.
+
+Gameplay should preserve Battlesnake HTTP semantics and translate them onto I2C:
+
+* HTTP `GET`: I2C write of a shortened path token, then I2C read of the response body
+* HTTP `PUT`: I2C write of a shortened path token, then I2C write of the request body
+* HTTP headers should be removed wherever possible
+
+This keeps `components/battlesnake-rules` changes minimal while allowing Zepto players to behave like Battlesnake controllers.
 
 ## BeagleBadge
 
@@ -34,6 +42,13 @@ BeagleConnect Zepto exposes BSL-oriented signals on the JST/QWIIC path in the ha
 * `BSL_INVOKE`
 
 This is enough to justify keeping I2C as the first transport choice for both gameplay and firmware loading experiments, but the exact host-side flashing flow still needs to be documented.
+
+## Firmware Direction
+
+* Student-facing programming target: MicroBlocks
+* Example BadgeSnake player firmware should live in this repository
+* Preferred host-side flashing tool: `bb-imager-rs`
+* Longer term preference: Linux kernel support for flashing where practical
 
 Submodules:
 

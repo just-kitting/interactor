@@ -9,10 +9,10 @@
 
 ## Product Definition
 
-- [ ] Write a short BadgeSnake product spec
-- [ ] Define player count and supported connection methods
-- [ ] Define turn timing, board size, and failure behavior
-- [ ] Decide whether the game is fully Battlesnake-compatible or a local variant
+- [ ] Write a short BadgeSnake product spec based on Battlesnake `rules` defaults
+- [X] Define player count and supported connection methods
+- [X] Define turn timing, board size, and failure behavior
+- [X] Decide whether the game is fully Battlesnake-compatible or a local variant
 - [ ] Define what must be visible on the ePaper, RGB LED, buzzer, and 7-segment displays
 
 ## Hardware Integration
@@ -35,8 +35,8 @@
 
 ## Zepto Firmware Track
 
-- [ ] Select the first Zepto SDK/examples repo to import as a submodule
-- [ ] Define the protocol between BeagleBadge and Zepto boards
+- [X] Select the first Zepto SDK/examples repo to import as a submodule
+- [X] Define the protocol between BeagleBadge and Zepto boards
 - [ ] Provide a minimal reference snake implementation
 - [ ] Provide a failure-test firmware image that behaves badly on purpose
 - [ ] Document classroom-friendly firmware update steps
@@ -51,10 +51,10 @@
 
 ## Bootloader And Reliability
 
-- [ ] Record current boot flow and storage map in a dedicated recovery doc
-- [ ] Configure `/etc/fw_env.config` for OSPI environment access
-- [ ] Verify `fw_printenv` and `fw_setenv` against both env copies
-- [ ] Identify the correct bootloader source and artifact provenance
+- [X] Record current boot flow and storage map in a dedicated recovery doc
+- [ ] Configure `/etc/fw_env.config` for OSPI environment access using the derived candidate layout
+- [ ] Verify `fw_printenv` and `fw_setenv` against both env copies after environment format is validated
+- [X] Identify the correct bootloader source and artifact provenance
 - [ ] Create a safe OSPI flashing procedure from Linux
 - [ ] Test booting from OSPI without relying on microSD loader stages
 - [ ] Define a good-boot marker and boot-attempt counter
@@ -66,7 +66,7 @@
 ## Immediate Next Actions
 
 - [X] Decide the first set of upstream repos to add under `components/`
-- [ ] Add a recovery/boot documentation file with real commands, offsets, and serial-console expectations
-- [ ] Determine whether current `/boot/tiboot3.bin`, `tispl.bin`, and `u-boot.img` are the intended production boot artifacts
-- [ ] Confirm how BeagleBadge currently reaches serial console during recovery work
+- [X] Add a recovery/boot documentation file with real commands, offsets, and serial-console expectations
+- [X] Determine whether current `/boot/tiboot3.bin`, `tispl.bin`, and `u-boot.img` are the intended production boot artifacts
+- [X] Confirm how BeagleBadge currently reaches serial console during recovery work
 - [ ] Pick the host runtime language and the initial simulation target
