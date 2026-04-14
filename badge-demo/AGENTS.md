@@ -34,6 +34,9 @@ Treat this as a starting point, not a guarantee. Re-check after any system or bo
 - Commit at the end of each meaningful work session.
 - Prefer small commits with descriptive messages over large undocumented batches.
 - Update `PROGRESS.md` whenever repository direction, board state, or confirmed findings change.
+- Put open questions and missing-user-input requests into tracked repo documents rather than relying on chat.
+- Treat git history and committed docs as the primary collaboration channel for decisions and follow-ups.
+- Do not consider a wrap-up complete if local changes are still uncommitted.
 - Do not rewrite or discard user changes unless explicitly asked.
 - When touching system boot or update logic, document the exact verification and recovery steps before marking a task done.
 

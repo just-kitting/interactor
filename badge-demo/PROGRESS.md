@@ -79,3 +79,11 @@ Repository inputs expanded by the user and reviewed.
 ### Documentation added in this follow-up
 
 - `docs/MissingInputs.md` to keep the missing component/document list explicit
+
+## 2026-04-14 (workflow)
+
+Collaboration workflow clarified by the user.
+
+- Open questions should be asked through committed documents in the repo
+- Chat is acceptable for live monitoring, but not as the primary place to park pending decisions
+- Every wrap-up must include a git commit
