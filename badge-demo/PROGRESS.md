@@ -146,3 +146,36 @@ Further implementation planning and scaffolding completed without requiring new 
 - This explains why `fw_printenv` cannot read a persistent OSPI environment today
 - Reliable rollback based on U-Boot environment variables therefore requires a future bootloader change, not just a userspace config file
 - `/boot/tiboot3.bin`, `/boot/tispl.bin`, and `/boot/u-boot.img` are byte-for-byte identical to the packaged files under `/usr/lib/linux-u-boot-vendor-edge-beaglebadge/`
+
+## 2026-04-14 (output probing)
+
+Live hardware-output probing completed.
+
+### Findings
+
+- The current image exposes:
+  - `/dev/fb0`
+  - `/dev/dri`
+  - `/dev/i2c-0`
+  - `/dev/i2c-2`
+- The current image does not expose an ALSA sound card
+- SPI devices identify:
+  - OSPI NOR flash
+  - the `gdey042t81` ePaper panel path
+  - an `mcp23s18` GPIO expander
+  - a LoRa-related SPI device
+- The active device tree has named symbols for:
+  - RGB LED pins
+  - PWM beeper pins
+  - `gpio-keys`
+  - `mcp23s18`
+- The front-panel buttons are discoverable from the DT as `UP`, `DOWN`, `LEFT`, `RIGHT`, `SELECT`, and `BACK`
+- Linux input devices currently enumerate:
+  - `gpio-keys` as `event0`
+  - PMIC power button as `event1`
+  - `pwm-beeper` as `event2`
+
+### Documentation added
+
+- `docs/HardwareOutputs.md`
+- `scripts/probe_badge_outputs.sh`
