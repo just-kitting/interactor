@@ -1,3 +1,6 @@
 [submodule "badge-demo/components/beaglebadge"]
 	path = badge-demo/components/beaglebadge
 	url = https://github.com/beagleboard/beaglebadge
+[submodule "badge-demo/components/beagleconnect-zepto"]
+	path = badge-demo/components/beagleconnect-zepto
+	url = https://openbeagle.org/beagleconnect/zepto
