@@ -4,12 +4,12 @@
 
 - [X] Create `components/` and establish the first submodules
 - [X] Add `docs/` structure for hardware, protocol, build, and recovery notes
-- [ ] Decide initial local code layout (`src/`, `app/`, or similar)
-- [ ] Add a `scripts/` directory for setup, flashing, and demo launch tooling
+- [X] Decide initial local code layout (`cmd/badgesnake`, `internal/`, `examples/microblocks`)
+- [X] Add a `scripts/` directory for setup, flashing, and demo launch tooling
 
 ## Product Definition
 
-- [ ] Write a short BadgeSnake product spec based on Battlesnake `rules` defaults
+- [X] Write a short BadgeSnake product spec based on Battlesnake `rules` defaults
 - [X] Define player count and supported connection methods
 - [X] Define turn timing, board size, and failure behavior
 - [X] Decide whether the game is fully Battlesnake-compatible or a local variant
@@ -25,7 +25,7 @@
 
 ## Host Runtime
 
-- [ ] Choose implementation language for the BadgeSnake host runtime
+- [X] Choose implementation language for the BadgeSnake host runtime
 - [ ] Build a local simulation mode that runs without attached hardware
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution
@@ -69,4 +69,4 @@
 - [X] Add a recovery/boot documentation file with real commands, offsets, and serial-console expectations
 - [X] Determine whether current `/boot/tiboot3.bin`, `tispl.bin`, and `u-boot.img` are the intended production boot artifacts
 - [X] Confirm how BeagleBadge currently reaches serial console during recovery work
-- [ ] Pick the host runtime language and the initial simulation target
+- [X] Pick the host runtime language and the initial simulation target

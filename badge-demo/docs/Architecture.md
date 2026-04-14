@@ -50,6 +50,13 @@ This is enough to justify keeping I2C as the first transport choice for both gam
 * Preferred host-side flashing tool: `bb-imager-rs`
 * Longer term preference: Linux kernel support for flashing where practical
 
+## Host Runtime
+
+* Implementation language: Go
+* Planned binary location: `cmd/badgesnake/`
+* Planned shared packages: `internal/protocol/` and additional `internal/` packages as needed
+* Constraint: the current BeagleBadge image does not ship the Go toolchain, so compile/test work should initially happen in CI or on an external build host
+
 Submodules:
 
 * ../components/beagleconnect-zepto: board design repository

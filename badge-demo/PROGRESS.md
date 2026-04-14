@@ -115,3 +115,34 @@ The user answered the immediate blocking questions in `docs/MissingInputs.md`.
 - The live MTD layout clearly identifies `ospi.env` and `ospi.env.backup`
 - A candidate `fw_env.config` can be derived from the partition table
 - `fw_printenv` still does not read a valid environment with that candidate config, so environment handling remains unvalidated and should be treated carefully
+
+## 2026-04-14 (repo scaffolding)
+
+Further implementation planning and scaffolding completed without requiring new user input.
+
+### Decisions captured
+
+- Host runtime language selected: Go
+- Initial repo layout selected:
+  - `cmd/badgesnake`
+  - `internal/protocol`
+  - `examples/microblocks`
+- Product defaults should track Battlesnake `rules` defaults for the first pass
+
+### New documentation
+
+- `docs/ProductSpec.md`
+- `docs/Protocol.md`
+- expanded `docs/BootAndRecovery.md` with packaged U-Boot metadata and environment findings
+
+### New helper scripts
+
+- `scripts/check_ospi_env.sh`
+- `scripts/check_uboot_artifacts.sh`
+
+### Important bootloader finding
+
+- The packaged U-Boot config on this system uses `CONFIG_ENV_IS_NOWHERE=y`
+- This explains why `fw_printenv` cannot read a persistent OSPI environment today
+- Reliable rollback based on U-Boot environment variables therefore requires a future bootloader change, not just a userspace config file
+- `/boot/tiboot3.bin`, `/boot/tispl.bin`, and `/boot/u-boot.img` are byte-for-byte identical to the packaged files under `/usr/lib/linux-u-boot-vendor-edge-beaglebadge/`
