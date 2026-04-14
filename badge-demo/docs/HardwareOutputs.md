@@ -7,6 +7,7 @@ This note captures what the current BeagleBadge Linux image exposes for display 
 - ePaper framebuffer is available at `/dev/fb0`
 - DRM is present via `/dev/dri`
 - ALSA sound cards are not currently exposed
+- GPIO character devices are present as `/dev/gpiochip0` through `/dev/gpiochip3`
 - SPI devices currently enumerate as:
   - `spi0.0`: OSPI NOR flash
   - `spi1.0`: `gdey042t81` ePaper panel driver path
@@ -26,6 +27,9 @@ This note captures what the current BeagleBadge Linux image exposes for display 
   - `gpio-keys` on `event0`
   - PMIC power button on `event1`
   - `pwm-beeper` on `event2`
+- `gpioinfo` currently shows:
+  - front-panel buttons named on `gpiochip1`
+  - a 16-line `gpiochip3` block consumed as `segment`
 
 ## Device-Tree Clues
 
@@ -38,6 +42,17 @@ The device tree contains named symbols for:
 
 This indicates the board description knows about RGB LED wiring, a PWM-driven beeper path, and an SPI GPIO expander, even though generic sysfs classes for LEDs or PWM are not currently surfaced in this image.
 
+Combined with `gpioinfo`, the current best working assumption is:
+
+- `gpiochip3` corresponds to the `mcp23s18` expander
+- those 16 expander lines are being used for the 7-segment display path
+
+For BadgeSnake, the 7-segment direction should follow the TechLab example approach in:
+
+- `components/vsx-examples/PocketBeagle-2/seven_segment`
+
+Prefer a kernel-module-backed control path similar to that example over ad hoc userspace GPIO bit-banging.
+
 ## What This Means For BadgeSnake
 
 - ePaper rendering can be approached through framebuffer/DRM first
@@ -46,11 +61,12 @@ This indicates the board description knows about RGB LED wiring, a PWM-driven be
   - enabling additional kernel drivers or DT nodes
   - direct control through GPIO/PWM once the responsible devices are identified cleanly
 - The beeper already appears as a kernel `pwm-beeper` input/sound device, but not as an ALSA sound card
-- 7-segment display control is not yet identified from the current live-system probe and remains an open implementation task
+- 7-segment display control is likely reachable through the 16-line `gpiochip3` block, but implementation direction should follow the TechLab kernel-module approach
 
 ## Follow-Up Work
 
 - identify the Linux input event nodes corresponding to the front-panel buttons
 - determine whether the `mcp23s18` expander owns LEDs, 7-segment lines, or other status outputs
+- map `gpiochip3` lines to concrete 7-segment digits and segments only as needed to support the chosen kernel-module path
 - determine whether PWM beeper support is disabled in the current DT or only missing a userspace control path
 - choose whether the ePaper path should be framebuffer-based or DRM-native for the first pass

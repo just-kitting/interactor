@@ -276,3 +276,27 @@ First-pass runtime behavior was further specified.
 - move timeout or disconnect should eliminate the affected player rather than crash the host
 - disconnected players should not be reinserted into an active game
 - the first-pass output priority is ePaper first, then minimal RGB LED and buzzer cues, with 7-segment support remaining provisional
+
+## 2026-04-14 (gpio probing)
+
+GPIO probing added more concrete output-path information.
+
+### Findings
+
+- `/dev/gpiochip0` through `/dev/gpiochip3` are present
+- `gpioinfo` shows named front-panel button lines on `gpiochip1`
+- `gpioinfo` shows a 16-line `gpiochip3` block consumed as `segment`
+- the most likely interpretation is that the `mcp23s18` SPI expander backs the 7-segment display path
+
+### Documentation added
+
+- `scripts/probe_gpio_state.sh`
+
+## 2026-04-14 (ui wrap-up)
+
+UI/output exploration was intentionally narrowed.
+
+### Direction recorded
+
+- 7-segment implementation should follow the kernel-module style used by `components/vsx-examples/PocketBeagle-2/seven_segment`
+- further generic UI exploration should stop until that path is actually exercised

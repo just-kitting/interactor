@@ -20,9 +20,12 @@ Use this checklist when validating a fresh BeagleBadge system for BadgeSnake wor
 ## Hardware Visibility
 
 - [ ] Run `scripts/probe_badge_outputs.sh`
+- [ ] Run `scripts/probe_gpio_state.sh`
 - [ ] Confirm `/dev/fb0` is present
 - [ ] Confirm the ePaper path enumerates as `spi:gdey042t81`
 - [ ] Confirm `gpio-keys` is present
+- [ ] Confirm the segment GPIO block is present
+- [ ] Confirm the chosen 7-segment control approach still aligns with `components/vsx-examples/PocketBeagle-2/seven_segment`
 - [ ] Confirm the expected QWIIC I2C buses are present
 
 ## BadgeSnake Repo State

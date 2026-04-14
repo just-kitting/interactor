@@ -51,7 +51,11 @@ First-pass target use:
 - show current turn modulo a small range during gameplay
 - show a simple end-state indicator when the game completes
 
-This remains provisional until the control path for the display is identified.
+Implementation direction should follow the kernel-module style demonstrated in:
+
+- `components/vsx-examples/PocketBeagle-2/seven_segment`
+
+Avoid spending more time on generic userspace exploration unless that example path proves unsuitable.
 
 ## Buttons
 
