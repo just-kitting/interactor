@@ -17,7 +17,7 @@
 
 ## Hardware Integration
 
-- [ ] Document BeagleBadge connectors used for Zepto players
+- [X] Document BeagleBadge connectors used for Zepto players
 - [X] Choose the Zepto transport layer: I2C, UART, SPI, or mixed
 - [ ] Define hot-plug and disconnect behavior
 - [ ] Define power budget and connector limits for multiple attached Zeptos
