@@ -87,3 +87,5 @@ Collaboration workflow clarified by the user.
 - Open questions should be asked through committed documents in the repo
 - Chat is acceptable for live monitoring, but not as the primary place to park pending decisions
 - Every wrap-up must include a git commit
+- `docs/MissingInputs.md` is now reserved for immediate blocking questions in a Q&A format
+- Non-immediate items were moved out of `docs/MissingInputs.md`

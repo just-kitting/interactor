@@ -1,89 +1,24 @@
 # Missing Inputs
 
-This document tracks the components, documents, and decisions that are still needed to build BadgeSnake with confidence.
+Use this file only for immediate questions that need answers before the next meaningful implementation step.
 
-## Already Supplied
+Reply by writing plain text below each block-quoted question.
 
-- AM62L datasheet: `docs/am62l.pdf`
-- AM62L technical reference manual: `docs/sprujb4a.pdf`
-- BadgeSnake architecture note: `docs/Architecture.md`
-- Imported submodules:
-  - `components/armbian-build`
-  - `components/battlesnake-rules`
-  - `components/beaglebadge`
-  - `components/beagleconnect-zepto`
-- BeagleBadge board FAQ in submodule:
-  - QWIIC connector mapping
-  - OSPI device identification
-- Zepto hardware files showing BSL/I2C/UART-related nets
+If the bottom of this file is a block quote, there are still unanswered questions.
+If the bottom of this file is not a block quote, all current questions have been answered.
 
-## Still Needed: High Priority
+> What is the BeagleBadge recovery procedure after a bad OSPI flash, including how to reach serial console, how to force recovery/ROM boot, and what successful recovery output should look like?
 
-- BeagleBadge recovery guide
-  - how to get serial console access on this board
-  - how to force ROM/USB/recovery boot modes
-  - how to recover from a bad OSPI flash
-  - what a successful recovery boot looks like on the console
-- U-Boot source-of-truth
-  - authoritative upstream repo
-  - branch
-  - expected commit or release family
-  - whether the `/boot` artifacts on this image are the intended production ones
-- OSPI environment details
-  - exact `fw_env.config` offsets and sizes for `ospi.env` and `ospi.env.backup`
-  - expected redundancy strategy for U-Boot environment updates
-- BadgeSnake product spec
-  - player count
-  - turn timing
-  - board size
-  - elimination/failure behavior
-  - whether gameplay remains wire-compatible with Battlesnake HTTP semantics or becomes a local I2C-native variant
+> What is the source of truth for BeagleBadge U-Boot artifacts: repository, branch, and preferred commit or release family?
 
-## Still Needed: Hardware And Electrical
+> Are the current `/boot/tiboot3.bin`, `/boot/tispl.bin`, and `/boot/u-boot.img` files on this image the intended production boot artifacts, or only temporary/intermediate ones?
 
-- BeagleBadge serial-console wiring details
-  - connector name
-  - voltage level
-  - pinout
-  - known-good USB adapter wiring
-- QWIIC power budget
-  - current available per connector
-  - whether both attached Zeptos can be powered directly from BeagleBadge during gameplay and flashing
-- Display/status hardware notes
-  - ePaper update constraints and preferred software stack
-  - RGB LED control path
-  - 7-segment display control path
-  - buzzer control path
+> What are the exact `fw_env.config` values we should use for `ospi.env` and `ospi.env.backup`, including device path, offset, environment size, erase block size, and sector count if relevant?
 
-## Still Needed: Zepto Software Track
+> What is the intended BadgeSnake gameplay contract: player count, board size, turn timing, elimination/failure behavior, and whether the host should preserve Battlesnake HTTP semantics internally or define a new I2C-native protocol?
 
-- Zepto firmware/software repo for actual BadgeSnake player code
-  - SDK or examples repo if different from the hardware-design submodule
-  - preferred language/runtime for student-facing examples
-- Host-driven flashing method
-  - whether the AM62L host should use I2C BSL, UART BSL, JTAG, or a helper MCU workflow
-  - command-line tooling expected on the BeagleBadge image
-- Initial I2C protocol spec
-  - address assignment
-  - registration handshake
-  - move request/response encoding
-  - timeout and error handling
+> Which repository should hold the actual Zepto player firmware or SDK/examples for BadgeSnake, and what student-facing language/runtime should be the default starting point?
 
-## Still Needed: Build And Deployment
+> What flashing path should the BeagleBadge host implement for Zepto boards: I2C BSL, UART BSL, JTAG, or another method?
 
-- Preferred image build flow
-  - whether `components/armbian-build` is the canonical path for producing deployable BadgeSnake images
-  - how local patches should be carried and tested
-- Update/rollback design constraints
-  - target storage for rootfs A/B or fallback assets
-  - acceptable reboot downtime
-  - whether fallback should prefer microSD, eMMC, or alternate OSPI environment entries
-
-## Components To Consider Adding Later
-
-Only add these once the design needs them:
-
-- U-Boot source tree as a submodule if local bootloader changes become necessary
-- Linux kernel or DTS source tree as a submodule if BadgeSnake needs board-specific patches
-- Zepto firmware SDK/examples repo as a submodule for classroom/player firmware
-- BadgeSnake host application repo if it gets split from this integration repo
+> What command-line tools, scripts, or upstream utilities should be treated as the preferred flashing toolchain on the BeagleBadge image?

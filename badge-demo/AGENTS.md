@@ -35,6 +35,9 @@ Treat this as a starting point, not a guarantee. Re-check after any system or bo
 - Prefer small commits with descriptive messages over large undocumented batches.
 - Update `PROGRESS.md` whenever repository direction, board state, or confirmed findings change.
 - Put open questions and missing-user-input requests into tracked repo documents rather than relying on chat.
+- Use `docs/MissingInputs.md` only for immediate blocking questions.
+- Format `docs/MissingInputs.md` as question/answer prompts with block quotes for questions and plain text answers below them.
+- Keep the last line of `docs/MissingInputs.md` as a block quote whenever unanswered questions remain.
 - Treat git history and committed docs as the primary collaboration channel for decisions and follow-ups.
 - Do not consider a wrap-up complete if local changes are still uncommitted.
 - Do not rewrite or discard user changes unless explicitly asked.
