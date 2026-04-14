@@ -260,3 +260,19 @@ Initial host-runtime code skeleton added.
   - frame encode/decode
   - a fixture-backed player abstraction
   - an in-memory transport adapter using upstream Battlesnake client models
+
+## 2026-04-14 (runtime policies)
+
+First-pass runtime behavior was further specified.
+
+### Documentation added
+
+- `docs/HotplugPolicy.md`
+- `docs/DisplayStatusPlan.md`
+
+### Decisions captured
+
+- player presence must be validated before game start
+- move timeout or disconnect should eliminate the affected player rather than crash the host
+- disconnected players should not be reinserted into an active game
+- the first-pass output priority is ePaper first, then minimal RGB LED and buzzer cues, with 7-segment support remaining provisional

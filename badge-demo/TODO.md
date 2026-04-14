@@ -13,13 +13,13 @@
 - [X] Define player count and supported connection methods
 - [X] Define turn timing, board size, and failure behavior
 - [X] Decide whether the game is fully Battlesnake-compatible or a local variant
-- [ ] Define what must be visible on the ePaper, RGB LED, buzzer, and 7-segment displays
+- [X] Define what must be visible on the ePaper, RGB LED, buzzer, and 7-segment displays
 
 ## Hardware Integration
 
 - [X] Document BeagleBadge connectors used for Zepto players
 - [X] Choose the Zepto transport layer: I2C, UART, SPI, or mixed
-- [ ] Define hot-plug and disconnect behavior
+- [X] Define hot-plug and disconnect behavior
 - [ ] Define power budget and connector limits for multiple attached Zeptos
 - [ ] Capture display, LED, buzzer, and segment-display interface notes with control paths
 
