@@ -27,6 +27,7 @@
 
 - [X] Choose implementation language for the BadgeSnake host runtime
 - [ ] Build a local simulation mode that runs without attached hardware
+- [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution
 - [ ] Implement ePaper rendering pipeline

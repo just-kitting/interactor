@@ -30,6 +30,8 @@ A CLI-hosted simulation should:
 4. Run one deterministic two-player game through the Battlesnake rules engine.
 5. Save logs/fixtures for regression tests.
 
+The first three milestones now have initial code skeletons in the repo, but they have not been built on-device because the current image does not ship the Go toolchain.
+
 ## Minimum Success Criteria
 
 - A development host can run a complete game without BeagleBadge hardware.

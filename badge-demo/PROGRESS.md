@@ -237,3 +237,26 @@ A protocol fixture validator was added and can run on the current image.
 ### Purpose
 
 - catch malformed or inconsistent protocol fixtures before simulation code is written
+
+## 2026-04-14 (go skeleton)
+
+Initial host-runtime code skeleton added.
+
+### Added
+
+- `go.mod`
+- `cmd/badgesnake/main.go`
+- `internal/protocol/tokens.go`
+- `internal/protocol/frame.go`
+- `internal/player/player.go`
+- `internal/player/fixture_player.go`
+- `internal/simtransport/memory.go`
+
+### Notes
+
+- The current image does not provide the Go toolchain, so this code was not compiled on-device
+- The skeleton is intended to anchor future simulation work around:
+  - path-token handling
+  - frame encode/decode
+  - a fixture-backed player abstraction
+  - an in-memory transport adapter using upstream Battlesnake client models
