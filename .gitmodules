@@ -10,3 +10,6 @@
 [submodule "badge-demo/components/armbian-build"]
 	path = badge-demo/components/armbian-build
 	url = https://github.com/embedconsult/armbian-build.git
+[submodule "badge-demo/components/vsx-examples"]
+	path = badge-demo/components/vsx-examples
+	url = https://github.com/beagleboard/vsx-examples
