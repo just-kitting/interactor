@@ -90,3 +90,13 @@ byte N  : payload bytes
 - HTTP headers are intentionally removed
 - The protocol should favor simple blocking transactions first
 - If response sizes exceed practical I2C transfer limits, chunking can be added later without changing the logical endpoint model
+
+## Fixtures
+
+Machine-readable starting fixtures live under `fixtures/protocol/`.
+
+These should be treated as the initial contract for:
+
+- token assignments
+- example request and response bodies
+- early simulation and regression tests

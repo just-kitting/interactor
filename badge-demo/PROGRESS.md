@@ -194,3 +194,22 @@ Operational checklists and simulation planning were added.
 
 - Hardware bring-up checklist is now documented
 - Release checklist is now documented
+
+## 2026-04-14 (protocol fixtures)
+
+Initial protocol fixture set added for simulation and future tests.
+
+### Added fixtures
+
+- `fixtures/protocol/path_tokens.json`
+- `fixtures/protocol/info-response.json`
+- `fixtures/protocol/start-request.json`
+- `fixtures/protocol/move-request.json`
+- `fixtures/protocol/move-response.json`
+- `fixtures/protocol/end-request.json`
+
+### Purpose
+
+- provide a stable initial contract for endpoint-token mapping
+- support future simulation work
+- seed protocol and regression tests without waiting on hardware

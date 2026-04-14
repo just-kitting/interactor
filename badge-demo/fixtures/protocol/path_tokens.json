@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "tokens": [
+    {
+      "token": 1,
+      "method": "GET",
+      "path": "/",
+      "name": "info"
+    },
+    {
+      "token": 2,
+      "method": "POST",
+      "path": "/start",
+      "name": "start"
+    },
+    {
+      "token": 3,
+      "method": "POST",
+      "path": "/move",
+      "name": "move"
+    },
+    {
+      "token": 4,
+      "method": "POST",
+      "path": "/end",
+      "name": "end"
+    }
+  ]
+}
