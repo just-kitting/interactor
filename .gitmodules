@@ -1,9 +1,12 @@
 [submodule "badge-demo/components/beaglebadge"]
 	path = badge-demo/components/beaglebadge
-	url = https://github.com/beagleboard/beaglebadge
+	url = https://github.com/just-kitting/BeagleBadge.git
 [submodule "badge-demo/components/beagleconnect-zepto"]
 	path = badge-demo/components/beagleconnect-zepto
 	url = https://openbeagle.org/beagleconnect/zepto
 [submodule "badge-demo/components/battlesnake-rules"]
 	path = badge-demo/components/battlesnake-rules
 	url = https://github.com/just-kitting/battlesnake-rules
+[submodule "badge-demo/components/armbian-build"]
+	path = badge-demo/components/armbian-build
+	url = https://github.com/embedconsult/armbian-build.git
