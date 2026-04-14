@@ -73,7 +73,8 @@ Expected submodule classes:
 Rules:
 
 - Place submodules under `components/`.
-- Keep local integration patches in this repo unless there is a clear reason to fork upstream.
+- Always commit integration patches into submodule repos in a way that does not break upstream.
+- Upstream breaking patches should not be made and project-specific integration code should be kept in this repo.
 - For each submodule, add a short `docs/components/<name>.md` note describing:
   - why it exists
   - upstream URL
