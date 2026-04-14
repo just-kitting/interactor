@@ -48,6 +48,7 @@
 - [X] Add a hardware bring-up checklist for a fresh board
 - [X] Add a demo-start script that validates prerequisites before launch
 - [X] Add a release checklist for live classroom/demo use
+- [X] Add a fixture validator for protocol inputs
 
 ## Bootloader And Reliability
 

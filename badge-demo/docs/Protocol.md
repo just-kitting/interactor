@@ -100,3 +100,7 @@ These should be treated as the initial contract for:
 - token assignments
 - example request and response bodies
 - early simulation and regression tests
+
+Validation helper:
+
+- `scripts/validate_protocol_fixtures.py`

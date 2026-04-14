@@ -225,3 +225,15 @@ A demo preflight script was added.
 ### Purpose
 
 - provide a single entry point to validate repo state, helper availability, core device exposure, and unresolved-input status before a demo run
+
+## 2026-04-14 (fixture validation)
+
+A protocol fixture validator was added and can run on the current image.
+
+### Added
+
+- `scripts/validate_protocol_fixtures.py`
+
+### Purpose
+
+- catch malformed or inconsistent protocol fixtures before simulation code is written
