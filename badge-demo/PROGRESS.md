@@ -300,3 +300,17 @@ UI/output exploration was intentionally narrowed.
 
 - 7-segment implementation should follow the kernel-module style used by `components/vsx-examples/PocketBeagle-2/seven_segment`
 - further generic UI exploration should stop until that path is actually exercised
+
+## 2026-04-14 (go tests added)
+
+Focused Go unit tests were added for the new runtime skeleton.
+
+### Added
+
+- `internal/protocol/frame_test.go`
+- `internal/simtransport/memory_test.go`
+
+### Notes
+
+- A full `go test ./...` run on-device is currently slow because the board is compiling the Go runtime locally
+- The target was narrowed from generic tree validation to focused package tests for protocol and in-memory transport

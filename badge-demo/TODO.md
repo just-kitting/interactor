@@ -45,7 +45,7 @@
 ## Build And Test
 
 - [ ] Add a host-side smoke test for the game engine
-- [ ] Add protocol tests with recorded fixtures
+- [X] Add protocol tests with recorded fixtures
 - [X] Add a hardware bring-up checklist for a fresh board
 - [X] Add a demo-start script that validates prerequisites before launch
 - [X] Add a release checklist for live classroom/demo use
