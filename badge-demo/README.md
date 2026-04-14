@@ -16,6 +16,12 @@ The objective of this demo is to show
 By delivering this demonstration, the pedagogical objectives of "The Interactor" can be better explored through comparison and contrast statements,
 rather than explaining what it looks like for game controllers to be replaced by computers.
 
+## Planning documents
+
+- `AGENTS.md` defines the execution strategy for future work in this repo.
+- `TODO.md` tracks the staged build-out checklist for BadgeSnake.
+- `PROGRESS.md` records confirmed board and repository findings over time.
+
 ## Technology bits
 
 ### What is [Battlesnake](https://play.battlesnake.com)?
