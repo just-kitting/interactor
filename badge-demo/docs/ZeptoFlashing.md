@@ -37,10 +37,11 @@ List destinations:
 scripts/list_zepto_i2c_destinations.sh
 ```
 
-Current limitation:
+Current local patch direction:
 
-- upstream `bb-imager-cli` lists every `/dev/i2c-*` controller for the Zepto target
-- a local `bb-imager-rs` patch is being applied so enumeration filters by a real MSPM0 BSL ACK instead
+- `bb-flasher-mspm0` now probes each `/dev/i2c-*` bus with the MSPM0 BSL connection request and keeps only ACKing buses
+- `bb-imager-cli` Zepto listing was also fixed so it does not invert `--no-filter` and accidentally bypass that probe logic
+- the remaining verification step is to rerun destination listing after the rebuilt CLI binary finishes linking on-device
 
 Flash a Zepto image:
 

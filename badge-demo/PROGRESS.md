@@ -456,3 +456,24 @@ Focused Go unit tests were added for the new runtime skeleton.
 
 - A full `go test ./...` run on-device is currently slow because the board is compiling the Go runtime locally
 - The target was narrowed from generic tree validation to focused package tests for protocol and in-memory transport
+
+## 2026-04-15 (bb-imager-rs Zepto enumeration)
+
+The `bb-imager-rs` Zepto I2C destination filtering patch was corrected after a live build failure.
+
+### Findings
+
+- `bb-flasher-mspm0/src/i2c.rs` cannot use `write_all` or `read_exact` on `LinuxI2CDevice`; the correct API is `I2CDevice::write` and `I2CDevice::read`
+- `bb-imager-cli` had a second logic bug for `list-destinations zepto`: the `no_filter` flag was inverted only for the Zepto target, which forced unfiltered output even when active probing was patched in
+- the live board still confirms the real MSPM0 BSL target only on J6 `/dev/i2c-1` at address `0x48`
+
+### Actions
+
+- fixed the active-probe implementation in `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs`
+- fixed the Zepto `list-destinations` flag handling in `components/bb-imager-rs/bb-imager-cli/src/main.rs`
+- kicked off another on-device rebuild after the source fix
+
+### Verification status
+
+- source-level fix is in place
+- full `bb-imager-cli` relink on this board is still the slow step, so the final filtered `list-destinations zepto` output should be rechecked against the rebuilt binary after link completion

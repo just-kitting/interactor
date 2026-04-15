@@ -33,6 +33,7 @@ Local patch direction:
 
 * destination discovery should actively probe each `/dev/i2c-*` bus with the MSPM0 BSL connection packet
 * only buses that ACK as a live BSL target should be reported by `list-destinations zepto`
+* the Zepto CLI path must pass its `no_filter` flag through consistently so filtered discovery is actually used by default
 
 ## Current board findings
 
@@ -43,9 +44,11 @@ On this BeagleBadge:
 * read-based scans on `/dev/i2c-0` and `/dev/i2c-2` did not show an ACK at `0x48` during this pass
 * the next best probe is an active BSL connection request, not a passive bus scan, because the ROM BSL can sleep or time out if no interface is detected quickly enough
 
-## Next actions
+## Current local patch state
 
-* configure a Rust toolchain for local `bb-imager-rs` builds
-* build `bb-imager-cli` with `zepto_i2c`
-* verify whether the connected Zepto BSL device should appear at `0x48` on `i2c-0` or `i2c-2`
-* once the device is visible, use `bb-imager-cli` to enumerate or flash it
+The local tree now includes:
+
+* active I2C probing in `bb-flasher-mspm0/src/i2c.rs` using the MSPM0 BSL connection request and ACK byte
+* a Zepto CLI fix in `bb-imager-cli/src/main.rs` so `list-destinations zepto` no longer inverts the `no_filter` flag
+
+The remaining validation step is to rerun `list-destinations zepto` against the rebuilt binary and confirm it collapses to the live BSL bus on this board.
