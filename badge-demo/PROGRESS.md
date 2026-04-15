@@ -279,11 +279,17 @@ Repository state changed under the user:
 - `bb-flasher-mspm0/src/i2c.rs` hard-codes the BSL target address as `0x48`
 - default Rust toolchain is now configured as `stable-aarch64-unknown-linux-gnu`
 - read-based `i2cdetect` scans on `/dev/i2c-0` and `/dev/i2c-2` did not show an ACK at `0x48` during this pass
+- user confirmed the connected Zepto is on J6, which maps to `/dev/i2c-0`
+- the pulled MSPM0 BSL guide confirms:
+  - default I2C target address is `0x48`
+  - interface autodetection times out after 10 seconds
+  - command reception also times out and can require wakeup or re-entry
 
 ### New repo support
 
 - `docs/components/bb-imager-rs.md`
 - `scripts/probe_zepto_bsl.sh`
+- `scripts/probe_zepto_bsl_active.sh`
 
 ### Added
 

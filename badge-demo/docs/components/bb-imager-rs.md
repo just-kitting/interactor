@@ -36,6 +36,7 @@ On this BeagleBadge:
 * `rustup` is installed
 * default Rust toolchain is now configured as `stable-aarch64-unknown-linux-gnu`
 * read-based scans on `/dev/i2c-0` and `/dev/i2c-2` did not show an ACK at `0x48` during this pass
+* the next best probe is an active BSL connection request, not a passive bus scan, because the ROM BSL can sleep or time out if no interface is detected quickly enough
 
 ## Next actions
 
