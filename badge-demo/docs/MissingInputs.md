@@ -18,3 +18,5 @@ I don't think it was reconfigured in any way, but it is possible. There isn't a 
 I added an MSPM0BSLUsersGuide.md to try to answer BSL questions.
 
 > Please re-enter the Zepto on J6 into MSPM0 BSL mode, then leave it connected and let me know when I should immediately run `scripts/probe_zepto_bsl_active.sh 0`.
+
+OK.
