@@ -19,4 +19,10 @@ I added an MSPM0BSLUsersGuide.md to try to answer BSL questions.
 
 > Please re-enter the Zepto on J6 into MSPM0 BSL mode, then leave it connected and let me know when I should immediately run `scripts/probe_zepto_bsl_active.sh 0`.
 
+The active probe was already run on J6 with the exact `bb-imager-rs` MSPM0 connection packet and did not get an ACK at `0x48`.
+
+> For the next attempt, please describe the exact physical sequence you are using to enter BSL on this Zepto, including which buttons are held, whether USB power is cycled or reset is pressed, and how long BOOT is held after power-on.
+
+> If you want, perform that sequence again and then tell me `go` immediately after the final step. I will run `scripts/probe_zepto_bsl_active.sh 0` right away.
+
 OK.

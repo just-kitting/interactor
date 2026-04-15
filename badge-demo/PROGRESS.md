@@ -284,6 +284,7 @@ Repository state changed under the user:
   - default I2C target address is `0x48`
   - interface autodetection times out after 10 seconds
   - command reception also times out and can require wakeup or re-entry
+- an active BSL connection probe was run on J6 (`/dev/i2c-0`) with the exact `bb-imager-rs` connection packet for hundreds of attempts and still saw no ACK at `0x48`
 
 ### New repo support
 
