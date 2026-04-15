@@ -30,7 +30,7 @@ A CLI-hosted simulation should:
 4. Run one deterministic two-player game through the Battlesnake rules engine.
 5. Save logs/fixtures for regression tests.
 
-The first three milestones now have initial code skeletons in the repo, but they have not been built on-device because the current image does not ship the Go toolchain.
+The first three milestones now have initial code skeletons in the repo. Go 1.24.4 is installed on this board, but first-run `go build` and `go test` are still slow on-device because the standard library and runtime need to compile locally.
 
 ## Minimum Success Criteria
 

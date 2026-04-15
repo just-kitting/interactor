@@ -8,4 +8,4 @@ Why Go:
 - Keeping the host runtime in Go minimizes impedance with the upstream rules engine
 - The host can eventually wrap or embed rules logic without introducing a second systems language
 
-The live BeagleBadge image does not currently have the Go toolchain installed, so local development on the device should not be assumed. Prefer CI or a larger external build host for compilation until the image strategy changes.
+Go 1.24.4 is now installed on the live BeagleBadge image. Local development is possible, but first-run builds on the board are still slow enough that longer compiles should be treated as background work.
