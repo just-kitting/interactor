@@ -41,6 +41,8 @@
 - [ ] Provide a minimal reference snake implementation
 - [ ] Provide a failure-test firmware image that behaves badly on purpose
 - [ ] Document classroom-friendly firmware update steps
+- [ ] Build and verify `bb-imager-cli` with `zepto_i2c` support on-device
+- [ ] Confirm which BeagleBadge I2C bus exposes a Zepto in MSPM0 BSL mode
 
 ## Build And Test
 
@@ -74,3 +76,5 @@
 - [X] Pick the host runtime language and the initial simulation target
 - [X] Run and capture one successful `components/battlesnake-rules` simulated CLI game on-device
 - [ ] Decide whether the current Armbian kernel packaging should grow `i2c-stub` support or whether BadgeSnake testing should stay on `sim://` until real Zepto devices are attached
+- [X] Configure a default Rust toolchain for local `bb-imager-rs` builds
+- [ ] Verify whether the Zepto in BSL mode ACKs at `0x48` on `/dev/i2c-0` or `/dev/i2c-2`

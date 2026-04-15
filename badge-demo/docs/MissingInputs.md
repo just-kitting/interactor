@@ -7,4 +7,6 @@ Reply by writing plain text below each block-quoted question.
 If the bottom of this file is a block quote, there are still unanswered questions.
 If the bottom of this file is not a block quote, all current questions have been answered.
 
-All current blocking questions have been answered or reduced to local validation work.
+> Which BeagleBadge connector is the Zepto currently attached to: J6 on `/dev/i2c-0` or J7 on `/dev/i2c-2`?
+
+> When the Zepto is held in MSPM0 BSL mode on this hardware, should it ACK at I2C address `0x48`, or is there a board-specific address or extra reset/enable sequence I should use before probing?
