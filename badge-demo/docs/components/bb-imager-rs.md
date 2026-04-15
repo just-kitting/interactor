@@ -26,8 +26,13 @@ The tree already contains MSPM0 support for Zepto-style targets:
 Current I2C flashing assumptions in the source:
 
 * BSL target address is hard-coded to `0x48`
-* I2C destinations are discovered by enumerating `/dev/i2c-*`
+* upstream I2C destinations were discovered by enumerating `/dev/i2c-*`
 * the CLI `Zepto` target accepts an image path and an I2C device path such as `/dev/i2c-0`
+
+Local patch direction:
+
+* destination discovery should actively probe each `/dev/i2c-*` bus with the MSPM0 BSL connection packet
+* only buses that ACK as a live BSL target should be reported by `list-destinations zepto`
 
 ## Current board findings
 

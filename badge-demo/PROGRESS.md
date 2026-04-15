@@ -346,6 +346,20 @@ The live Zepto flashing path is now concrete enough to script even though the Ru
 - `cargo build -p bb-imager-cli --features zepto_i2c` was started on-device and progressed through dependency compilation
 - the build was stopped before completion to avoid burning the entire turn on compile time alone
 
+## 2026-04-15 (bb-imager-rs Zepto enumeration)
+
+The built `bb-imager-cli` currently lists all `/dev/i2c-*` controllers for the Zepto target instead of only live MSPM0 BSL buses.
+
+### Local patch direction
+
+- `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs` is being updated so `ports()` actively sends the MSPM0 BSL connection request
+- only buses that return the `0x00` ACK should be exposed through `list-destinations zepto`
+
+### Current status
+
+- the source patch is in progress in the submodule
+- narrow `cargo check` validation on-device is still dominated by first-pass dependency compilation
+
 ### Added
 
 - `scripts/demo_preflight.sh`
