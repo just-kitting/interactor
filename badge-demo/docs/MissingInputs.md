@@ -1,8 +1,8 @@
 # Missing Inputs
 
-Use this file only for immediate questions that need answers before the next meaningful implementation step.
+Use this file as the primary method for immediate questions that need answers before the next meaningful implementation step. This provides a logged history of interactions. When communication has been consolidated into other documentation, it should be removed from this file.
 
-Reply by writing plain text below each block-quoted question.
+User will reply by writing plain text below each block-quoted question.
 
 If the bottom of this file is a block quote, there are still unanswered questions.
 If the bottom of this file is not a block quote, all current questions have been answered.
@@ -30,3 +30,111 @@ The user also pointed out the likely root cause correctly:
 `/dev/i2c-0` is main I2C0, `/dev/i2c-2` is likely WKUP_I2C0, and the QWIIC buses were not enabled in the device tree.
 
 All current blocking questions have been answered or reduced to local build and flashing work.
+
+> What additional guidance do you have for the agent?
+
+I have guidance on using PlatformIO as a build tool for Zepto firmware based on its usage in MicroBlocks.
+
+These are not open questions unless they become false later.
+
+- The current Zepto firmware track is **native MSPM0L1117 firmware**, not Arduino-core on Zephyr.
+- The current flashing path is **MSPM0 BSL via `bb-imager-rs` / `bb-imager-cli`**.
+- **OpenOCD/SWD is out of scope** for the current critical path.
+- **UART is out of scope** for bring-up and early development.
+- The first milestones are **`blink`** and **`I2C target echo`**.
+- A Zepto is currently attached to **J6**, the connector closest to the edge.
+- The physical BSL entry sequence currently in use is: **hold BOOT, press RST, then release BOOT fairly quickly**.
+- The Zepto is powered from the **BeagleBadge over the QWIIC connector**, not from separate USB power.
+
+> What is the preferred repo/path/branch for the native Zepto firmware work?
+>
+> Example answer format:
+> `components/beagleconnect-zepto @ <commit-or-branch>`
+> `components/microblocks-smallvm @ <commit-or-branch>`
+> `components/bb-imager-rs @ <commit-or-branch>`
+
+`examples/baremetal/blink` and `examples/baremetal/i2c-target-echo` on the main branch in the primary repository should be use.
+
+> Which file(s) in `beagleconnect-zepto` should be treated as the best source of truth for Zepto hardware pin information?
+>
+> Paste exact relative paths if known.
+
+I just created `components/beagleconnect-zepto/FAQ.md` sto hold the best source of truth for Zepto hardware pin information. 
+
+> What guidance do you have for Zepto bring-up to unblock a correct `blink` target and the first PlatformIO board definition?
+
+See questions and answers below.
+
+> What is the exact user-visible LED pin and polarity on Zepto?
+>
+> If there is an enable GPIO, transistor gate, or RGB LED detail that matters for the first `blink`, describe it here.
+
+Read the above mentioned FAQ.md. `blink` should use `TIMG0_C1`/`PA12` with active-high polarity.
+
+> Is there a preferred board name / board ID string to use consistently across PlatformIO, docs, and future MicroBlocks board metadata?
+>
+> Example: `beagleconnect_zepto`, `beagleconnect-zepto`, `MSPM0L1117-Zepto`
+
+Use `zeptomspm0l1117` as the board name.
+
+> Are there any known flash or RAM regions that early firmware should avoid?
+>
+> Examples: bootloader reservation, config page, BSL-related reservation, calibration page, or “safe to use full app region for now”.
+
+
+> Which MSPM0 I2C peripheral and pins should the first Zepto application firmware use for the QWIIC connector?
+
+
+
+> What 7-bit I2C address should the first non-BSL Zepto application firmware use for the target echo?
+
+Agent should decide.
+
+> What is the preferred maximum transaction size for the first echo milestone?
+>
+> Suggested answer format: `8`, `16`, `32`, or `64` bytes.
+>
+> Note: this is only for the first echo milestone, not the eventual MicroBlocks logical message size.
+
+
+> What should count as “echo milestone complete” from the host side?
+>
+> Example: a script writes `01 02 03 04` and reads back the same bytes ten times in a row without reset.
+
+
+## PlatformIO Inputs
+
+These unblock the first custom MSPM0 PlatformIO platform scaffold.
+
+> Should the early PlatformIO support vendor a minimal MSPM0 SDK subset into the repo, fetch it during setup, or assume a separately installed SDK path?
+>
+> If you have a preference, state it explicitly.
+
+
+> What host environments matter for early PlatformIO bring-up?
+>
+> Example: `BeagleBadge only for now`, `Linux x86_64 dev host`, or both.
+
+
+> Is there an existing Zepto or MSPM0 example in any of your repos that the agent should copy from first?
+>
+> Paste exact repo path(s) if known.
+
+
+## MicroBlocks-Over-I2C Planning Inputs
+
+These are not required for `blink`, but they help the agent avoid painting itself into a corner during the echo design.
+
+> What I2C address should be reserved for future MicroBlocks VM transport messages?
+>
+> If undecided, say whether the agent may choose a temporary development address.
+
+
+> Do you want the first echo transport format to already resemble a future MicroBlocks framing layer, or should it stay deliberately tiny and throwaway?
+>
+> Example answers: `future-compatible` or `minimal throwaway echo`.
+
+
+> Are there any application-side I2C addresses you already want to reserve separately from the future VM transport address?
+>
+> If none, say `none for now`.
