@@ -24,8 +24,8 @@ There are 2 QWIIC connectors on BeagleBadge and each is connected to a different
 
 Local documents:
 
-* sprujb4.pdf: AM62L Technical Reference Manual
-* am62l.pdf: AM62L Datasheet
+* `docs/AM62LTechnicalReferenceManual.md`: AM62L Technical Reference Manual notes
+* `docs/AM62LDataSheet.md`: AM62L Datasheet notes
 
 Submodules:
 
@@ -55,8 +55,9 @@ This is enough to justify keeping I2C as the first transport choice for both gam
 * Implementation language: Go
 * Planned binary location: `cmd/badgesnake/`
 * Planned shared packages: `internal/protocol/` and additional `internal/` packages as needed
-* Constraint: the current BeagleBadge image does not ship the Go toolchain, so compile/test work should initially happen in CI or on an external build host
+* Current board state: `go1.24.4` is installed locally, but first-run builds on-device are slow enough that they should be treated as background jobs
 
 Submodules:
 
 * ../components/beagleconnect-zepto: board design repository
+* ../components/bb-imager-rs: flashing utility source repository

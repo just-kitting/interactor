@@ -263,6 +263,28 @@ BadgeSnake transport work started inside `components/battlesnake-rules`.
 - `i2c://` is still transport-shaped simulation inside the CLI layer
 - the next implementation step is to connect that scheme to a real I2C adapter path or a kernel-backed emulation path when available
 
+## 2026-04-15 (bb-imager-rs and Zepto BSL)
+
+Repository state changed under the user:
+
+- large AM62L PDF documents were replaced by Markdown notes
+- `components/bb-imager-rs` was added
+- `rustup` was installed
+- `components/battlesnake-rules` history was pushed to branch `badge-snake`
+
+### Verified findings
+
+- `components/battlesnake-rules` local HEAD `29c9fdf` is on branch `badge-snake` and matches `origin/badge-snake`
+- `bb-imager-rs` already contains an MSPM0 I2C flashing path intended for Zepto-style targets
+- `bb-flasher-mspm0/src/i2c.rs` hard-codes the BSL target address as `0x48`
+- default Rust toolchain is now configured as `stable-aarch64-unknown-linux-gnu`
+- read-based `i2cdetect` scans on `/dev/i2c-0` and `/dev/i2c-2` did not show an ACK at `0x48` during this pass
+
+### New repo support
+
+- `docs/components/bb-imager-rs.md`
+- `scripts/probe_zepto_bsl.sh`
+
 ### Added
 
 - `scripts/demo_preflight.sh`
