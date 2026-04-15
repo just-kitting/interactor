@@ -325,6 +325,27 @@ The user's device-tree suspicion was confirmed on the live system.
   - `/dev/i2c-3` -> `main_i2c2` / J7
 - the Zepto in MSPM0 BSL mode ACKs at `0x48` on `/dev/i2c-1`
 
+## 2026-04-15 (Zepto flashing workflow)
+
+The live Zepto flashing path is now concrete enough to script even though the Rust CLI build has not finished yet.
+
+### Verified path
+
+- `bb-imager-rs` should be built with the `zepto_i2c` feature
+- the live destination for the connected Zepto is `/dev/i2c-1`
+- the active BSL probe confirms the device ACKs at `0x48` on that bus
+
+### Repo additions
+
+- `docs/ZeptoFlashing.md`
+- `scripts/build_bb_imager_cli_zepto_i2c.sh`
+- `scripts/list_zepto_i2c_destinations.sh`
+
+### Current limitation
+
+- `cargo build -p bb-imager-cli --features zepto_i2c` was started on-device and progressed through dependency compilation
+- the build was stopped before completion to avoid burning the entire turn on compile time alone
+
 ### Added
 
 - `scripts/demo_preflight.sh`
