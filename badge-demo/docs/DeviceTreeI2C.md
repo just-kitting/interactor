@@ -66,4 +66,9 @@ This installation step has already been performed locally:
 - `/boot/uEnv.txt` updated to append `ti/k3-am62l3-badge-qwiic-i2c.dtbo`
 - backup written to `/boot/uEnv.txt.bak.20260415T105230Z`
 
-The remaining work is reboot-time validation.
+The reboot-time validation has now also been completed:
+
+- `/dev/i2c-1` -> `i2c@20010000` (`main_i2c1`, J6)
+- `/dev/i2c-3` -> `i2c@20020000` (`main_i2c2`, J7)
+
+The Zepto in MSPM0 BSL mode now ACKs at `0x48` on `/dev/i2c-1`.

@@ -29,4 +29,4 @@ The user also pointed out the likely root cause correctly:
 
 `/dev/i2c-0` is main I2C0, `/dev/i2c-2` is likely WKUP_I2C0, and the QWIIC buses were not enabled in the device tree.
 
-All current blocking questions have been answered or reduced to local system changes and reboot validation work.
+All current blocking questions have been answered or reduced to local build and flashing work.

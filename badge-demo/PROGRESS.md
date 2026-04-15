@@ -320,7 +320,10 @@ The user's device-tree suspicion was confirmed on the live system.
 - installed `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
 - backed up `/boot/uEnv.txt` to `/boot/uEnv.txt.bak.20260415T105230Z`
 - updated `name_overlays` in `/boot/uEnv.txt` to include `ti/k3-am62l3-badge-qwiic-i2c.dtbo`
-- reboot is still required before Linux can expose and validate the J6/J7 I2C controllers
+- reboot was then completed and Linux now exposes:
+  - `/dev/i2c-1` -> `main_i2c1` / J6
+  - `/dev/i2c-3` -> `main_i2c2` / J7
+- the Zepto in MSPM0 BSL mode ACKs at `0x48` on `/dev/i2c-1`
 
 ### Added
 
