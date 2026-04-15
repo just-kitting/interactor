@@ -21,12 +21,12 @@ I added an MSPM0BSLUsersGuide.md to try to answer BSL questions.
 
 The active probe was already run on J6 with the exact `bb-imager-rs` MSPM0 connection packet and did not get an ACK at `0x48`.
 
-> For the next attempt, please describe the exact physical sequence you are using to enter BSL on this Zepto, including which buttons are held, whether USB power is cycled or reset is pressed, and how long BOOT is held after power-on.
+The exact physical sequence in use is:
 
 I hold BOOT, press RST, then release BOOT fairly quickly. The firmware stops execution. USB power is not related (Zepto is powered from BeagleBadge over the QWIIC connector, not any separate USB power).
 
-I think you need to examine the device tree to find where I2C1 and I2C2 get aligned with /dev entries. You seem to be probing /dev/i2c-0, which is most certainly I2C0. /dev/i2c-2 is likely WKUP_I2C0 based on its connection to the PMIC. Most likely, I2C1 and I2C2 aren't enabled in the device tree.
+The user also pointed out the likely root cause correctly:
 
-> If you want, perform that sequence again and then tell me `go` immediately after the final step. I will run `scripts/probe_zepto_bsl_active.sh 0` right away.
+`/dev/i2c-0` is main I2C0, `/dev/i2c-2` is likely WKUP_I2C0, and the QWIIC buses were not enabled in the device tree.
 
-OK. BTW, always put the active questions at the bottom so I know to answer them. If I don't see a block quote at the bottom, I assume the questions are answered.
+All current blocking questions have been answered or reduced to local system changes and reboot validation work.

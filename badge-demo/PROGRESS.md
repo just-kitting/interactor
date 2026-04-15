@@ -292,6 +292,36 @@ Repository state changed under the user:
 - `scripts/probe_zepto_bsl.sh`
 - `scripts/probe_zepto_bsl_active.sh`
 
+## 2026-04-15 (QWIIC DT mapping)
+
+The user's device-tree suspicion was confirmed on the live system.
+
+### Verified live mapping
+
+- `/dev/i2c-0` maps to `main_i2c0` at `i2c@20000000`
+- `/dev/i2c-2` maps to `wkup_i2c0` at `i2c@2b200000`
+- `main_i2c1` at `i2c@20010000` exists in the badge DT but is `status = "disabled"`
+- `main_i2c2` at `i2c@20020000` exists in the badge DT but is `status = "disabled"`
+
+### Implication
+
+- J6 and J7 are not currently exposed to Linux userspace on this image
+- probing the Zepto on J6 through `/dev/i2c-0` was targeting the wrong controller
+
+### Repo additions
+
+- `docs/DeviceTreeI2C.md`
+- `overlays/beaglebadge-qwiic-i2c.dtso`
+- `scripts/validate_qwiic_i2c_overlay.sh`
+- `scripts/install_qwiic_i2c_overlay.sh`
+
+### Boot staging performed
+
+- installed `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+- backed up `/boot/uEnv.txt` to `/boot/uEnv.txt.bak.20260415T105230Z`
+- updated `name_overlays` in `/boot/uEnv.txt` to include `ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+- reboot is still required before Linux can expose and validate the J6/J7 I2C controllers
+
 ### Added
 
 - `scripts/demo_preflight.sh`

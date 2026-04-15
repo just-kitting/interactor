@@ -1,0 +1,27 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,am62l3-badge";
+};
+
+&pmx0 {
+	badge_main_i2c2_default_pins: badge-main-i2c2-default-pins {
+		/* PADCONFIG119/120: I2C2_SCL on B8, I2C2_SDA on D8 */
+		pinctrl-single,pins = <0x1dc 0x64000 0x1e0 0x64000>;
+	};
+};
+
+&main_i2c1 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_i2c1_default_pins>;
+	clock-frequency = <400000>;
+};
+
+&main_i2c2 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&badge_main_i2c2_default_pins>;
+	clock-frequency = <400000>;
+};
