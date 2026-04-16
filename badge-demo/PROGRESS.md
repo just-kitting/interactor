@@ -284,12 +284,81 @@ Repository state changed under the user:
   - default I2C target address is `0x48`
   - interface autodetection times out after 10 seconds
   - command reception also times out and can require wakeup or re-entry
+- an active BSL connection probe was run on J6 (`/dev/i2c-0`) with the exact `bb-imager-rs` connection packet for hundreds of attempts and still saw no ACK at `0x48`
 
 ### New repo support
 
 - `docs/components/bb-imager-rs.md`
 - `scripts/probe_zepto_bsl.sh`
 - `scripts/probe_zepto_bsl_active.sh`
+
+## 2026-04-15 (QWIIC DT mapping)
+
+The user's device-tree suspicion was confirmed on the live system.
+
+### Verified live mapping
+
+- `/dev/i2c-0` maps to `main_i2c0` at `i2c@20000000`
+- `/dev/i2c-2` maps to `wkup_i2c0` at `i2c@2b200000`
+- `main_i2c1` at `i2c@20010000` exists in the badge DT but is `status = "disabled"`
+- `main_i2c2` at `i2c@20020000` exists in the badge DT but is `status = "disabled"`
+
+### Implication
+
+- J6 and J7 are not currently exposed to Linux userspace on this image
+- probing the Zepto on J6 through `/dev/i2c-0` was targeting the wrong controller
+
+### Repo additions
+
+- `docs/DeviceTreeI2C.md`
+- `overlays/beaglebadge-qwiic-i2c.dtso`
+- `scripts/validate_qwiic_i2c_overlay.sh`
+- `scripts/install_qwiic_i2c_overlay.sh`
+
+### Boot staging performed
+
+- installed `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+- backed up `/boot/uEnv.txt` to `/boot/uEnv.txt.bak.20260415T105230Z`
+- updated `name_overlays` in `/boot/uEnv.txt` to include `ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+- reboot was then completed and Linux now exposes:
+  - `/dev/i2c-1` -> `main_i2c1` / J6
+  - `/dev/i2c-3` -> `main_i2c2` / J7
+- the Zepto in MSPM0 BSL mode ACKs at `0x48` on `/dev/i2c-1`
+
+## 2026-04-15 (Zepto flashing workflow)
+
+The live Zepto flashing path is now concrete enough to script even though the Rust CLI build has not finished yet.
+
+### Verified path
+
+- `bb-imager-rs` should be built with the `zepto_i2c` feature
+- the live destination for the connected Zepto is `/dev/i2c-1`
+- the active BSL probe confirms the device ACKs at `0x48` on that bus
+
+### Repo additions
+
+- `docs/ZeptoFlashing.md`
+- `scripts/build_bb_imager_cli_zepto_i2c.sh`
+- `scripts/list_zepto_i2c_destinations.sh`
+
+### Current limitation
+
+- `cargo build -p bb-imager-cli --features zepto_i2c` was started on-device and progressed through dependency compilation
+- the build was stopped before completion to avoid burning the entire turn on compile time alone
+
+## 2026-04-15 (bb-imager-rs Zepto enumeration)
+
+The built `bb-imager-cli` currently lists all `/dev/i2c-*` controllers for the Zepto target instead of only live MSPM0 BSL buses.
+
+### Local patch direction
+
+- `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs` is being updated so `ports()` actively sends the MSPM0 BSL connection request
+- only buses that return the `0x00` ACK should be exposed through `list-destinations zepto`
+
+### Current status
+
+- the source patch is in progress in the submodule
+- narrow `cargo check` validation on-device is still dominated by first-pass dependency compilation
 
 ### Added
 
@@ -387,3 +456,203 @@ Focused Go unit tests were added for the new runtime skeleton.
 
 - A full `go test ./...` run on-device is currently slow because the board is compiling the Go runtime locally
 - The target was narrowed from generic tree validation to focused package tests for protocol and in-memory transport
+
+## 2026-04-15 (bb-imager-rs Zepto enumeration)
+
+The `bb-imager-rs` Zepto I2C destination filtering patch was corrected after a live build failure.
+
+### Findings
+
+- `bb-flasher-mspm0/src/i2c.rs` cannot use `write_all` or `read_exact` on `LinuxI2CDevice`; the correct API is `I2CDevice::write` and `I2CDevice::read`
+- `bb-imager-cli` had a second logic bug for `list-destinations zepto`: the `no_filter` flag was inverted only for the Zepto target, which forced unfiltered output even when active probing was patched in
+- the live board still confirms the real MSPM0 BSL target only on J6 `/dev/i2c-1` at address `0x48`
+
+### Actions
+
+- fixed the active-probe implementation in `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs`
+- fixed the Zepto `list-destinations` flag handling in `components/bb-imager-rs/bb-imager-cli/src/main.rs`
+- kicked off another on-device rebuild after the source fix
+
+### Verification status
+
+- source-level fix is in place
+- full `bb-imager-cli` relink on this board is still the slow step, so the final filtered `list-destinations zepto` output should be rechecked against the rebuilt binary after link completion
+
+## 2026-04-16 (Zepto PlatformIO blink scaffold)
+
+The first native Zepto firmware scaffold now exists and builds locally with PlatformIO on the BeagleBadge.
+
+### Added
+
+- `firmware/zepto/platformio.ini`
+- `firmware/zepto/boards/zeptomspm0l1117.json`
+- `firmware/zepto/platforms/zepto-mspm0/`
+- `firmware/zepto/linker/zeptomspm0l1117.ld`
+- `firmware/zepto/src/startup_mspm0l1117.c`
+- `firmware/zepto/src/zepto_board.c`
+- `firmware/zepto/examples/baremetal/blink/src/main.c`
+- `firmware/zepto/scripts/flash_zepto_bsl.sh`
+- `scripts/build_zepto_blink.sh`
+- `scripts/flash_zepto_blink.sh`
+
+### Verified
+
+- PlatformIO Core is available under `/root/.platformio/penv/bin/pio`
+- PlatformIO successfully installed `toolchain-gccarmnoneeabi`
+- `./scripts/build_zepto_blink.sh` succeeds on-device
+- the current `blink` output is `364` bytes at `firmware/zepto/.pio/build/zepto_blink/firmware.bin`
+- the Zepto still ACKs the MSPM0 BSL connection packet on `/dev/i2c-1`
+
+### Current implementation details
+
+- board ID is `zeptomspm0l1117`
+- the first `blink` uses PA12 as the LED GPIO path with active-high behavior
+- the build uses a minimal Cortex-M0+ startup file, linker script, and direct IOMUX/GPIO register writes
+- the current upload path is routed through `bb-imager-cli flash zepto ... /dev/i2c-1`
+
+### Current blocker
+
+- `pio run -t upload` now reaches the Rust MSPM0 flasher but the flash still fails after BSL handshake with `Unknown error occured`
+- this means PlatformIO project setup, image generation, and bus selection are working; the remaining problem is inside the current `bb-imager-rs` MSPM0 flash transaction path
+
+## 2026-04-16 (Zepto flash retry)
+
+The user retried Zepto flashing after re-entering the bootloader.
+
+### Findings
+
+- the expected repo-root helper path was missing; only `firmware/zepto/scripts/flash_zepto_bsl.sh` existed
+- `./scripts/flash_zepto_blink.sh` still reaches `bb-imager-cli`
+- the current live failure is now narrowed to `Remote I/O error (os error 121)` from the MSPM0 flashing path
+- this failure still occurs after the user explicitly restarted the Zepto into BSL mode, so the current blocker is not explained solely by a stale timed-out bootloader session
+
+### Follow-up
+
+- added a repo-root `scripts/flash_zepto_bsl.sh` wrapper
+- reset `docs/MissingInputs.md` back to the agreed no-open-questions state
+
+## 2026-04-16 (live BSL state re-check)
+
+After the user retried the flash path, the live Zepto was re-checked directly.
+
+### Findings
+
+- a direct `i2ctransfer` attempt of the MSPM0 BSL connection packet on `/dev/i2c-1` failed with `Remote I/O error`
+- a fresh run of `scripts/probe_zepto_bsl_active.sh 1` then showed no ACK at `0x48` across the full retry window
+- the current blocker is therefore the live Zepto no longer being in an active BSL session, not just the higher-level PlatformIO wrapper
+
+### Next action
+
+- re-enter the Zepto into BSL on J6 and respond through `docs/MissingInputs.md`, then continue immediately with live probing while the bootloader is still active
+
+## 2026-04-16 (immediate re-probe after user `go`)
+
+The Zepto was reprobed immediately after the user indicated that BSL had just been re-entered.
+
+### Findings
+
+- `i2cdetect -r -y 1` showed no device at all on the J6 bus
+- `scripts/probe_zepto_bsl_active.sh 1` still got no ACK at `0x48` across the full retry window
+- this means the current manual BOOT/RST sequence is not producing a Linux-visible I2C BSL target on demand, at least not reproducibly enough for live debugging
+
+### Next action
+
+- try probing while `BOOT` is still physically held high during and after reset, instead of releasing it before the probe window
+
+## 2026-04-16 (correction after user-run probe)
+
+The previous assumption that the Zepto was not reachable in BSL was too strong.
+
+### Findings
+
+- the user directly ran `scripts/probe_zepto_bsl_active.sh 1`
+- that live user-run probe succeeded immediately with `ACK received: 0x00`
+- the correct current fact is that the Zepto BSL is reachable on `/dev/i2c-1`
+- the real problem is therefore reproducibility and sequencing around who runs the probe or flash and when, not a confirmed absence of the BSL target
+
+### Follow-up
+
+- cleared the stale blocking question from `docs/MissingInputs.md`
+- corrected the repo record so future work treats J6 `/dev/i2c-1` as the active BSL path unless disproven by a fresh direct probe
+
+## 2026-04-16 (combined-transfer hypothesis)
+
+The current best hypothesis for the MSPM0 I2C flashing failure is that the backend is splitting BSL transactions too aggressively.
+
+### Findings
+
+- the working `scripts/probe_zepto_bsl_active.sh` path uses `i2ctransfer` with a combined write/read transaction
+- the prior Rust `bb-flasher-mspm0` I2C backend buffered nothing and issued separate `write()` and `read()` syscalls
+- the BSL request flow includes multi-part requests such as header, payload, CRC, then ACK, which are good candidates for breakage if the target expects them as one transaction boundary
+
+### Changes
+
+- updated `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs` to buffer pending writes and execute them with `I2C_RDWR` combined transfer on the next read
+- added `scripts/trace_zepto_bsl.py` to test `connect` and `get_device_info` without going through the full `bb-imager-cli` stack
+
+## 2026-04-16 (BSL timing hypothesis)
+
+The user provided a critical timing detail from live testing.
+
+### Findings
+
+- a user-run `scripts/probe_zepto_bsl_active.sh 1` did not get an ACK until attempt `13/50`
+- that delay was caused by the user manually invoking BSL while the probe loop was already running, not by the BSL naturally taking `2.6s` to become ready
+- the useful conclusion is only that a long-running waiter can catch manual BSL entry in-flight
+
+### Changes
+
+- updated `firmware/zepto/scripts/flash_zepto_bsl.sh` to:
+  - wait for the BSL to ACK before calling `bb-imager-cli`
+  - retry the flash command up to a configurable number of times
+  - expose timing knobs through environment variables
+
+## 2026-04-16 (flash wrapper bugfixes)
+
+The first timing-aware flash wrapper exposed two shell-level bugs during live use.
+
+### Findings
+
+- `scripts/probe_zepto_bsl_active.sh` treated any successful `i2ctransfer` read byte as success, even when the returned byte was not the valid BSL ACK `0x00`
+- `firmware/zepto/scripts/flash_zepto_bsl.sh` captured the wrong status code after a failed `bb-imager-cli` call because it relied on `if cmd; then ...; fi` and then read `$?`
+
+### Changes
+
+- updated `scripts/probe_zepto_bsl_active.sh` so only `0x00` counts as a valid ACK
+- updated `firmware/zepto/scripts/flash_zepto_bsl.sh` to:
+  - print a clearer prompt that it is waiting for the user to perform the BOOT/RST sequence
+  - preserve the real `bb-imager-cli` exit status
+
+## 2026-04-16 (restore known-good flasher path)
+
+The earlier MSPM0 transport debugging inside `bb-imager-rs` was backed out.
+
+### Findings
+
+- `bb-imager-rs` commit `a0fb8954c60f9ef04c71e8fd9451912a2b22cf45` had already been debugged before this session
+- the additional MSPM0 I2C transport rewrite and custom error-reporting changes were therefore higher-risk than the surrounding wrapper work
+- the user-reported odd bytes during probing were better evidence that we were drifting away from the known-good path than evidence of a validated protocol insight
+
+### Changes
+
+- reverted the `bb-imager-rs` MSPM0 combined-transfer rewrite
+- reverted the `bb-imager-rs` custom MSPM0 error-reporting patch
+- kept the useful outer wrapper behavior in this repo: wait for manual BSL entry, then launch the known-good flasher path immediately
+
+## 2026-04-16 (MSPM0 reserved flash regions)
+
+The local MSPM0 documentation is now explicit enough to pin down which Zepto flash regions early firmware must avoid.
+
+### Reserved regions
+
+- `NONMAIN` configuration NVM at `0x41C0.0000` to `0x41C0.07FF`
+- `FACTORY` constants at `0x41C4.0000` to `0x41C4.01FF`
+
+### Why they must be avoided
+
+- `NONMAIN` holds the BCR/BSL configuration that controls bootloader enablement, invoke behavior, integrity checks, passwords, and static write protection
+- `FACTORY` holds factory-programmed calibration and identity data
+
+### First-pass rule
+
+- for `blink` and early I2C echo work, use MAIN flash only and leave `NONMAIN` and `FACTORY` untouched

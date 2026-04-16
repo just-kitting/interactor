@@ -1,0 +1,25 @@
+{
+  "name": "zepto-mspm0",
+  "title": "BeagleConnect Zepto MSPM0",
+  "description": "Local bare-metal PlatformIO platform for MSPM0L1117 bring-up on BeagleConnect Zepto",
+  "homepage": "https://github.com/beagleboard",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/beagleboard"
+  },
+  "version": "0.0.1",
+  "frameworks": {
+    "baremetal": {
+      "package": null,
+      "script": "frameworks/baremetal.py"
+    }
+  },
+  "packages": {
+    "toolchain-gccarmnoneeabi": {
+      "type": "toolchain",
+      "owner": "platformio",
+      "version": "*"
+    }
+  }
+}

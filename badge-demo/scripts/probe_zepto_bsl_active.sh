@@ -13,14 +13,22 @@ request=(
 
 echo "Active probing J6/J7-style MSPM0 BSL on /dev/i2c-${bus} at ${addr}"
 echo "Attempts: ${attempts}, interval: ${sleep_s}s"
+echo "Waiting for MSPM0 BSL ACK 0x00."
 echo
 
 for attempt in $(seq 1 "${attempts}"); do
   printf '[%02d/%02d] ' "${attempt}" "${attempts}"
 
   if out="$(i2ctransfer -f -y "${bus}" "w8@${addr}" "${request[@]}" "r1" 2>&1)"; then
-    echo "ACK received: ${out}"
-    exit 0
+    ack="$(echo "${out}" | tr -d '[:space:]')"
+    if [ "${ack}" = "0x00" ]; then
+      echo "ACK received: ${ack}"
+      exit 0
+    fi
+
+    echo "unexpected response: ${ack}"
+    sleep "${sleep_s}"
+    continue
   fi
 
   echo "no response"
@@ -29,5 +37,5 @@ done
 
 echo
 echo "No ACK from ${addr} on /dev/i2c-${bus}."
-echo "If the Zepto BSL timed out, re-enter BSL and rerun this script immediately."
+echo "If the Zepto is not in BSL yet, perform the BOOT/RST sequence while this probe is running."
 exit 1

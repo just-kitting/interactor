@@ -1,0 +1,21 @@
+{
+  "build": {
+    "cpu": "cortex-m0plus",
+    "core": "zepto-mspm0",
+    "extra_flags": "-DMSPM0L1117 -DZEPTO_BOARD",
+    "f_cpu": "32000000L",
+    "ldscript": "linker/zeptomspm0l1117.ld",
+    "mcu": "mspm0l1117"
+  },
+  "frameworks": [
+    "baremetal"
+  ],
+  "name": "BeagleConnect Zepto MSPM0L1117",
+  "url": "https://github.com/beagleboard/beagleconnect-zepto",
+  "upload": {
+    "maximum_ram_size": 16384,
+    "maximum_size": 131072,
+    "protocol": "custom"
+  },
+  "vendor": "BeagleBoard.org"
+}
