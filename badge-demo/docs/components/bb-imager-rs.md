@@ -50,5 +50,6 @@ The local tree now includes:
 
 * active I2C probing in `bb-flasher-mspm0/src/i2c.rs` using the MSPM0 BSL connection request and ACK byte
 * a Zepto CLI fix in `bb-imager-cli/src/main.rs` so `list-destinations zepto` no longer inverts the `no_filter` flag
+* a local diagnostic patch in `bb-flasher-mspm0/src/lib.rs` and `bb-flasher-mspm0/src/bsl.rs` so unknown MSPM0 BSL status bytes can be surfaced as real values instead of collapsing to a generic unknown error
 
-The remaining validation step is to rerun `list-destinations zepto` against the rebuilt binary and confirm it collapses to the live BSL bus on this board.
+The remaining validation step is to rebuild `bb-imager-cli`, rerun the live Zepto flash path, and capture the actual BSL status/error returned by the target.

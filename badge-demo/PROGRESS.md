@@ -477,3 +477,40 @@ The `bb-imager-rs` Zepto I2C destination filtering patch was corrected after a l
 
 - source-level fix is in place
 - full `bb-imager-cli` relink on this board is still the slow step, so the final filtered `list-destinations zepto` output should be rechecked against the rebuilt binary after link completion
+
+## 2026-04-16 (Zepto PlatformIO blink scaffold)
+
+The first native Zepto firmware scaffold now exists and builds locally with PlatformIO on the BeagleBadge.
+
+### Added
+
+- `firmware/zepto/platformio.ini`
+- `firmware/zepto/boards/zeptomspm0l1117.json`
+- `firmware/zepto/platforms/zepto-mspm0/`
+- `firmware/zepto/linker/zeptomspm0l1117.ld`
+- `firmware/zepto/src/startup_mspm0l1117.c`
+- `firmware/zepto/src/zepto_board.c`
+- `firmware/zepto/examples/baremetal/blink/src/main.c`
+- `firmware/zepto/scripts/flash_zepto_bsl.sh`
+- `scripts/build_zepto_blink.sh`
+- `scripts/flash_zepto_blink.sh`
+
+### Verified
+
+- PlatformIO Core is available under `/root/.platformio/penv/bin/pio`
+- PlatformIO successfully installed `toolchain-gccarmnoneeabi`
+- `./scripts/build_zepto_blink.sh` succeeds on-device
+- the current `blink` output is `364` bytes at `firmware/zepto/.pio/build/zepto_blink/firmware.bin`
+- the Zepto still ACKs the MSPM0 BSL connection packet on `/dev/i2c-1`
+
+### Current implementation details
+
+- board ID is `zeptomspm0l1117`
+- the first `blink` uses PA12 as the LED GPIO path with active-high behavior
+- the build uses a minimal Cortex-M0+ startup file, linker script, and direct IOMUX/GPIO register writes
+- the current upload path is routed through `bb-imager-cli flash zepto ... /dev/i2c-1`
+
+### Current blocker
+
+- `pio run -t upload` now reaches the Rust MSPM0 flasher but the flash still fails after BSL handshake with `Unknown error occured`
+- this means PlatformIO project setup, image generation, and bus selection are working; the remaining problem is inside the current `bb-imager-rs` MSPM0 flash transaction path

@@ -42,8 +42,11 @@
 - [ ] Provide a minimal reference snake implementation
 - [ ] Provide a failure-test firmware image that behaves badly on purpose
 - [ ] Document classroom-friendly firmware update steps
-- [ ] Build and verify `bb-imager-cli` with `zepto_i2c` support on-device
-- [ ] Confirm which BeagleBadge I2C bus exposes a Zepto in MSPM0 BSL mode
+- [X] Build and verify `bb-imager-cli` with `zepto_i2c` support on-device
+- [X] Confirm which BeagleBadge I2C bus exposes a Zepto in MSPM0 BSL mode
+- [X] Add a first native Zepto PlatformIO project and build `blink`
+- [ ] Flash the first PlatformIO `blink` image successfully through MSPM0 I2C BSL
+- [ ] Diagnose the current `bb-imager-cli` MSPM0 flash failure after BSL handshake succeeds
 
 ## Build And Test
 
@@ -80,5 +83,5 @@
 - [X] Configure a default Rust toolchain for local `bb-imager-rs` builds
 - [X] Reboot with the QWIIC I2C overlay enabled and verify new Linux adapters appear for J6/J7
 - [X] Verify the Zepto in BSL mode ACKs at `0x48` on the correct QWIIC bus
-- [ ] Build `bb-imager-cli` with `zepto_i2c` and enumerate/flash the live Zepto over `/dev/i2c-1`
-- [ ] Review `docs/ZeptoPlatformIO.md` 
+- [~] Build `bb-imager-cli` with `zepto_i2c` and enumerate/flash the live Zepto over `/dev/i2c-1`
+- [X] Review `docs/ZeptoPlatformIO.md`

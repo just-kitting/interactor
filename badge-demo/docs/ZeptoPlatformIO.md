@@ -13,6 +13,32 @@ The first milestone is deliberately small:
 
 Do not let future MicroBlocks integration expand this first milestone.
 
+## Current Repository State
+
+The first local scaffold now exists under `firmware/zepto/`:
+
+- `platformio.ini`
+- `boards/zeptomspm0l1117.json`
+- `platforms/zepto-mspm0/`
+- `linker/zeptomspm0l1117.ld`
+- `src/startup_mspm0l1117.c`
+- `src/zepto_board.c`
+- `examples/baremetal/blink/src/main.c`
+- `scripts/flash_zepto_bsl.sh`
+
+Top-level wrappers were also added:
+
+- `scripts/build_zepto_blink.sh`
+- `scripts/flash_zepto_blink.sh`
+
+Verified status on this BeagleBadge:
+
+- `pio run -d firmware/zepto -e zepto_blink` builds successfully
+- the current `blink` image is `364` bytes as raw binary
+- the Zepto BSL still ACKs on `/dev/i2c-1` at `0x48`
+- `pio run -t upload` now reaches `bb-imager-cli`
+- flashing is still blocked by an MSPM0 flasher error after the BSL handshake
+
 ## First-Milestone Constraints
 
 - Native MSPM0L1117 firmware path only.
@@ -160,6 +186,12 @@ build_flags =
 
 The exact `platform` syntax can be adjusted to match however the custom platform is stored locally, but the important point is that the Zepto environments must be isolated and explicit.
 
+For the current local scaffold, the command is:
+
+```sh
+pio run -d firmware/zepto -e zepto_blink
+```
+
 ## Upload Integration Guidance
 
 Do not make OpenOCD or UART a prerequisite for the first upload path.
@@ -181,6 +213,25 @@ The upload wrapper should:
 - avoid hidden environment assumptions
 
 Keep the wrapper simple enough that it can also be run by hand outside PlatformIO.
+
+That wrapper now exists at:
+
+```sh
+firmware/zepto/scripts/flash_zepto_bsl.sh
+```
+
+and defaults to:
+
+- `bb-imager-cli` from `components/bb-imager-rs/target/debug/bb-imager-cli`
+- Zepto bus `/dev/i2c-1`
+
+The current upload command is effectively:
+
+```sh
+pio run -d firmware/zepto -e zepto_blink -t upload
+```
+
+but the current blocker is in the Rust flasher after BSL handshake, not in PlatformIO itself.
 
 ## Native Firmware Bring-Up Rules
 
