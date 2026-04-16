@@ -16,3 +16,6 @@
 [submodule "badge-demo/components/bb-imager-rs"]
 	path = badge-demo/components/bb-imager-rs
 	url = https://github.com/embedconsult/bb-imager-rs.git
+[submodule "badge-demo/components/microblocks-smallvm"]
+	path = badge-demo/components/microblocks-smallvm
+	url = https://github.com/just-kitting/microblocks-smallvm.git
