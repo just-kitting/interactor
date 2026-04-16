@@ -24,4 +24,10 @@ student-firmware development before live Zepto flashing is stable.
 2. Import `BadgeSnake I2C Target Sim.ubl` into the MicroBlocks IDE.
 3. Start the simulated target with the Zepto address you want to emulate.
 4. Use `scripts/microblocks_i2c_sim.py transaction ...` from this repo to enqueue
-   a controller request and wait for the student program's reply.
+   an optional controller write followed by a controller read and wait for the
+   student program's reply.
+
+Boardie can still be built for the web, but the `i2ctarget` simulation backend is
+currently functional only in the Linux VM. A web-hosted development environment is
+still viable; it just needs a browser-side transport backend instead of the current
+filesystem spooler.

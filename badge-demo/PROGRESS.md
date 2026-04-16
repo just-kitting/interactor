@@ -270,14 +270,17 @@ remains unreliable.
   - `stop`
   - `isStarted`
   - `address`
-  - `hasRequest`
-  - `receive`
-  - `requestedBytes`
+  - `writeAvailable`
+  - `receiveWrite`
+  - `readRequested`
   - `reply`
 - The Linux backend uses a spool directory at `/tmp/microblocks_i2c_target_sim`
   by default, overridable with `MICROBLOCKS_I2C_SIM_DIR`
 - Boardie now reserves the same primitive names with stubs so the primitive
   surface does not have to change later
+- Removed the earlier fake `requestedBytes` concept after review, because it does
+  not match Zephyr-style target semantics where the target sees read initiation
+  callbacks but not a controller-advertised total read count
 
 ### Superproject support added
 
