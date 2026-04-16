@@ -1,2 +1,3 @@
 .cache/
 firmware/zepto/.pio/
+__pycache__/

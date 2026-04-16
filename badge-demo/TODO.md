@@ -40,6 +40,7 @@
 - [X] Select the first Zepto SDK/examples repo to import as a submodule
 - [X] Define the protocol between BeagleBadge and Zepto boards
 - [ ] Provide a minimal reference snake implementation
+- [~] Add a MicroBlocks simulation path for I2C target handling
 - [ ] Provide a failure-test firmware image that behaves badly on purpose
 - [ ] Document classroom-friendly firmware update steps
 - [X] Build and verify `bb-imager-cli` with `zepto_i2c` support on-device

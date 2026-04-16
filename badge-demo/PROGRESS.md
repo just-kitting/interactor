@@ -258,6 +258,41 @@ BadgeSnake transport work started inside `components/battlesnake-rules`.
   - 3x3 deterministic zero-food game
   - completed after 2 turns with `ZeptoB` as winner
 
+## 2026-04-16 (MicroBlocks I2C simulation start)
+
+Started the MicroBlocks-side simulation path needed while real Zepto flashing
+remains unreliable.
+
+### Changes in `components/microblocks-smallvm`
+
+- Added a new `i2ctarget` primitive set for the Linux VM:
+  - `start`
+  - `stop`
+  - `isStarted`
+  - `address`
+  - `hasRequest`
+  - `receive`
+  - `requestedBytes`
+  - `reply`
+- The Linux backend uses a spool directory at `/tmp/microblocks_i2c_target_sim`
+  by default, overridable with `MICROBLOCKS_I2C_SIM_DIR`
+- Boardie now reserves the same primitive names with stubs so the primitive
+  surface does not have to change later
+
+### Superproject support added
+
+- `examples/microblocks/BadgeSnake I2C Target Sim.ubl`
+- `scripts/microblocks_i2c_sim.py`
+- `scripts/test_microblocks_i2c_sim.sh`
+- `docs/MicroBlocksI2CTargetSim.md`
+
+### Intent
+
+- let student MicroBlocks code poll and reply to simulated controller I2C requests
+- keep the simulation path decoupled from the current MSPM0 BSL flashing blocker
+- make it possible to exercise BadgeSnake request/response behavior before
+  hardware firmware delivery is stable
+
 ### Remaining gap
 
 - `i2c://` is still transport-shaped simulation inside the CLI layer

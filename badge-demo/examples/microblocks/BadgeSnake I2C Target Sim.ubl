@@ -1,0 +1,14 @@
+module 'BadgeSnake I2C Target Sim'
+author BadgeSnake
+version 0 1
+description 'Simulation wrappers for the Linux MicroBlocks I2C target spooler. Import this library into the Linux MicroBlocks VM to poll simulated I2C controller requests and publish replies.'
+tags i2c simulation badgesnake zepto
+
+	spec ' ' '[i2ctarget:start]' 'start badge i2c sim at address _' 'num' 66
+	spec ' ' '[i2ctarget:stop]' 'stop badge i2c sim'
+	spec 'r' '[i2ctarget:isStarted]' 'badge i2c sim active?'
+	spec 'r' '[i2ctarget:address]' 'badge i2c sim address'
+	spec 'r' '[i2ctarget:hasRequest]' 'badge i2c request pending?'
+	spec 'r' '[i2ctarget:receive]' 'badge i2c receive request'
+	spec 'r' '[i2ctarget:requestedBytes]' 'badge i2c requested bytes'
+	spec ' ' '[i2ctarget:reply]' 'badge i2c reply _' 'auto' ('[data:newByteArray]' 0)
