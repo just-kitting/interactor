@@ -296,6 +296,30 @@ remains unreliable.
 - make it possible to exercise BadgeSnake request/response behavior before
   hardware firmware delivery is stable
 
+## 2026-04-16 (MicroBlocks IDE runtime viability)
+
+Checked whether the repository's bundled GP/MicroBlocks runtimes can be used
+directly on BeagleBadge.
+
+### Findings
+
+- `components/microblocks-smallvm/gp/gp-raspberryPi` is a 32-bit `armhf` ELF
+  expecting `/lib/ld-linux-armhf.so.3`
+- that binary also depends on Raspberry Pi-specific userspace, including
+  `libbcm_host.so`
+- BeagleBadge does not provide `libbcm_host.so`, so installing only 32-bit glibc
+  would not make the bundled Raspberry Pi executable usable here
+- `components/microblocks-smallvm/gp/gp-linux64bit` is an `x86-64` binary and is
+  not usable on BeagleBadge either
+- the checked-in web app shell exists, but the generated browser runtime payloads
+  are not currently present in the repo
+
+### Implication
+
+- the shortest promising path on BeagleBadge is a web-hosted MicroBlocks IDE
+  backed by generated browser artifacts, not trying to run the bundled
+  Raspberry Pi desktop binary
+
 ### Remaining gap
 
 - `i2c://` is still transport-shaped simulation inside the CLI layer
