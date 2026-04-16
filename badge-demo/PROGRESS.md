@@ -638,3 +638,21 @@ The earlier MSPM0 transport debugging inside `bb-imager-rs` was backed out.
 - reverted the `bb-imager-rs` MSPM0 combined-transfer rewrite
 - reverted the `bb-imager-rs` custom MSPM0 error-reporting patch
 - kept the useful outer wrapper behavior in this repo: wait for manual BSL entry, then launch the known-good flasher path immediately
+
+## 2026-04-16 (MSPM0 reserved flash regions)
+
+The local MSPM0 documentation is now explicit enough to pin down which Zepto flash regions early firmware must avoid.
+
+### Reserved regions
+
+- `NONMAIN` configuration NVM at `0x41C0.0000` to `0x41C0.07FF`
+- `FACTORY` constants at `0x41C4.0000` to `0x41C4.01FF`
+
+### Why they must be avoided
+
+- `NONMAIN` holds the BCR/BSL configuration that controls bootloader enablement, invoke behavior, integrity checks, passwords, and static write protection
+- `FACTORY` holds factory-programmed calibration and identity data
+
+### First-pass rule
+
+- for `blink` and early I2C echo work, use MAIN flash only and leave `NONMAIN` and `FACTORY` untouched
