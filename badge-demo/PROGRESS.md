@@ -606,3 +606,19 @@ The user provided a critical timing detail from live testing.
   - wait for the BSL to ACK before calling `bb-imager-cli`
   - retry the flash command up to a configurable number of times
   - expose timing knobs through environment variables
+
+## 2026-04-16 (flash wrapper bugfixes)
+
+The first timing-aware flash wrapper exposed two shell-level bugs during live use.
+
+### Findings
+
+- `scripts/probe_zepto_bsl_active.sh` treated any successful `i2ctransfer` read byte as success, even when the returned byte was not the valid BSL ACK `0x00`
+- `firmware/zepto/scripts/flash_zepto_bsl.sh` captured the wrong status code after a failed `bb-imager-cli` call because it relied on `if cmd; then ...; fi` and then read `$?`
+
+### Changes
+
+- updated `scripts/probe_zepto_bsl_active.sh` so only `0x00` counts as a valid ACK
+- updated `firmware/zepto/scripts/flash_zepto_bsl.sh` to:
+  - print a clearer prompt that it is waiting for the user to perform the BOOT/RST sequence
+  - preserve the real `bb-imager-cli` exit status

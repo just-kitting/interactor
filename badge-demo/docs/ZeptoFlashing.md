@@ -54,6 +54,9 @@ Live probing on this board shows the Zepto BSL is not always reachable immediate
 
 Because of that, the flash wrapper now waits for the BSL to become reachable before starting `bb-imager-cli`, and it can retry the flash command several times in the same invocation.
 
+The probe now treats only `0x00` as a valid BSL ACK.
+Other returned bytes such as `0x02` or `0x06` are reported as unexpected responses rather than successful readiness.
+
 Flash a Zepto image:
 
 ```sh

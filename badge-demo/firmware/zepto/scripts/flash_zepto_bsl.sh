@@ -36,15 +36,21 @@ fi
 status=1
 
 for attempt in $(seq 1 "${flash_attempts}"); do
-  echo "Waiting for Zepto MSPM0 BSL on ${i2c_bus} before flash attempt ${attempt}/${flash_attempts}"
+  echo
+  echo "Flash attempt ${attempt}/${flash_attempts}"
+  echo "Waiting for Zepto MSPM0 BSL on ${i2c_bus}."
+  echo "Perform the Zepto BOOT/RST sequence now if the board is not already in BSL."
   "${repo_root}/scripts/probe_zepto_bsl_active.sh" "${bus_num}" "${probe_addr}" "${probe_attempts}" "${probe_sleep_s}"
 
   echo "Flashing ${image} to Zepto via ${i2c_bus} (attempt ${attempt}/${flash_attempts})"
-  if "${bb_imager_cli}" flash zepto "${image}" "${i2c_bus}"; then
+  set +e
+  "${bb_imager_cli}" flash zepto "${image}" "${i2c_bus}"
+  status=$?
+  set -e
+  if [ "${status}" -eq 0 ]; then
     exit 0
   fi
 
-  status=$?
   echo "Flash attempt ${attempt}/${flash_attempts} failed with exit code ${status}" >&2
   if [ "${attempt}" -lt "${flash_attempts}" ]; then
     echo "Retrying after a short delay. Re-enter BSL now if needed." >&2
