@@ -13,4 +13,4 @@ All currently tracked Zepto bring-up questions have been answered and moved into
 - `components/beagleconnect-zepto/FAQ.md`
 - `PROGRESS.md`
 
-> I probed `/dev/i2c-1` immediately after your last `go` and still got no ACK at `0x48`. Please try a tighter experiment: keep the Zepto `BOOT` button held continuously, press and release `RST`, keep holding `BOOT`, and then reply `go-hold` while `BOOT` is still held so I can probe during the asserted BSL invoke condition.
+There are no current blocking questions.

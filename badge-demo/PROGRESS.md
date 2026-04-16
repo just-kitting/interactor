@@ -558,3 +558,19 @@ The Zepto was reprobed immediately after the user indicated that BSL had just be
 ### Next action
 
 - try probing while `BOOT` is still physically held high during and after reset, instead of releasing it before the probe window
+
+## 2026-04-16 (correction after user-run probe)
+
+The previous assumption that the Zepto was not reachable in BSL was too strong.
+
+### Findings
+
+- the user directly ran `scripts/probe_zepto_bsl_active.sh 1`
+- that live user-run probe succeeded immediately with `ACK received: 0x00`
+- the correct current fact is that the Zepto BSL is reachable on `/dev/i2c-1`
+- the real problem is therefore reproducibility and sequencing around who runs the probe or flash and when, not a confirmed absence of the BSL target
+
+### Follow-up
+
+- cleared the stale blocking question from `docs/MissingInputs.md`
+- corrected the repo record so future work treats J6 `/dev/i2c-1` as the active BSL path unless disproven by a fresh direct probe
