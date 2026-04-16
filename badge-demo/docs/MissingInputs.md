@@ -13,4 +13,4 @@ All currently tracked Zepto bring-up questions have been answered and moved into
 - `components/beagleconnect-zepto/FAQ.md`
 - `PROGRESS.md`
 
-> Please re-enter the Zepto on J6 into MSPM0 BSL mode again, leave it connected, and then tell me `go` immediately after the final BOOT/RST step so I can probe and continue from the repo state while the BSL is still active.
+> I probed `/dev/i2c-1` immediately after your last `go` and still got no ACK at `0x48`. Please try a tighter experiment: keep the Zepto `BOOT` button held continuously, press and release `RST`, keep holding `BOOT`, and then reply `go-hold` while `BOOT` is still held so I can probe during the asserted BSL invoke condition.

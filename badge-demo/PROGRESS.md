@@ -544,3 +544,17 @@ After the user retried the flash path, the live Zepto was re-checked directly.
 ### Next action
 
 - re-enter the Zepto into BSL on J6 and respond through `docs/MissingInputs.md`, then continue immediately with live probing while the bootloader is still active
+
+## 2026-04-16 (immediate re-probe after user `go`)
+
+The Zepto was reprobed immediately after the user indicated that BSL had just been re-entered.
+
+### Findings
+
+- `i2cdetect -r -y 1` showed no device at all on the J6 bus
+- `scripts/probe_zepto_bsl_active.sh 1` still got no ACK at `0x48` across the full retry window
+- this means the current manual BOOT/RST sequence is not producing a Linux-visible I2C BSL target on demand, at least not reproducibly enough for live debugging
+
+### Next action
+
+- try probing while `BOOT` is still physically held high during and after reset, instead of releasing it before the probe window
