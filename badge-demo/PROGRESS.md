@@ -597,8 +597,8 @@ The user provided a critical timing detail from live testing.
 ### Findings
 
 - a user-run `scripts/probe_zepto_bsl_active.sh 1` did not get an ACK until attempt `13/50`
-- with the current probe interval of `0.2s`, that means the BSL became reachable only after roughly `2.6s`
-- a flash command started too early can therefore fail before the BSL is fully reachable, even if the manual BOOT/RST sequence was correct
+- that delay was caused by the user manually invoking BSL while the probe loop was already running, not by the BSL naturally taking `2.6s` to become ready
+- the useful conclusion is only that a long-running waiter can catch manual BSL entry in-flight
 
 ### Changes
 
@@ -622,3 +622,19 @@ The first timing-aware flash wrapper exposed two shell-level bugs during live us
 - updated `firmware/zepto/scripts/flash_zepto_bsl.sh` to:
   - print a clearer prompt that it is waiting for the user to perform the BOOT/RST sequence
   - preserve the real `bb-imager-cli` exit status
+
+## 2026-04-16 (restore known-good flasher path)
+
+The earlier MSPM0 transport debugging inside `bb-imager-rs` was backed out.
+
+### Findings
+
+- `bb-imager-rs` commit `a0fb8954c60f9ef04c71e8fd9451912a2b22cf45` had already been debugged before this session
+- the additional MSPM0 I2C transport rewrite and custom error-reporting changes were therefore higher-risk than the surrounding wrapper work
+- the user-reported odd bytes during probing were better evidence that we were drifting away from the known-good path than evidence of a validated protocol insight
+
+### Changes
+
+- reverted the `bb-imager-rs` MSPM0 combined-transfer rewrite
+- reverted the `bb-imager-rs` custom MSPM0 error-reporting patch
+- kept the useful outer wrapper behavior in this repo: wait for manual BSL entry, then launch the known-good flasher path immediately
