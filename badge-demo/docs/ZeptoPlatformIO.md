@@ -30,6 +30,7 @@ Top-level wrappers were also added:
 
 - `scripts/build_zepto_blink.sh`
 - `scripts/flash_zepto_blink.sh`
+- `scripts/flash_zepto_bsl.sh`
 
 Verified status on this BeagleBadge:
 
@@ -232,6 +233,12 @@ pio run -d firmware/zepto -e zepto_blink -t upload
 ```
 
 but the current blocker is in the Rust flasher after BSL handshake, not in PlatformIO itself.
+
+If a raw image needs to be flashed outside PlatformIO, the repo-root wrapper is:
+
+```sh
+scripts/flash_zepto_bsl.sh <image.bin>
+```
 
 ## Native Firmware Bring-Up Rules
 

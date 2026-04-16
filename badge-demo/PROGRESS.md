@@ -514,3 +514,19 @@ The first native Zepto firmware scaffold now exists and builds locally with Plat
 
 - `pio run -t upload` now reaches the Rust MSPM0 flasher but the flash still fails after BSL handshake with `Unknown error occured`
 - this means PlatformIO project setup, image generation, and bus selection are working; the remaining problem is inside the current `bb-imager-rs` MSPM0 flash transaction path
+
+## 2026-04-16 (Zepto flash retry)
+
+The user retried Zepto flashing after re-entering the bootloader.
+
+### Findings
+
+- the expected repo-root helper path was missing; only `firmware/zepto/scripts/flash_zepto_bsl.sh` existed
+- `./scripts/flash_zepto_blink.sh` still reaches `bb-imager-cli`
+- the current live failure is now narrowed to `Remote I/O error (os error 121)` from the MSPM0 flashing path
+- this failure still occurs after the user explicitly restarted the Zepto into BSL mode, so the current blocker is not explained solely by a stale timed-out bootloader session
+
+### Follow-up
+
+- added a repo-root `scripts/flash_zepto_bsl.sh` wrapper
+- reset `docs/MissingInputs.md` back to the agreed no-open-questions state
