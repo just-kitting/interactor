@@ -589,3 +589,20 @@ The current best hypothesis for the MSPM0 I2C flashing failure is that the backe
 
 - updated `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs` to buffer pending writes and execute them with `I2C_RDWR` combined transfer on the next read
 - added `scripts/trace_zepto_bsl.py` to test `connect` and `get_device_info` without going through the full `bb-imager-cli` stack
+
+## 2026-04-16 (BSL timing hypothesis)
+
+The user provided a critical timing detail from live testing.
+
+### Findings
+
+- a user-run `scripts/probe_zepto_bsl_active.sh 1` did not get an ACK until attempt `13/50`
+- with the current probe interval of `0.2s`, that means the BSL became reachable only after roughly `2.6s`
+- a flash command started too early can therefore fail before the BSL is fully reachable, even if the manual BOOT/RST sequence was correct
+
+### Changes
+
+- updated `firmware/zepto/scripts/flash_zepto_bsl.sh` to:
+  - wait for the BSL to ACK before calling `bb-imager-cli`
+  - retry the flash command up to a configurable number of times
+  - expose timing knobs through environment variables

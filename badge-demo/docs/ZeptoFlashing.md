@@ -22,6 +22,8 @@ Validated on this board:
 - `scripts/build_bb_imager_cli_zepto_i2c.sh`
 - `scripts/list_zepto_i2c_destinations.sh`
 - `scripts/probe_zepto_bsl_active.sh`
+- `scripts/flash_zepto_bsl.sh`
+- `scripts/flash_zepto_blink.sh`
 
 ## Expected CLI flow
 
@@ -42,6 +44,15 @@ Current local patch direction:
 - `bb-flasher-mspm0` now probes each `/dev/i2c-*` bus with the MSPM0 BSL connection request and keeps only ACKing buses
 - `bb-imager-cli` Zepto listing was also fixed so it does not invert `--no-filter` and accidentally bypass that probe logic
 - the remaining verification step is to rerun destination listing after the rebuilt CLI binary finishes linking on-device
+
+## Timing note
+
+Live probing on this board shows the Zepto BSL is not always reachable immediately after the manual BOOT/RST sequence.
+
+- one successful user-run probe only received the first ACK on attempt `13/50`
+- that corresponds to roughly `2.6s` with the current `0.2s` polling interval
+
+Because of that, the flash wrapper now waits for the BSL to become reachable before starting `bb-imager-cli`, and it can retry the flash command several times in the same invocation.
 
 Flash a Zepto image:
 
