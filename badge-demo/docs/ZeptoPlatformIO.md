@@ -281,6 +281,31 @@ Rules for milestone 1:
 
 Do not introduce the larger future MicroBlocks buffer expectations into the first echo implementation. The echo milestone exists to prove the board support and target-mode I2C plumbing, not to solve full VM transport sizing yet.
 
+## Flash Regions To Avoid
+
+For MSPM0L1117 on Zepto, the early application firmware should treat the following regions as reserved:
+
+- `NONMAIN` configuration NVM:
+  - `0x41C0.0000` to `0x41C0.07FF`
+  - this holds the boot configuration data for `BCR` and `BSL`
+  - changing it can alter BSL enablement, invoke policy, passwords, mass-erase behavior, static write protection, and application integrity checks
+- `FACTORY` constants region:
+  - `0x41C4.0000` to `0x41C4.01FF`
+  - this holds factory-programmed trim and calibration/device-identity data and should be treated as immutable
+
+For the first `blink` and `i2c-target-echo` milestones:
+
+- use only MAIN flash for the application image
+- do not place any code, config, or data in `NONMAIN`
+- do not write or erase `FACTORY`
+- do not rely on flash-bank swap yet, even though MSPM0L1117 supports dual-bank MAIN flash with address-swap features
+
+Safe first-pass policy:
+
+- link the application at the normal MAIN flash base starting at `0x0000.0000`
+- keep all experimentation out of `NONMAIN` and `FACTORY`
+- treat any future use of bank swap, alternate flash BSL, or BCR edits as a separate explicitly documented task
+
 ## I2C Echo Guidance
 
 The first echo protocol should be deliberately simple.
