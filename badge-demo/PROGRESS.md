@@ -530,3 +530,17 @@ The user retried Zepto flashing after re-entering the bootloader.
 
 - added a repo-root `scripts/flash_zepto_bsl.sh` wrapper
 - reset `docs/MissingInputs.md` back to the agreed no-open-questions state
+
+## 2026-04-16 (live BSL state re-check)
+
+After the user retried the flash path, the live Zepto was re-checked directly.
+
+### Findings
+
+- a direct `i2ctransfer` attempt of the MSPM0 BSL connection packet on `/dev/i2c-1` failed with `Remote I/O error`
+- a fresh run of `scripts/probe_zepto_bsl_active.sh 1` then showed no ACK at `0x48` across the full retry window
+- the current blocker is therefore the live Zepto no longer being in an active BSL session, not just the higher-level PlatformIO wrapper
+
+### Next action
+
+- re-enter the Zepto into BSL on J6 and respond through `docs/MissingInputs.md`, then continue immediately with live probing while the bootloader is still active
