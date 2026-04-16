@@ -574,3 +574,18 @@ The previous assumption that the Zepto was not reachable in BSL was too strong.
 
 - cleared the stale blocking question from `docs/MissingInputs.md`
 - corrected the repo record so future work treats J6 `/dev/i2c-1` as the active BSL path unless disproven by a fresh direct probe
+
+## 2026-04-16 (combined-transfer hypothesis)
+
+The current best hypothesis for the MSPM0 I2C flashing failure is that the backend is splitting BSL transactions too aggressively.
+
+### Findings
+
+- the working `scripts/probe_zepto_bsl_active.sh` path uses `i2ctransfer` with a combined write/read transaction
+- the prior Rust `bb-flasher-mspm0` I2C backend buffered nothing and issued separate `write()` and `read()` syscalls
+- the BSL request flow includes multi-part requests such as header, payload, CRC, then ACK, which are good candidates for breakage if the target expects them as one transaction boundary
+
+### Changes
+
+- updated `components/bb-imager-rs/bb-flasher-mspm0/src/i2c.rs` to buffer pending writes and execute them with `I2C_RDWR` combined transfer on the next read
+- added `scripts/trace_zepto_bsl.py` to test `connect` and `get_device_info` without going through the full `bb-imager-cli` stack
