@@ -81,10 +81,11 @@ Use `zeptomspm0l1117` as the board name.
 >
 > Examples: bootloader reservation, config page, BSL-related reservation, calibration page, or “safe to use full app region for now”.
 
+I'm absolutely certain that there are, but you'll need to read `MSPM0BSLUsersGuide.md`, `MSPM0L111xDataSheet.md` and `MSPM0LTechnicalReferenceManual.md` to find out.
 
 > Which MSPM0 I2C peripheral and pins should the first Zepto application firmware use for the QWIIC connector?
 
-
+I placed an `FAQ.md` into the `components/beagleconnect-zepto` repository. The I2C used on the QWIIC connectors is on PA0 (SDA) and PA1 (SCL).
 
 > What 7-bit I2C address should the first non-BSL Zepto application firmware use for the target echo?
 
@@ -96,45 +97,40 @@ Agent should decide.
 >
 > Note: this is only for the first echo milestone, not the eventual MicroBlocks logical message size.
 
+Let's see if we can't transfer at least 64 bytes at first. We'll want to be able to do a 1024 byte transfer for MicroBlocks.
 
 > What should count as “echo milestone complete” from the host side?
->
-> Example: a script writes `01 02 03 04` and reads back the same bytes ten times in a row without reset.
 
+A script writes `01 02 03 04 ...` and reads back the same bytes ten times in a row without reset.
 
-## PlatformIO Inputs
+> What guidance do you have on PlatformIO?
 
 These unblock the first custom MSPM0 PlatformIO platform scaffold.
 
 > Should the early PlatformIO support vendor a minimal MSPM0 SDK subset into the repo, fetch it during setup, or assume a separately installed SDK path?
->
-> If you have a preference, state it explicitly.
 
+The MSPM0 SDK can be read as a guideline, but it is bloated and confusing as a source base and should not be included. We want a very minimal implementation to start.
 
 > What host environments matter for early PlatformIO bring-up?
->
-> Example: `BeagleBadge only for now`, `Linux x86_64 dev host`, or both.
 
+BeagleBadge only for now
 
 > Is there an existing Zepto or MSPM0 example in any of your repos that the agent should copy from first?
+
+No
+
+> MicroBlocks-Over-I2C Planning Inputs
 >
-> Paste exact repo path(s) if known.
-
-
-## MicroBlocks-Over-I2C Planning Inputs
-
-These are not required for `blink`, but they help the agent avoid painting itself into a corner during the echo design.
-
+> These are not required for `blink`, but they help the agent avoid painting itself into a corner during the echo design.
+>
 > What I2C address should be reserved for future MicroBlocks VM transport messages?
->
-> If undecided, say whether the agent may choose a temporary development address.
 
+The agent should choose and it should be easy to change.
 
 > Do you want the first echo transport format to already resemble a future MicroBlocks framing layer, or should it stay deliberately tiny and throwaway?
->
-> Example answers: `future-compatible` or `minimal throwaway echo`.
 
+The `blink` and `i2c-target-echo` examples should stay as minimal as possible without any concept of reuse outside of understanding.
 
 > Are there any application-side I2C addresses you already want to reserve separately from the future VM transport address?
->
-> If none, say `none for now`.
+
+https://github.com/adafruit/I2C_Addresses is an excellent list of "used" I2C addresses. MicroBlocks support several of the devices listed there. I think 0x48 as the bootloader address is the only one to seriously avoid.
