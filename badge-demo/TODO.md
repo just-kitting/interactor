@@ -81,3 +81,4 @@
 - [X] Reboot with the QWIIC I2C overlay enabled and verify new Linux adapters appear for J6/J7
 - [X] Verify the Zepto in BSL mode ACKs at `0x48` on the correct QWIIC bus
 - [ ] Build `bb-imager-cli` with `zepto_i2c` and enumerate/flash the live Zepto over `/dev/i2c-1`
+- [ ] Review `docs/ZeptoPlatformIO.md` 
