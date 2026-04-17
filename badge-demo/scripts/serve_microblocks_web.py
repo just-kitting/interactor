@@ -47,7 +47,7 @@ def ensure_certificate() -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--host", default="beaglebadge.local")
     parser.add_argument("--port", type=int, default=8443)
     parser.add_argument("--http", action="store_true", help="serve without TLS")
     args = parser.parse_args()
