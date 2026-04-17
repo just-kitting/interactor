@@ -18,6 +18,18 @@ BadgeSnake will use this submodule repo to provide support for MicroBlocks graph
 - Reserved the same primitive names in Boardie with stubs so the primitive surface
   is stable even though the browser backend is not implemented yet.
 
+## Runtime notes on BeagleBadge
+
+- The bundled `gp-raspberryPi` executable is a 32-bit `armhf` binary, but it is
+  not a generic ARM Linux build.
+- It depends on Raspberry Pi userspace libraries including `libbcm_host.so`, so
+  installing only `libc6:armhf` on BeagleBadge would not be sufficient to run it.
+- The bundled `gp-linux64bit` binary is `x86-64` and cannot run on BeagleBadge.
+- For BeagleBadge, the viable paths are:
+  - build or obtain a native `gp` runtime for `aarch64`, or
+  - use the web-hosted MicroBlocks app and implement the browser-side `i2ctarget`
+    backend rather than relying on the Linux spooler
+
 ## Update procedure
 
 - Commit generic simulator/runtime changes inside the `components/microblocks-smallvm`

@@ -50,11 +50,15 @@ def next_request_id(sim_dir: Path, address: int) -> str:
 
 
 def request_path(sim_dir: Path, address: int, request_id: str) -> Path:
-    return sim_dir / f"request-{address:02d}-{request_id}.bin"
+    return sim_dir / f"write-{address:02d}-{request_id}.bin"
 
 
 def response_path(sim_dir: Path, address: int, request_id: str) -> Path:
     return sim_dir / f"response-{address:02d}-{request_id}.bin"
+
+
+def read_path(sim_dir: Path, address: int, request_id: str) -> Path:
+    return sim_dir / f"read-{address:02d}-{request_id}.bin"
 
 
 def write_atomic(path: Path, payload: bytes) -> None:
@@ -67,12 +71,15 @@ def write_atomic(path: Path, payload: bytes) -> None:
     tmp_path.replace(path)
 
 
-def enqueue(sim_dir: Path, address: int, write_data: bytes, read_length: int) -> str:
-    if read_length < 0:
-        raise ValueError("read length must be non-negative")
+def enqueue_write(sim_dir: Path, address: int, write_data: bytes) -> str:
     request_id = next_request_id(sim_dir, address)
-    header = read_length.to_bytes(4, "little", signed=False)
-    write_atomic(request_path(sim_dir, address, request_id), header + write_data)
+    write_atomic(request_path(sim_dir, address, request_id), write_data)
+    return request_id
+
+
+def enqueue_read(sim_dir: Path, address: int) -> str:
+    request_id = next_request_id(sim_dir, address)
+    write_atomic(read_path(sim_dir, address, request_id), b"")
     return request_id
 
 
@@ -97,8 +104,21 @@ def format_bytes(payload: bytes, mode: str) -> str:
 
 
 def cmd_enqueue(args: argparse.Namespace) -> int:
-    request_id = enqueue(args.sim_dir, args.address, args.write_data, args.read_length)
+    request_id = enqueue_write(args.sim_dir, args.address, args.write_data)
     print(request_id)
+    return 0
+
+
+def cmd_enqueue_read(args: argparse.Namespace) -> int:
+    request_id = enqueue_read(args.sim_dir, args.address)
+    print(request_id)
+    return 0
+
+
+def cmd_read(args: argparse.Namespace) -> int:
+    request_id = enqueue_read(args.sim_dir, args.address)
+    payload = wait_for_response(args.sim_dir, args.address, request_id, args.timeout, args.poll_interval)
+    print(format_bytes(payload, args.format))
     return 0
 
 
@@ -109,9 +129,12 @@ def cmd_wait_response(args: argparse.Namespace) -> int:
 
 
 def cmd_transaction(args: argparse.Namespace) -> int:
-    request_id = enqueue(args.sim_dir, args.address, args.write_data, args.read_length)
+    if args.write_data:
+        write_id = enqueue_write(args.sim_dir, args.address, args.write_data)
+        print(f"queued controller write {write_id} for address 0x{args.address:02x}", file=sys.stderr)
+    request_id = enqueue_read(args.sim_dir, args.address)
     print(
-        f"queued request {request_id} for address 0x{args.address:02x}; "
+        f"queued controller read {request_id} for address 0x{args.address:02x}; "
         f"waiting for MicroBlocks reply in {args.sim_dir}",
         file=sys.stderr,
     )
@@ -133,8 +156,18 @@ def build_parser() -> argparse.ArgumentParser:
     enqueue_parser = subparsers.add_parser("enqueue", help="enqueue a controller request")
     enqueue_parser.add_argument("--address", type=parse_address, required=True)
     enqueue_parser.add_argument("--write", dest="write_data", type=parse_hex_bytes, default=b"", help="controller write payload as hex")
-    enqueue_parser.add_argument("--read-length", type=int, default=0, help="controller read length after the write phase")
     enqueue_parser.set_defaults(func=cmd_enqueue)
+
+    enqueue_read_parser = subparsers.add_parser("enqueue-read", help="enqueue a controller read request")
+    enqueue_read_parser.add_argument("--address", type=parse_address, required=True)
+    enqueue_read_parser.set_defaults(func=cmd_enqueue_read)
+
+    read_parser = subparsers.add_parser("read", help="enqueue a controller read and wait for target data")
+    read_parser.add_argument("--address", type=parse_address, required=True)
+    read_parser.add_argument("--timeout", type=float, default=10.0)
+    read_parser.add_argument("--poll-interval", type=float, default=0.1)
+    read_parser.add_argument("--format", choices=("hex", "text"), default="hex")
+    read_parser.set_defaults(func=cmd_read)
 
     wait_parser = subparsers.add_parser("wait-response", help="wait for a controller response")
     wait_parser.add_argument("--address", type=parse_address, required=True)
@@ -146,8 +179,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     tx_parser = subparsers.add_parser("transaction", help="enqueue a request and wait for a response")
     tx_parser.add_argument("--address", type=parse_address, required=True)
-    tx_parser.add_argument("--write", dest="write_data", type=parse_hex_bytes, default=b"", help="controller write payload as hex")
-    tx_parser.add_argument("--read-length", type=int, default=0, help="controller read length after the write phase")
+    tx_parser.add_argument("--write", dest="write_data", type=parse_hex_bytes, default=b"", help="optional controller write payload before the read phase")
     tx_parser.add_argument("--timeout", type=float, default=10.0)
     tx_parser.add_argument("--poll-interval", type=float, default=0.1)
     tx_parser.add_argument("--format", choices=("hex", "text"), default="hex")
