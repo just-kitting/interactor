@@ -320,6 +320,43 @@ directly on BeagleBadge.
   backed by generated browser artifacts, not trying to run the bundled
   Raspberry Pi desktop binary
 
+## 2026-04-17 (web-hosted MicroBlocks direction)
+
+Moved the active MicroBlocks path to browser hosting.
+
+### Changes in `components/microblocks-smallvm`
+
+- Boardie now has a browser-side BadgeSnake `i2ctarget` queue model instead of
+  only stubbed primitives
+- the web app now includes `badgesnake-boardie.js`, exposing a simple helper API
+  for driving Boardie I2C target transactions from the browser console
+- the webapp service worker and manifest were adjusted to work from a normal
+  served directory instead of assuming `/run/`
+
+### Superproject support added
+
+- `scripts/build_microblocks_web.sh`
+- `scripts/serve_microblocks_web.py`
+- `docs/WebMicroBlocks.md`
+
+### Goal
+
+- let the user open a hosted MicroBlocks IDE on BeagleBadge
+- use Boardie as the first browser-executable target for BadgeSnake student code
+- defer native GP runtime work until later
+
+### Verification status
+
+- `emscripten` and `nodejs` were installed successfully on BeagleBadge
+- the first full web build now gets past the earlier hard failures:
+  - removed unsupported `--memory-init-file`
+  - added a writable repo-local Emscripten cache
+  - restored `zlib` port use against that writable cache
+  - made the Emscripten build script idempotent across retries
+- the first complete end-to-end `gp_wasm` build was not yet observed finishing in
+  this pass because the initial libc/sysroot population on this board is still
+  lengthy
+
 ### Remaining gap
 
 - `i2c://` is still transport-shaped simulation inside the CLI layer
