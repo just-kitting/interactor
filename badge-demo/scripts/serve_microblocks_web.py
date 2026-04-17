@@ -47,7 +47,12 @@ def ensure_certificate() -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--host", default="beaglebadge.local")
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument(
+        "--public-host",
+        default=None,
+        help="hostname or IP to show in the startup URL; defaults to --host",
+    )
     parser.add_argument("--port", type=int, default=8443)
     parser.add_argument("--http", action="store_true", help="serve without TLS")
     args = parser.parse_args()
@@ -64,8 +69,13 @@ def main() -> int:
         server.socket = context.wrap_socket(server.socket, server_side=True)
         scheme = "https"
 
+    public_host = args.public_host or args.host
+    if public_host == "0.0.0.0":
+        public_host = "localhost"
+
     print(f"Serving MicroBlocks web app from {WEBAPP_DIR}")
-    print(f"Open {scheme}://{args.host if args.host != '0.0.0.0' else 'localhost'}:{args.port}/microblocks.html")
+    print(f"Listening on {scheme}://{args.host}:{args.port}/")
+    print(f"Open {scheme}://{public_host}:{args.port}/microblocks.html")
     server.serve_forever()
     return 0
 

@@ -29,7 +29,7 @@
 - [X] Choose implementation language for the BadgeSnake host runtime
 - [~] Build a local simulation mode that runs without attached hardware
 - [~] Make the MicroBlocks IDE usable on BeagleBadge through a web-hosted path
-- [ ] Complete one successful end-to-end MicroBlocks web build and launch smoke test on BeagleBadge
+- [X] Complete one successful end-to-end MicroBlocks web build and launch smoke test on BeagleBadge
 - [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution

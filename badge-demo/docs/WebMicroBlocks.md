@@ -5,7 +5,7 @@ BeagleBadge while native GP runtime support remains unresolved.
 
 ## What Works
 
-- full MicroBlocks web IDE build through Emscripten
+- MicroBlocks web IDE build path through Emscripten
 - Boardie browser simulator build
 - browser-side BadgeSnake `i2ctarget` simulation for Boardie
 - local HTTPS hosting from the checked-out repository
@@ -15,6 +15,11 @@ BeagleBadge while native GP runtime support remains unresolved.
 ```sh
 ./scripts/build_microblocks_web.sh
 ```
+
+The build script emits `gp_wasm.js` directly instead of `gp_wasm.html`, so it
+does not depend on Debian's missing `html-minifier-terser` packaging.
+The Boardie build also avoids Closure Compiler so the hosted build does not
+require a separate `closure-compiler` binary on Armbian.
 
 That builds:
 
@@ -29,6 +34,9 @@ That builds:
 ```sh
 ./scripts/serve_microblocks_web.py
 ```
+
+For remote access, the server now listens on `0.0.0.0` by default. If you want
+the printed URL to use a specific hostname or IP, pass `--public-host`.
 
 Default URL:
 

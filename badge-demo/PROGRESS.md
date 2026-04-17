@@ -353,9 +353,27 @@ Moved the active MicroBlocks path to browser hosting.
   - added a writable repo-local Emscripten cache
   - restored `zlib` port use against that writable cache
   - made the Emscripten build script idempotent across retries
-- the first complete end-to-end `gp_wasm` build was not yet observed finishing in
-  this pass because the initial libc/sysroot population on this board is still
-  lengthy
+- Debian's `emcc` package still tried to invoke a missing `html-minifier-terser`
+  helper when the build emitted `gp_wasm.html`; the build was corrected to emit
+  `gp_wasm.js` directly so the hosted webapp no longer depends on that tool
+- the Boardie web build also depended on an external `closure-compiler` binary;
+  the local build was corrected to skip Closure so the hosted path builds with
+  the stock Armbian Emscripten install
+- the tracked web server now binds to `0.0.0.0` by default so the hosted IDE can
+  be reached remotely without a local script hack
+- a full end-to-end web build now completes on BeagleBadge:
+  - `./scripts/build_microblocks_web.sh`
+  - outputs verified in `chromeApp/webapp`:
+    - `gp_wasm.js`
+    - `gp_wasm.wasm`
+    - `gp_wasm.data`
+    - `boardie/run_boardie.js`
+    - `boardie/run_boardie.wasm`
+- hosted smoke test passed with:
+  - `python3 scripts/serve_microblocks_web.py --host 127.0.0.1 --public-host 127.0.0.1 --port 18443`
+  - `curl -kI https://127.0.0.1:18443/microblocks.html`
+  - `curl -kI https://127.0.0.1:18443/gp_wasm.js`
+  - `curl -kI https://127.0.0.1:18443/boardie/run_boardie.js`
 
 ### Remaining gap
 
