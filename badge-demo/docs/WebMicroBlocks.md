@@ -73,12 +73,19 @@ python3 ./scripts/web_i2c_transaction.py \
   --insecure
 ```
 
+That `8443` endpoint is the same running web server that is already serving the
+IDE. The CLI transaction does not require a second listener; it should point at
+the port where `microblocks.html` is already being served.
+
 That request will block until the running Boardie/MicroBlocks program answers
 the corresponding target read. The bridge smoke test is:
 
 ```sh
 ./scripts/test_web_i2c_bridge.sh
 ```
+
+A concrete first program to run on Boardie is documented in
+[I2C Target Echo Example.md](/root/interactor/badge-demo/examples/microblocks/I2C%20Target%20Echo%20Example.md#L1).
 
 ## Notes
 

@@ -409,6 +409,20 @@ request path for the hosted Boardie simulation.
 - `node --check components/microblocks-smallvm/chromeApp/webapp/badgesnake-boardie.js`
 - `node --check components/microblocks-smallvm/chromeApp/MicroBlocks/badgesnake-boardie.js`
 - `./scripts/test_web_i2c_bridge.sh`
+
+## 2026-04-18 (hosted Boardie test program)
+
+Added a concrete first program for the hosted I2C target bridge.
+
+### Additions
+
+- `examples/microblocks/I2C Target Echo Example.md`
+
+### Intent
+
+- give the user a specific Boardie-side MicroBlocks program to run
+- document that `web_i2c_transaction.py` should talk to the same port as the
+  running hosted IDE rather than starting a second server
 - the next implementation step is to connect that scheme to a real I2C adapter path or a kernel-backed emulation path when available
 
 ## 2026-04-15 (bb-imager-rs and Zepto BSL)

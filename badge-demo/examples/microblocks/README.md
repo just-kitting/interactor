@@ -6,6 +6,8 @@ Current contents:
 
 - `I2C Target.ubl`: library wrappers around the MicroBlocks `i2ctarget`
   primitive set
+- `I2C Target Echo Example.md`: first hosted Boardie test program and matching
+  Linux-side transaction
 
 Planned contents:
 
