@@ -30,6 +30,7 @@
 - [~] Build a local simulation mode that runs without attached hardware
 - [~] Make the MicroBlocks IDE usable on BeagleBadge through a web-hosted path
 - [X] Complete one successful end-to-end MicroBlocks web build and launch smoke test on BeagleBadge
+- [ ] Add a kernel-visible I2C simulation path so Linux controller tools can issue real bus transactions against the simulator
 - [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution

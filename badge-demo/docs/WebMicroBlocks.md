@@ -87,6 +87,15 @@ the corresponding target read. The bridge smoke test is:
 A concrete first program to run on Boardie is documented in
 [I2C Target Echo Example.md](/root/interactor/badge-demo/examples/microblocks/I2C%20Target%20Echo%20Example.md#L1).
 
+## Architectural Boundary
+
+The hosted bridge is an application-level surrogate for I2C target behavior. It
+is not a Linux kernel I2C target device, so tools like `i2ctransfer` cannot talk
+to the browser session directly today.
+
+If we want controller-side Linux I2C tools to work unchanged, we need a lower
+layer simulation that presents a real or emulated adapter/target to the kernel.
+
 ## Notes
 
 - The browser path is the preferred short-term route on BeagleBadge.

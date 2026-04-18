@@ -410,6 +410,14 @@ request path for the hosted Boardie simulation.
 - `node --check components/microblocks-smallvm/chromeApp/MicroBlocks/badgesnake-boardie.js`
 - `./scripts/test_web_i2c_bridge.sh`
 
+### Architectural note
+
+- the hosted Boardie bridge is intentionally above the kernel I2C layer
+- it preserves controller/target request semantics, but it does not create a
+  Linux-visible `/dev/i2c-*` target endpoint
+- using `i2ctransfer` directly against the browser simulation will require a new
+  lower-level adapter or kernel-backed emulation path
+
 ## 2026-04-18 (hosted Boardie test program)
 
 Added a concrete first program for the hosted I2C target bridge.

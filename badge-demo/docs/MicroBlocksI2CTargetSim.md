@@ -78,3 +78,22 @@ The hosted web path now works through the existing Python server:
 - Boardie injects those requests into the `i2ctarget` queue
 - the browser posts replies back to `/api/i2c/respond`
 - Linux-side tests can use `scripts/web_i2c_transaction.py`
+
+## What This Is Not
+
+The hosted Boardie path is not a kernel-visible I2C target device.
+
+That means:
+
+- you cannot point `i2ctransfer` or another Linux I2C controller tool directly at
+  the browser session and expect a real `/dev/i2c-*` target transaction
+- the current bridge preserves target semantics at the application layer, not at
+  the Linux I2C device-model layer
+
+If we want true Linux-visible controller transactions for the hosted simulation,
+the next step is a lower-level adapter such as:
+
+- a kernel-backed target or emulation device that appears on a real I2C bus
+- an `i2c-stub`-style or virtual adapter path with a userspace bridge
+- a custom host-side process that owns a real or emulated adapter and forwards
+  I2C transactions into Boardie/MicroBlocks
