@@ -444,6 +444,42 @@ Checked whether the hosted Boardie simulation should be replaced with `i2c-stub`
 - replacing it with `i2c-stub` would be incorrect even on a kernel that shipped
   that module
 
+## 2026-04-18 (running Armbian kernel source mapping)
+
+Mapped the running BeagleBadge kernel package back to the Armbian source tree.
+
+### Verified live package metadata
+
+- running kernel: `6.12.57-vendor-edge-k3`
+- package: `linux-image-vendor-edge-k3` version `26.02.0-trunk`
+- package source field: `linux-6.12.57`
+- package build git revision:
+  `da3c0f0a33ac00f7138c695a16d90301cf7ec02b`
+
+### Matching Armbian build config
+
+- board config: `config/boards/beaglebadge.conf`
+- family config: `config/sources/families/k3-beagle.conf`
+- BeagleBadge `vendor` / `vendor-rt` kernel source:
+  - `https://github.com/beagleboard/linux`
+  - `branch:v6.12.49-ti-arm64-r56`
+- generic `k3` `vendor-edge` source is configured separately in
+  `config/sources/families/k3.conf`:
+  - `https://github.com/TexasInstruments/ti-linux-kernel`
+  - `branch:ti-linux-6.12.y-cicd`
+
+### Important conclusion
+
+- the running image is named `vendor-edge-k3`, but the BeagleBadge family source
+  config in the checked-in Armbian tree currently only overrides `vendor` and
+  `vendor-rt`
+- so the most defensible source-tree answer for the live image is:
+  - family/package lane: Armbian `vendor-edge-k3`
+  - source tree configured for generic `k3 vendor-edge`:
+    `TexasInstruments/ti-linux-kernel` on `ti-linux-6.12.y-cicd`
+- the exact packaged content on this installed image is additionally identified
+  by package git revision `da3c0f0a33ac00f7138c695a16d90301cf7ec02b`
+
 ## 2026-04-18 (hosted Boardie test program)
 
 Added a concrete first program for the hosted I2C target bridge.
