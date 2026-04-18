@@ -19,3 +19,6 @@
 [submodule "badge-demo/components/microblocks-smallvm"]
 	path = badge-demo/components/microblocks-smallvm
 	url = https://github.com/just-kitting/microblocks-smallvm.git
+[submodule "badge-demo/components/ti-linux-kernel"]
+	path = badge-demo/components/ti-linux-kernel
+	url = https://github.com/just-kitting/ti-linux-kernel
