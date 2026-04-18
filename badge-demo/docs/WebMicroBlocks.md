@@ -7,7 +7,7 @@ BeagleBadge while native GP runtime support remains unresolved.
 
 - MicroBlocks web IDE build path through Emscripten
 - Boardie browser simulator build
-- browser-side BadgeSnake `i2ctarget` simulation for Boardie
+- browser-side `i2ctarget` simulation for Boardie
 - local HTTPS hosting from the checked-out repository
 
 ## Build
@@ -48,7 +48,7 @@ the first time it runs.
 ## Boardie I2C Target Workflow
 
 Open the IDE, then open Boardie from the MicroBlocks runtime connection menu.
-Import [BadgeSnake I2C Target Sim.ubl](/root/interactor/badge-demo/examples/microblocks/BadgeSnake%20I2C%20Target%20Sim.ubl#L1)
+Import [I2C Target.ubl](/root/interactor/badge-demo/examples/microblocks/I2C%20Target.ubl#L1)
 and start the simulated target at the Zepto address you want to emulate.
 
 The hosted page exposes a browser-console helper:
@@ -61,6 +61,24 @@ await BadgeSnakeBoardie.transaction(0x42, [0x10, 0x20])
 
 `transaction()` performs an optional controller write phase, then a controller
 read phase, and waits for the Boardie-side reply.
+
+The hosted server also exposes an HTTP bridge so Linux-side tests can behave
+like an I2C controller:
+
+```sh
+python3 ./scripts/web_i2c_transaction.py \
+  --url https://127.0.0.1:8443 \
+  --address 0x42 \
+  --write 0x10 0x20 \
+  --insecure
+```
+
+That request will block until the running Boardie/MicroBlocks program answers
+the corresponding target read. The bridge smoke test is:
+
+```sh
+./scripts/test_web_i2c_bridge.sh
+```
 
 ## Notes
 

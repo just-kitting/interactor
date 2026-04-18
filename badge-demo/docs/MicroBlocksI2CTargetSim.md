@@ -1,12 +1,12 @@
 # MicroBlocks I2C Target Simulation
 
-This document defines the first BadgeSnake simulation path for MicroBlocks while
+This document defines the first MicroBlocks I2C target simulation path while
 live Zepto flashing is still unstable.
 
 ## Scope
 
-- Linux MicroBlocks VM only for the first functional backend
-- Boardie keeps the primitive names reserved but does not implement the spooler yet
+- Linux MicroBlocks VM with a filesystem spooler backend
+- Boardie web build with an HTTP bridge backend
 - Simulation models the Zepto as an I2C target that receives a controller write
   payload and may later see a controller read request
 - The simulation now follows Zephyr's target-style split between write-receive
@@ -18,7 +18,6 @@ The `components/microblocks-smallvm` Linux VM now exposes a new primitive set:
 
 - `[i2ctarget:start]` address
 - `[i2ctarget:stop]`
-- `[i2ctarget:isStarted]`
 - `[i2ctarget:address]`
 - `[i2ctarget:writeAvailable]`
 - `[i2ctarget:receiveWrite]`
@@ -57,25 +56,25 @@ depending on the MicroBlocks IDE protocol.
 
 - [microblocks_i2c_sim.py](/root/interactor/badge-demo/scripts/microblocks_i2c_sim.py): enqueue requests and wait for replies
 - [test_microblocks_i2c_sim.sh](/root/interactor/badge-demo/scripts/test_microblocks_i2c_sim.sh): smoke test for the helper and spool format
-- [BadgeSnake I2C Target Sim.ubl](/root/interactor/badge-demo/examples/microblocks/BadgeSnake%20I2C%20Target%20Sim.ubl): importable MicroBlocks library for these primitives
+- [I2C Target.ubl](/root/interactor/badge-demo/examples/microblocks/I2C%20Target.ubl): importable MicroBlocks library for these primitives
+- [web_i2c_transaction.py](/root/interactor/badge-demo/scripts/web_i2c_transaction.py): send controller transactions into the hosted Boardie bridge
+- [test_web_i2c_bridge.sh](/root/interactor/badge-demo/scripts/test_web_i2c_bridge.sh): smoke test for the hosted bridge endpoints
 
 ## Intended Usage
 
 1. Build and run the Linux MicroBlocks VM.
-2. Import `BadgeSnake I2C Target Sim.ubl`.
+2. Import `I2C Target.ubl`.
 3. Start the simulated target at the intended Zepto address.
-4. Poll `badge i2c write pending?` and `badge i2c read requested?` from student code.
-5. Use `badge i2c receive write` to consume any controller write payload.
-6. When a read is requested, publish bytes with `badge i2c reply _`.
+4. Poll `i2c write pending?` and `i2c read requested?` from student code.
+5. Use `receive i2c write` to consume any controller write payload.
+6. When a read is requested, publish bytes with `reply with _`.
 7. Drive transactions from the host with `scripts/microblocks_i2c_sim.py transaction ...`.
 
 ## Web And IDE Hosting
 
-The current functional backend is Linux VM only, because the spooler uses the
-local filesystem. Boardie already builds to WebAssembly/JavaScript, but its
-`i2ctarget` backend is stubbed today. That means:
+The hosted web path now works through the existing Python server:
 
-- the MicroBlocks web app can still be hosted from a web server
-- the new I2C target simulation path does not yet work in that web build
-- a browser-capable backend should use JavaScript messaging or WebSockets rather
-  than the filesystem spooler
+- the browser polls `/api/i2c/next` for pending controller transactions
+- Boardie injects those requests into the `i2ctarget` queue
+- the browser posts replies back to `/api/i2c/respond`
+- Linux-side tests can use `scripts/web_i2c_transaction.py`

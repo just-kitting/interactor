@@ -15,8 +15,9 @@ BadgeSnake will use this submodule repo to provide support for MicroBlocks graph
 
 - Added a generic `i2ctarget` primitive set for the Linux simulator so MicroBlocks
   code can act like an I2C target during host-side BadgeSnake simulation.
-- Reserved the same primitive names in Boardie with stubs so the primitive surface
-  is stable even though the browser backend is not implemented yet.
+- Added the same primitive surface in Boardie with a browser-side queue backend.
+- Added a hosted HTTP bridge so Linux-side controller requests can be sent into
+  the Boardie web simulation without browser-console interaction.
 
 ## Runtime notes on BeagleBadge
 
@@ -27,8 +28,8 @@ BadgeSnake will use this submodule repo to provide support for MicroBlocks graph
 - The bundled `gp-linux64bit` binary is `x86-64` and cannot run on BeagleBadge.
 - For BeagleBadge, the viable paths are:
   - build or obtain a native `gp` runtime for `aarch64`, or
-  - use the web-hosted MicroBlocks app and implement the browser-side `i2ctarget`
-    backend rather than relying on the Linux spooler
+  - use the web-hosted MicroBlocks app with the browser-side `i2ctarget`
+    backend and optional HTTP bridge rather than relying only on the Linux spooler
 
 ## Update procedure
 

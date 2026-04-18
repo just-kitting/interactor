@@ -284,7 +284,7 @@ remains unreliable.
 
 ### Superproject support added
 
-- `examples/microblocks/BadgeSnake I2C Target Sim.ubl`
+- `examples/microblocks/I2C Target.ubl`
 - `scripts/microblocks_i2c_sim.py`
 - `scripts/test_microblocks_i2c_sim.sh`
 - `docs/MicroBlocksI2CTargetSim.md`
@@ -378,6 +378,37 @@ Moved the active MicroBlocks path to browser hosting.
 ### Remaining gap
 
 - `i2c://` is still transport-shaped simulation inside the CLI layer
+
+## 2026-04-18 (MicroBlocks I2C target cleanup and CLI bridge)
+
+Cleaned up the student-facing I2C target block labels and added a Linux-side
+request path for the hosted Boardie simulation.
+
+### Student-facing changes
+
+- renamed the importable MicroBlocks wrapper to `examples/microblocks/I2C Target.ubl`
+- removed BadgeSnake/simulation wording from the block text
+- dropped the wrapper for `isStarted`, which was not a useful student-facing
+  target concept
+
+### Hosted bridge changes
+
+- `scripts/serve_microblocks_web.py` now exposes:
+  - `POST /api/i2c/transaction`
+  - `GET /api/i2c/next`
+  - `POST /api/i2c/respond`
+- the hosted `badgesnake-boardie.js` helper now polls that bridge and forwards
+  controller transactions into the running Boardie I2C target queue
+- added `scripts/web_i2c_transaction.py` as the Linux-side controller client
+- added `scripts/test_web_i2c_bridge.sh` as a smoke test for the bridge
+
+### Verification status
+
+- `python3 -m py_compile scripts/serve_microblocks_web.py scripts/web_i2c_transaction.py`
+- `bash -n scripts/test_web_i2c_bridge.sh`
+- `node --check components/microblocks-smallvm/chromeApp/webapp/badgesnake-boardie.js`
+- `node --check components/microblocks-smallvm/chromeApp/MicroBlocks/badgesnake-boardie.js`
+- `./scripts/test_web_i2c_bridge.sh`
 - the next implementation step is to connect that scheme to a real I2C adapter path or a kernel-backed emulation path when available
 
 ## 2026-04-15 (bb-imager-rs and Zepto BSL)

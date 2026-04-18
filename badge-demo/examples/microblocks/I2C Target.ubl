@@ -1,0 +1,13 @@
+module 'I2C Target'
+author BadgeSnake
+version 0 2
+description 'Wrappers for the MicroBlocks I2C target primitives. Import this library to receive controller writes and answer controller reads from MicroBlocks.'
+tags i2c target simulation
+
+	spec ' ' '[i2ctarget:start]' 'start i2c target at address _' 'num' 66
+	spec ' ' '[i2ctarget:stop]' 'stop i2c target'
+	spec 'r' '[i2ctarget:address]' 'i2c target address'
+	spec 'r' '[i2ctarget:writeAvailable]' 'i2c write pending?'
+	spec 'r' '[i2ctarget:receiveWrite]' 'receive i2c write'
+	spec 'r' '[i2ctarget:readRequested]' 'i2c read requested?'
+	spec ' ' '[i2ctarget:reply]' 'reply with _' 'auto' ('[data:newByteArray]' 0)
