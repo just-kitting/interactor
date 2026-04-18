@@ -95,6 +95,7 @@ to the browser session directly today.
 
 If we want controller-side Linux I2C tools to work unchanged, we need a lower
 layer simulation that presents a real or emulated adapter/target to the kernel.
+See [I2CKernelSimulation.md](/root/interactor/badge-demo/docs/I2CKernelSimulation.md#L1).
 
 ## Notes
 

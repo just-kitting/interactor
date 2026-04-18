@@ -97,3 +97,7 @@ the next step is a lower-level adapter such as:
 - an `i2c-stub`-style or virtual adapter path with a userspace bridge
 - a custom host-side process that owns a real or emulated adapter and forwards
   I2C transactions into Boardie/MicroBlocks
+
+For the current BeagleBadge image, see
+[I2CKernelSimulation.md](/root/interactor/badge-demo/docs/I2CKernelSimulation.md#L1)
+for why `i2c-stub` is not a drop-in replacement for the hosted Boardie bridge.

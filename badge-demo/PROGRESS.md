@@ -418,6 +418,32 @@ request path for the hosted Boardie simulation.
 - using `i2ctransfer` directly against the browser simulation will require a new
   lower-level adapter or kernel-backed emulation path
 
+## 2026-04-18 (i2c-stub suitability check)
+
+Checked whether the hosted Boardie simulation should be replaced with `i2c-stub`.
+
+### Findings
+
+- kernel documentation describes `i2c-stub` as a simple memory-backed fake SMBus
+  device for testing kernel client drivers
+- that model does not provide the dynamic event/reply behavior needed for
+  MicroBlocks target logic
+- this BeagleBadge image does not currently expose `i2c-stub` or
+  `i2c-slave-eeprom` as loadable modules
+- `i2ctransfer` is installed and available, but there is no kernel-visible
+  target backend here for it to talk to on behalf of Boardie
+
+### Repo additions
+
+- `docs/I2CKernelSimulation.md`
+- `scripts/check_i2c_kernel_sim_support.sh`
+
+### Conclusion
+
+- the current hosted bridge remains the only working Boardie path on this image
+- replacing it with `i2c-stub` would be incorrect even on a kernel that shipped
+  that module
+
 ## 2026-04-18 (hosted Boardie test program)
 
 Added a concrete first program for the hosted I2C target bridge.
