@@ -37,6 +37,7 @@
 - [ ] Define the userspace endpoint ABI exposed by the bridge driver
 - [X] Stage Armbian kernel config changes for `I2C_SLAVE_TESTUNIT` and `I2C_SLAVE_EEPROM`
 - [X] Add a concrete `slave-testunit` bring-up guide and helper script
+- [X] Add an exact x86 Docker host wrapper for the BeagleBadge `vendor-edge` kernel build
 - [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution
@@ -95,3 +96,6 @@
 - [X] Verify the Zepto in BSL mode ACKs at `0x48` on the correct QWIIC bus
 - [~] Build `bb-imager-cli` with `zepto_i2c` and enumerate/flash the live Zepto over `/dev/i2c-1`
 - [X] Review `docs/ZeptoPlatformIO.md`
+- [X] Add a board-state preservation capture process before any fresh microSD image work
+- [ ] Run `scripts/capture_beaglebadge_state.sh` on the live board and copy the resulting archive off-board
+- [ ] Run `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on an x86 Docker host

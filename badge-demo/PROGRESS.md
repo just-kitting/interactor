@@ -984,3 +984,30 @@ The local MSPM0 documentation is now explicit enough to pin down which Zepto fla
 ### First-pass rule
 
 - for `blink` and early I2C echo work, use MAIN flash only and leave `NONMAIN` and `FACTORY` untouched
+
+## 2026-04-23 (tighten Armbian kernel build handoff)
+
+The user corrected the `components/armbian-build` branch and asked for a concrete host-side build path plus a preservation process before any new starting microSD image is discussed.
+
+### Findings
+
+- the immediate need for I2C target-mode bring-up is a rebuilt BeagleBadge `vendor-edge` kernel package set, not a fresh image
+- `components/armbian-build` exposes the expected `kernel` artifact shortcut through `./compile.sh`
+- the exact current target tuple is:
+  - `BOARD=beaglebadge`
+  - `BRANCH=vendor-edge`
+  - `RELEASE=trixie`
+- we had not yet committed a preservation workflow for the live board state before talking about replacing the current starting microSD image
+
+### Changes
+
+- added `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` as the exact x86 host wrapper for the Armbian kernel build
+- added `scripts/capture_beaglebadge_state.sh` to preserve current board and repo state before any image replacement
+- added `docs/ArmbianKernelBuild.md` and `docs/SystemStatePreservation.md`
+- updated `docs/components/armbian-build.md` and `docs/I2CSlaveBringup.md` to point at the new workflow
+
+### Current policy
+
+- build kernel packages first
+- do not treat a fresh starting microSD image as the next default step
+- before any image replacement, run the capture script on the live board and copy the resulting archive off-board

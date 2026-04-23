@@ -76,6 +76,16 @@ To check status:
 ./scripts/bringup_i2c_slave_testunit.sh status 1 0x30
 ```
 
+## Current Build Path
+
+To build the updated BeagleBadge `vendor-edge` kernel packages on an x86 host with Docker:
+
+```sh
+./scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh
+```
+
+This is intentionally a kernel-package build only. It is the next step for target-mode validation and does not imply that a replacement microSD image should be produced yet.
+
 ## Suggested Bring-Up Sequence
 
 1. Boot a kernel that includes the above config options.

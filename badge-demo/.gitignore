@@ -1,3 +1,4 @@
 .cache/
 firmware/zepto/.pio/
 __pycache__/
+artifacts/
