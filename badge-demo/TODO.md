@@ -33,7 +33,10 @@
 - [ ] Add a kernel-visible I2C simulation path so Linux controller tools can issue real bus transactions against the simulator
 - [ ] Choose and implement the kernel-visible simulation mechanism; `i2c-stub` is not sufficient for dynamic Boardie target behavior
 - [ ] Add AM62L `i2c-omap` slave-mode support and validate it with `slave-testunit`
-- [ ] Design and implement a framed multi-controller I2C transport kernel backend for BadgeSnake
+- [ ] Design and implement a serial-to-I2C endpoint bridge kernel driver for BadgeSnake
+- [ ] Define the userspace endpoint ABI exposed by the bridge driver
+- [X] Stage Armbian kernel config changes for `I2C_SLAVE_TESTUNIT` and `I2C_SLAVE_EEPROM`
+- [X] Add a concrete `slave-testunit` bring-up guide and helper script
 - [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution

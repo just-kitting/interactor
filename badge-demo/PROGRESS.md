@@ -519,8 +519,62 @@ a simple request/response controller-target link.
 - the recommended sequence is:
   1. extend `i2c-omap.c` with slave support
   2. validate with `slave-testunit`
-  3. add a BadgeSnake-specific framed backend
-  4. only add a stream-style shim above that if MicroBlocks still needs it
+  3. add a BadgeSnake serial-to-I2C endpoint bridge
+  4. only add explicit tty glue if endpoint devices are still insufficient
+
+## 2026-04-23 (bridge direction clarified)
+
+The user clarified that the desired end state is not a target-only driver.
+
+### Direction change
+
+- the kernel deliverable should be a serial-to-I2C endpoint bridge
+- it should expose serial-style endpoints for initiators and targets
+- internal framing still matters, but endpoint-style serial compatibility is now
+  part of the intended driver shape rather than an optional afterthought
+
+### What did not change
+
+- AM62L `i2c-omap` slave support is still the first prerequisite
+- `slave-testunit` is still the right first validation target
+- the bridge still has to tolerate multi-controller arbitration loss and
+  transaction-bounded wire semantics
+
+## 2026-04-23 (target-mode bring-up staged)
+
+Continued from planning into concrete AM62L target-mode bring-up prep.
+
+### Armbian config changes staged
+
+In `components/armbian-build`:
+
+- `config/kernel/linux-k3-vendor-edge.config`
+- `config/kernel/linux-k3-beagle-vendor.config`
+- `config/kernel/linux-k3-beagle-vendor-rt.config`
+
+all now include:
+
+- `CONFIG_I2C_SLAVE_EEPROM=m`
+- `CONFIG_I2C_SLAVE_TESTUNIT=m`
+
+### Repo additions
+
+- `docs/I2CSlaveBringup.md`
+- `scripts/bringup_i2c_slave_testunit.sh`
+
+### Current state
+
+- the running kernel currently only exposes `CONFIG_I2C_SLAVE=y`
+- it does not yet ship the `slave-testunit` backend
+- `i2c-omap.c` still lacks `reg_slave` / `unreg_slave`
+
+### Practical implication
+
+- the next bootable validation target is now explicit:
+  - rebuild/boot kernel with `I2C_SLAVE_TESTUNIT`
+  - try `slave-testunit` instantiation on J6/J7
+  - only then start implementing OMAP slave hooks or the BadgeSnake bridge,
+    depending on what fails first
 
 ## 2026-04-18 (hosted Boardie test program)
 

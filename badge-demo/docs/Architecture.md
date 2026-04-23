@@ -15,11 +15,11 @@ multi-controller I2C, the preferred direction is now:
 * either side may arbitrate as controller when it has data to send
 * one I2C transaction maps to one framed transport message
 
-So the longer-term plan is a kernel-visible multi-controller transport rather
+So the longer-term plan is a kernel-visible serial-to-I2C endpoint bridge rather
 than a strict host-controller / target-responder model.
 
 Battlesnake HTTP semantics can still be preserved at the host-runtime layer, but
-they should ride on top of a framed message transport instead of directly
+they should ride on top of endpoint-oriented framed transport instead of directly
 mapping `GET`/`PUT` to fixed I2C read/write choreography.
 
 ## BeagleBadge

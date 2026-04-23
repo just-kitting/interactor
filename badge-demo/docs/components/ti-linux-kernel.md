@@ -39,6 +39,10 @@ Current conclusion:
 - phase 2: add a BadgeSnake-specific slave backend for framed messages
 - phase 3: connect the kernel ABI to the Go runtime and simulation tools
 
+Current repo helper docs:
+
+- [I2CSlaveBringup.md](/root/interactor/badge-demo/docs/I2CSlaveBringup.md#L1)
+
 ## Update Procedure
 
 - keep generic kernel work in this submodule
