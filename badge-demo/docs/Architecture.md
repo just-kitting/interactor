@@ -4,15 +4,23 @@ This document provides a quick reference around the technical architecture of Ba
 
 ## Transport
 
-I2C will be used to transport data between BeagleBadge's QWIIC connectors and up to 2 BeagleConnect Zepto's QWIIC connectors for both flashing and game play.
+I2C is still the physical transport between BeagleBadge QWIIC connectors and up
+to 2 BeagleConnect Zepto boards, but the architectural direction has changed.
 
-Gameplay should preserve Battlesnake HTTP semantics and translate them onto I2C:
+The key constraint is that both the development host and the target can
+generate asynchronous messages. Because AM62L and MSPM0L both support
+multi-controller I2C, the preferred direction is now:
 
-* HTTP `GET`: I2C write of a shortened path token, then I2C read of the response body
-* HTTP `PUT`: I2C write of a shortened path token, then I2C write of the request body
-* HTTP headers should be removed wherever possible
+* simplex transactions on the wire
+* either side may arbitrate as controller when it has data to send
+* one I2C transaction maps to one framed transport message
 
-This keeps `components/battlesnake-rules` changes minimal while allowing Zepto players to behave like Battlesnake controllers.
+So the longer-term plan is a kernel-visible multi-controller transport rather
+than a strict host-controller / target-responder model.
+
+Battlesnake HTTP semantics can still be preserved at the host-runtime layer, but
+they should ride on top of a framed message transport instead of directly
+mapping `GET`/`PUT` to fixed I2C read/write choreography.
 
 ## BeagleBadge
 
@@ -61,3 +69,4 @@ Submodules:
 
 * ../components/beagleconnect-zepto: board design repository
 * ../components/bb-imager-rs: flashing utility source repository
+* ../components/ti-linux-kernel: TI kernel source starting point for AM62L I2C driver work

@@ -480,6 +480,48 @@ Mapped the running BeagleBadge kernel package back to the Armbian source tree.
 - the exact packaged content on this installed image is additionally identified
   by package git revision `da3c0f0a33ac00f7138c695a16d90301cf7ec02b`
 
+## 2026-04-23 (multi-controller I2C transport planning)
+
+The user added the TI kernel source as a submodule and clarified that the real
+transport problem is asynchronous messaging on a multi-controller I2C bus, not
+a simple request/response controller-target link.
+
+### Kernel-tree findings
+
+- `components/ti-linux-kernel` contains:
+  - `Documentation/i2c/slave-interface.rst`
+  - `drivers/i2c/i2c-core-slave.c`
+  - `drivers/i2c/i2c-slave-testunit.c`
+  - `drivers/i2c/i2c-slave-eeprom.c`
+  - `drivers/i2c/i2c-stub.c`
+- the generic slave framework exists in this tree
+- `config/kernel/linux-k3-vendor-edge.config` enables `CONFIG_I2C_SLAVE=y`
+- `drivers/i2c/busses/i2c-omap.c` does not currently implement:
+  - `reg_slave`
+  - `unreg_slave`
+
+### Implication
+
+- AM62L host slave-mode support is the first kernel task
+- `slave-testunit` is the right initial validation target
+- `i2c-stub` remains unsuitable because it is for static SMBus client-driver
+  testing, not a dynamic multi-controller message transport
+
+### Repo additions
+
+- `docs/I2CMultiControllerDriverPlan.md`
+- `docs/components/ti-linux-kernel.md`
+
+### Conclusion
+
+- yes, the added TI kernel tree is a workable starting point for planning the
+  driver
+- the recommended sequence is:
+  1. extend `i2c-omap.c` with slave support
+  2. validate with `slave-testunit`
+  3. add a BadgeSnake-specific framed backend
+  4. only add a stream-style shim above that if MicroBlocks still needs it
+
 ## 2026-04-18 (hosted Boardie test program)
 
 Added a concrete first program for the hosted I2C target bridge.

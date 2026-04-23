@@ -32,6 +32,8 @@
 - [X] Complete one successful end-to-end MicroBlocks web build and launch smoke test on BeagleBadge
 - [ ] Add a kernel-visible I2C simulation path so Linux controller tools can issue real bus transactions against the simulator
 - [ ] Choose and implement the kernel-visible simulation mechanism; `i2c-stub` is not sufficient for dynamic Boardie target behavior
+- [ ] Add AM62L `i2c-omap` slave-mode support and validate it with `slave-testunit`
+- [ ] Design and implement a framed multi-controller I2C transport kernel backend for BadgeSnake
 - [X] Add initial host-runtime code skeleton for protocol and in-memory transport
 - [ ] Implement player registration and health monitoring
 - [ ] Implement the game loop and deterministic move resolution
