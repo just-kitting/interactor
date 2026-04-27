@@ -105,4 +105,6 @@
 - [X] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge
 - [X] Restore the local QWIIC overlay after the DTB package refresh
 - [ ] Reboot into the corrected kernel+overlay state
-- [ ] Verify `i2c-slave-testunit` is present after reboot
+- [X] Verify `i2c-slave-testunit` is present after reboot
+- [X] Prove that `new_device` can instantiate a slave-testunit node on J6 / `i2c-1`
+- [ ] Add AM62L `i2c-omap` slave registration support so the instantiated slave node can actually bind

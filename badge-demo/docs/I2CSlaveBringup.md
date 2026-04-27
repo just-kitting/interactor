@@ -160,3 +160,19 @@ Target-mode bring-up is considered real when:
 - at least one multi-controller command works
 
 Only after that should BadgeSnake-specific bridge code be added.
+
+## Current AM62L Result
+
+The current BeagleBadge state has now passed the packaging and overlay checks:
+
+- `modinfo i2c-slave-testunit` works
+- the QWIIC overlay restores `i2c-1` and `i2c-3`
+- `new_device` can instantiate the slave address node on `i2c-1`
+
+The first real adapter-side failure is now visible in `dmesg`:
+
+```text
+i2c_slave_register: not supported by adapter
+```
+
+On this board that means the work is now correctly narrowed to the expected `i2c-omap` slave-hook gap, not module packaging, not DT overlay state, and not the `slave-testunit` backend itself.

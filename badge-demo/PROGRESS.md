@@ -1134,6 +1134,29 @@ The corrected artifact set is now installed on disk and the missing QWIIC overla
 - verify `i2c-1` and `i2c-3` reappear
 - rerun `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 
+## 2026-04-27 (adapter-side slave registration failure confirmed)
+
+The BeagleBadge is now past the packaging, module, and overlay issues. The remaining failure is the expected adapter support gap.
+
+### Findings
+
+- after reboot, `i2c-1` and `i2c-3` reappeared
+- `modinfo i2c-slave-testunit` succeeded normally
+- instantiating `slave-testunit` on `i2c-1` created the slave-address node `1-1030`
+- `dmesg` then reported:
+  - `i2c_slave_register: not supported by adapter`
+  - `probe with driver i2c-slave-testunit failed with error -95`
+- this is the expected `i2c-omap` adapter limitation surfacing for real
+
+### Changes
+
+- updated `scripts/bringup_i2c_slave_testunit.sh` to use the correct slave-address sysfs node (`1-1030` for `0x30`) and to fail when the device node exists but the driver did not bind
+
+### Meaning
+
+- `new_device` alone is not enough proof of working slave mode on AM62L
+- the project is now correctly narrowed to adding `reg_slave` / `unreg_slave` support and slave-event handling in `drivers/i2c/busses/i2c-omap.c`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
