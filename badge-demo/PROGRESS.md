@@ -1157,6 +1157,25 @@ The BeagleBadge is now past the packaging, module, and overlay issues. The remai
 - `new_device` alone is not enough proof of working slave mode on AM62L
 - the project is now correctly narrowed to adding `reg_slave` / `unreg_slave` support and slave-event handling in `drivers/i2c/busses/i2c-omap.c`
 
+## 2026-04-27 (first `i2c-omap` slave patch staged)
+
+The project has now moved from reproducing the adapter limitation to staging the
+first bus-driver patch in the TI kernel tree.
+
+### Changes
+
+- updated `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c` to add:
+  - `reg_slave()` / `unreg_slave()`
+  - `I2C_FUNC_SLAVE` advertisement
+  - a slave IRQ path that translates OMAP events into `i2c_slave_event()`
+  - restoration of slave-listen mode after host master transfers
+
+### Scope
+
+- this patch is intended to get past the current `i2c_slave_register: not supported by adapter` failure
+- it has not yet been compiled into a BeagleBadge test kernel in this session
+- the next required step is another x86-host kernel rebuild and on-device reinstall
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

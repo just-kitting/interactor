@@ -29,9 +29,12 @@ Important files already identified:
 Current conclusion:
 
 - the tree has the generic I2C slave framework and useful example backends
-- `i2c-omap.c` does not currently wire up `reg_slave` / `unreg_slave`
-- so AM62L host slave support is a prerequisite for a kernel-visible BadgeSnake
-  transport on BeagleBadge
+- `i2c-omap.c` was missing `reg_slave` / `unreg_slave` support in the imported baseline
+- a first local slave-support patch is now staged in this submodule for:
+  - slave registration
+  - slave IRQ dispatch
+  - switching back to slave-listen mode after master transfers
+- that patch still requires a rebuilt kernel for live validation on BeagleBadge
 
 ## Planned BadgeSnake Use
 

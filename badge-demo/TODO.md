@@ -108,3 +108,4 @@
 - [X] Verify `i2c-slave-testunit` is present after reboot
 - [X] Prove that `new_device` can instantiate a slave-testunit node on J6 / `i2c-1`
 - [ ] Add AM62L `i2c-omap` slave registration support so the instantiated slave node can actually bind
+- [ ] Rebuild and install a kernel that includes the staged `i2c-omap` slave-support patch

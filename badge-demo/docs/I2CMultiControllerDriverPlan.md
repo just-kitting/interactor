@@ -44,6 +44,19 @@ The critical missing piece for BeagleBadge is:
 That means the first implementation phase is enabling slave mode on the AM62L
 host adapter itself.
 
+## Current Status
+
+That first implementation phase is now underway in the TI kernel submodule:
+
+- a first `i2c-omap.c` patch is staged locally
+- it adds:
+  - `reg_slave()` / `unreg_slave()`
+  - slave IRQ routing into `i2c_slave_event()`
+  - restoration of slave-listen mode after host master transfers
+
+The next validation step is another rebuilt BeagleBadge kernel so this patch can
+be tested with `slave-testunit` on J6 / `i2c-1`.
+
 ## Recommended Architecture
 
 The end goal is **not** a target-only driver.
