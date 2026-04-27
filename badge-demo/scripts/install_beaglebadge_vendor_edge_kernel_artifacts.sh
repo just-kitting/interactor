@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 DEB_DIR="${REPO_ROOT}/components/armbian-build/output/debs"
+STAGE_DIR="/var/tmp/badgesnake-kernel-debs"
 
 required=(
 	"${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb
@@ -29,16 +30,25 @@ libc_deb=( "${DEB_DIR}/linux-libc-dev-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb
 echo "Reinstalling locally built BeagleBadge vendor-edge kernel artifacts:"
 printf '  %s\n' "${image_deb[0]}" "${dtb_deb[0]}" "${headers_deb[0]}" "${libc_deb[0]}"
 
+rm -rf "${STAGE_DIR}"
+install -d -m 0755 "${STAGE_DIR}"
+install -m 0644 "${image_deb[0]}" "${STAGE_DIR}/"
+install -m 0644 "${dtb_deb[0]}" "${STAGE_DIR}/"
+install -m 0644 "${headers_deb[0]}" "${STAGE_DIR}/"
+install -m 0644 "${libc_deb[0]}" "${STAGE_DIR}/"
+
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install --reinstall -y \
-	"${image_deb[0]}" \
-	"${dtb_deb[0]}" \
-	"${headers_deb[0]}" \
-	"${libc_deb[0]}"
+	"${STAGE_DIR}/$(basename "${image_deb[0]}")" \
+	"${STAGE_DIR}/$(basename "${dtb_deb[0]}")" \
+	"${STAGE_DIR}/$(basename "${headers_deb[0]}")" \
+	"${STAGE_DIR}/$(basename "${libc_deb[0]}")"
 
 echo
 echo "Installed local kernel artifacts."
+echo "Expected install notes on this board:"
+echo "  - FAT32 /boot cannot keep Linux symlinks, so Armbian falls back to rename()"
 echo "Next recommended steps:"
 echo "  1. reboot"
 echo "  2. uname -a"

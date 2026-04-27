@@ -1037,3 +1037,20 @@ The preservation and host-build steps are now complete.
 - reinstall the returned kernel packages on the BeagleBadge
 - reboot into the rebuilt kernel
 - verify `i2c-slave-testunit` exists and continue AM62L slave-mode bring-up
+
+## 2026-04-27 (kernel reinstall notes on live board)
+
+The local reinstall of the returned `vendor-edge-k3` kernel packages completed, and the reported messages were reviewed.
+
+### Findings
+
+- `update-initramfs: Symlink failed ... moving ...` is expected on this image because `/boot` is FAT32 and cannot preserve normal Linux symlinks
+- Armbian handled that correctly by renaming:
+  - `/boot/uInitrd-6.12.57-vendor-edge-k3` to `/boot/uInitrd`
+  - `/boot/vmlinuz-6.12.57-vendor-edge-k3` to `/boot/Image`
+- the `_apt` unsandboxed note was caused by installing local `.deb` files directly from a root-only repo path, not by a package failure
+
+### Changes
+
+- updated `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` to stage the `.deb` files into `/var/tmp/badgesnake-kernel-debs/` before calling `apt-get install --reinstall`
+- updated `docs/ArmbianKernelBuild.md` to document the expected FAT32 `/boot` behavior and the prior `_apt` warning

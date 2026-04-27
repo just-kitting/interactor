@@ -60,6 +60,16 @@ Use:
 
 Then reboot and continue with the `slave-testunit` bring-up steps in `docs/I2CSlaveBringup.md`.
 
+## Expected Install Notes
+
+Two install-time messages are expected on the current board image and do not indicate failure:
+
+- `update-initramfs: Symlink failed ... moving ...`:
+  - `/boot` is FAT32 on this image, so Armbian cannot keep normal Linux symlinks there and falls back to `rename()`
+- `_apt ... couldn't be accessed by user '_apt'`:
+  - this warning appears when local `.deb` files are installed from a root-only path
+  - the current reinstall wrapper stages the packages into `/var/tmp/badgesnake-kernel-debs/` first so future runs avoid that warning
+
 ## Why This Is The Current Build Target
 
 - it is enough to validate the staged `CONFIG_I2C_SLAVE_TESTUNIT=m` and `CONFIG_I2C_SLAVE_EEPROM=m` changes
