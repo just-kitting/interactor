@@ -101,5 +101,5 @@
 - [X] Run `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on an x86 Docker host
 - [X] Reinstall the returned `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot into the rebuilt kernel
 - [ ] Rebuild the BeagleBadge `vendor-edge-k3` kernel artifacts after restoring the missing K3 I2C slave config lines
-- [ ] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot again
+- [~] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot again
 - [ ] Verify `i2c-slave-testunit` is present after reboot

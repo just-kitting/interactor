@@ -6,44 +6,58 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 DEB_DIR="${REPO_ROOT}/components/armbian-build/output/debs"
 STAGE_DIR="/var/tmp/badgesnake-kernel-debs"
+shopt -s nullglob
 
-required=(
-	"${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb
-	"${DEB_DIR}/linux-dtb-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb
-	"${DEB_DIR}/linux-headers-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb
-	"${DEB_DIR}/linux-libc-dev-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb
-)
+image_matches=( "${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
+if [[ ${#image_matches[@]} -lt 1 ]]; then
+	echo "No linux-image-vendor-edge-k3 artifact found in ${DEB_DIR}" >&2
+	exit 1
+fi
 
-for pattern in "${required[@]}"; do
-	matches=( $pattern )
-	if [[ ${#matches[@]} -ne 1 ]]; then
-		echo "Expected exactly one package matching: $pattern" >&2
+image_deb=""
+for candidate in "${image_matches[@]}"; do
+	listing="$(dpkg-deb -c "${candidate}" 2>/dev/null || true)"
+	if grep -q 'i2c-slave-testunit\.ko' <<< "${listing}"; then
+		image_deb="${candidate}"
+		break
+	fi
+done
+
+if [[ -z "${image_deb}" ]]; then
+	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${image_matches[@]}" | xargs -r ls -1t 2>/dev/null && printf '\0')
+	image_deb="${sorted_images[0]}"
+fi
+
+build_suffix="${image_deb##*__}"
+
+dtb_deb="${DEB_DIR}/linux-dtb-vendor-edge-k3_26.02.0-trunk_arm64__${build_suffix}"
+headers_deb="${DEB_DIR}/linux-headers-vendor-edge-k3_26.02.0-trunk_arm64__${build_suffix}"
+libc_deb="${DEB_DIR}/linux-libc-dev-vendor-edge-k3_26.02.0-trunk_arm64__${build_suffix}"
+
+for f in "${image_deb}" "${dtb_deb}" "${headers_deb}" "${libc_deb}"; do
+	if [[ ! -f "${f}" ]]; then
+		echo "Missing matching artifact for selected build suffix ${build_suffix}: ${f}" >&2
 		exit 1
 	fi
 done
 
-image_deb=( "${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
-dtb_deb=( "${DEB_DIR}/linux-dtb-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
-headers_deb=( "${DEB_DIR}/linux-headers-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
-libc_deb=( "${DEB_DIR}/linux-libc-dev-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
-
 echo "Reinstalling locally built BeagleBadge vendor-edge kernel artifacts:"
-printf '  %s\n' "${image_deb[0]}" "${dtb_deb[0]}" "${headers_deb[0]}" "${libc_deb[0]}"
+printf '  %s\n' "${image_deb}" "${dtb_deb}" "${headers_deb}" "${libc_deb}"
 
 rm -rf "${STAGE_DIR}"
 install -d -m 0755 "${STAGE_DIR}"
-install -m 0644 "${image_deb[0]}" "${STAGE_DIR}/"
-install -m 0644 "${dtb_deb[0]}" "${STAGE_DIR}/"
-install -m 0644 "${headers_deb[0]}" "${STAGE_DIR}/"
-install -m 0644 "${libc_deb[0]}" "${STAGE_DIR}/"
+install -m 0644 "${image_deb}" "${STAGE_DIR}/"
+install -m 0644 "${dtb_deb}" "${STAGE_DIR}/"
+install -m 0644 "${headers_deb}" "${STAGE_DIR}/"
+install -m 0644 "${libc_deb}" "${STAGE_DIR}/"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install --reinstall -y \
-	"${STAGE_DIR}/$(basename "${image_deb[0]}")" \
-	"${STAGE_DIR}/$(basename "${dtb_deb[0]}")" \
-	"${STAGE_DIR}/$(basename "${headers_deb[0]}")" \
-	"${STAGE_DIR}/$(basename "${libc_deb[0]}")"
+	"${STAGE_DIR}/$(basename "${image_deb}")" \
+	"${STAGE_DIR}/$(basename "${dtb_deb}")" \
+	"${STAGE_DIR}/$(basename "${headers_deb}")" \
+	"${STAGE_DIR}/$(basename "${libc_deb}")"
 
 echo
 echo "Installed local kernel artifacts."

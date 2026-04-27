@@ -71,6 +71,18 @@ That means the previously returned `vendor-edge-k3` artifacts were built from th
 
 Before continuing AM62L slave-mode bring-up, rebuild the kernel artifacts again from the restored config in `components/armbian-build/config/kernel/`.
 
+## Mixed Artifact Directory
+
+`components/armbian-build/output/debs/` can contain more than one `vendor-edge-k3` artifact set at the same time.
+
+The current reinstall wrapper handles that by:
+
+- scanning the available `linux-image-vendor-edge-k3` packages
+- preferring the first one whose contents include `i2c-slave-testunit.ko`
+- selecting the matching `dtb`, `headers`, and `libc-dev` packages from the same build suffix
+
+That avoids accidentally reinstalling an older stale artifact set just because it was copied in earlier.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:

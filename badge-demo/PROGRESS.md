@@ -1083,6 +1083,33 @@ The first rebuilt `vendor-edge-k3` kernel install did not provide the expected s
 - copy the corrected artifacts back into `components/armbian-build/output/`
 - reinstall and reboot again before retrying `modinfo i2c-slave-testunit`
 
+## 2026-04-27 (corrected artifact set restored)
+
+The rebuilt x86-host artifacts with the restored K3 config have now been copied back into `components/armbian-build/output/debs/`.
+
+### Findings
+
+- `output/debs/` now contains both:
+  - the older stale `Cd5e6...` artifact set
+  - the corrected `C2876...` artifact set
+- the corrected `linux-image-vendor-edge-k3_...C2876...deb` contains:
+  - `i2c-slave-eeprom.ko`
+  - `i2c-slave-testunit.ko`
+- after reinstalling the corrected image package, those module files are present on disk under:
+  - `/lib/modules/6.12.57-vendor-edge-k3/kernel/drivers/i2c/`
+
+### Changes
+
+- updated `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` so it no longer assumes a single artifact set in `output/debs/`
+- the reinstall wrapper now prefers the image package whose contents include `i2c-slave-testunit.ko`, then picks the matching `dtb`, `headers`, and `libc-dev` packages from the same suffix
+
+### Next step
+
+- let the corrected reinstall finish
+- reboot
+- verify `modinfo i2c-slave-testunit`
+- continue with `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
