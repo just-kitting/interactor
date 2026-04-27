@@ -1011,3 +1011,29 @@ The user corrected the `components/armbian-build` branch and asked for a concret
 - build kernel packages first
 - do not treat a fresh starting microSD image as the next default step
 - before any image replacement, run the capture script on the live board and copy the resulting archive off-board
+
+## 2026-04-27 (state capture and x86 kernel build completed)
+
+The preservation and host-build steps are now complete.
+
+### Findings
+
+- the saved board-state archive now exists at `artifacts/state-capture/beaglebadge-state-20260427T115544Z.tar.gz`
+- the x86 Docker build output has been copied back into `components/armbian-build/output/`
+- the returned build includes:
+  - `linux-image-vendor-edge-k3`
+  - `linux-dtb-vendor-edge-k3`
+  - `linux-headers-vendor-edge-k3`
+  - `linux-libc-dev-vendor-edge-k3`
+- the rebuilt packages currently use the same Debian package version string as the installed packages on the board: `26.02.0-trunk`
+
+### Changes
+
+- added `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` to reinstall the returned local `.deb` files on-device
+- updated the kernel-build and slave-bring-up docs to use the reinstall path instead of a generic upgrade assumption
+
+### Next step
+
+- reinstall the returned kernel packages on the BeagleBadge
+- reboot into the rebuilt kernel
+- verify `i2c-slave-testunit` exists and continue AM62L slave-mode bring-up

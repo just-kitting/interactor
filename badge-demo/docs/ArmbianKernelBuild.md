@@ -39,6 +39,27 @@ The resulting kernel packages are written under:
 
 For the current target-mode work, the expected useful artifacts are the rebuilt `linux-image-*`, `linux-dtb-*`, and any corresponding modules package for the BeagleBadge `vendor-edge` family.
 
+## Current Returned Artifacts
+
+The current x86-host build artifacts have been copied back into `components/armbian-build/output/` in this repo. The relevant `.deb` files are:
+
+- `linux-image-vendor-edge-k3`
+- `linux-dtb-vendor-edge-k3`
+- `linux-headers-vendor-edge-k3`
+- `linux-libc-dev-vendor-edge-k3`
+
+These packages currently use the same Debian package version string as the installed kernel packages on the board: `26.02.0-trunk`.
+
+Because of that, the board-side install step should be a reinstall from the local `.deb` files, not a normal upgrade.
+
+Use:
+
+```sh
+./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+Then reboot and continue with the `slave-testunit` bring-up steps in `docs/I2CSlaveBringup.md`.
+
 ## Why This Is The Current Build Target
 
 - it is enough to validate the staged `CONFIG_I2C_SLAVE_TESTUNIT=m` and `CONFIG_I2C_SLAVE_EEPROM=m` changes

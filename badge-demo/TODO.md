@@ -97,5 +97,7 @@
 - [~] Build `bb-imager-cli` with `zepto_i2c` and enumerate/flash the live Zepto over `/dev/i2c-1`
 - [X] Review `docs/ZeptoPlatformIO.md`
 - [X] Add a board-state preservation capture process before any fresh microSD image work
-- [ ] Run `scripts/capture_beaglebadge_state.sh` on the live board and copy the resulting archive off-board
-- [ ] Run `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on an x86 Docker host
+- [X] Run `scripts/capture_beaglebadge_state.sh` on the live board and copy the resulting archive off-board
+- [X] Run `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on an x86 Docker host
+- [ ] Reinstall the returned `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot into the rebuilt kernel
+- [ ] Verify `i2c-slave-testunit` is present after reboot

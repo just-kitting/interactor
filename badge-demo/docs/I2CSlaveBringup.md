@@ -86,9 +86,19 @@ To build the updated BeagleBadge `vendor-edge` kernel packages on an x86 host wi
 
 This is intentionally a kernel-package build only. It is the next step for target-mode validation and does not imply that a replacement microSD image should be produced yet.
 
+## Current Install Path
+
+After copying the returned `.deb` artifacts back into `components/armbian-build/output/debs/` on the BeagleBadge, reinstall them with:
+
+```sh
+./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+This uses `apt-get install --reinstall` because the rebuilt packages currently carry the same Debian version string as the installed `vendor-edge-k3` packages.
+
 ## Suggested Bring-Up Sequence
 
-1. Boot a kernel that includes the above config options.
+1. Install the returned kernel artifacts and reboot into that kernel.
 2. Confirm the module exists:
 
 ```sh
