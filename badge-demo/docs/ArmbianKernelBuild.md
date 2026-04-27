@@ -80,6 +80,7 @@ The current reinstall wrapper handles that by:
 - scanning the available `linux-image-vendor-edge-k3` packages
 - preferring the first one whose contents include `i2c-slave-testunit.ko`
 - selecting the matching `dtb`, `headers`, and `libc-dev` packages from the same build suffix
+- reinstalling the local QWIIC overlay after the DTB package refresh
 
 That avoids accidentally reinstalling an older stale artifact set just because it was copied in earlier.
 

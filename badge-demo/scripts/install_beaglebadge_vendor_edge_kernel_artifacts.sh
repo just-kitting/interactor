@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 DEB_DIR="${REPO_ROOT}/components/armbian-build/output/debs"
 STAGE_DIR="/var/tmp/badgesnake-kernel-debs"
+QWIIC_OVERLAY_HELPER="${REPO_ROOT}/scripts/install_qwiic_i2c_overlay.sh"
 shopt -s nullglob
 
 image_matches=( "${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
@@ -59,12 +60,20 @@ apt-get install --reinstall -y \
 	"${STAGE_DIR}/$(basename "${headers_deb}")" \
 	"${STAGE_DIR}/$(basename "${libc_deb}")"
 
+if [[ -x "${QWIIC_OVERLAY_HELPER}" ]]; then
+	echo
+	echo "Reinstalling local QWIIC overlay after DTB package refresh..."
+	"${QWIIC_OVERLAY_HELPER}"
+fi
+
 echo
 echo "Installed local kernel artifacts."
 echo "Expected install notes on this board:"
 echo "  - FAT32 /boot cannot keep Linux symlinks, so Armbian falls back to rename()"
+echo "  - the QWIIC overlay is reinstalled after the DTB package refresh"
 echo "Next recommended steps:"
 echo "  1. reboot"
 echo "  2. uname -a"
 echo "  3. modinfo i2c-slave-testunit"
-echo "  4. ./scripts/bringup_i2c_slave_testunit.sh start 1 0x30"
+echo "  4. ls /sys/bus/i2c/devices | grep '^i2c-[13]$'"
+echo "  5. ./scripts/bringup_i2c_slave_testunit.sh start 1 0x30"

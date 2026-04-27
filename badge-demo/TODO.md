@@ -102,4 +102,7 @@
 - [X] Reinstall the returned `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot into the rebuilt kernel
 - [ ] Rebuild the BeagleBadge `vendor-edge-k3` kernel artifacts after restoring the missing K3 I2C slave config lines
 - [~] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot again
+- [X] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge
+- [X] Restore the local QWIIC overlay after the DTB package refresh
+- [ ] Reboot into the corrected kernel+overlay state
 - [ ] Verify `i2c-slave-testunit` is present after reboot

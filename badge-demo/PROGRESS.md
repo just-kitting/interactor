@@ -1110,6 +1110,30 @@ The rebuilt x86-host artifacts with the restored K3 config have now been copied 
 - verify `modinfo i2c-slave-testunit`
 - continue with `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 
+## 2026-04-27 (corrected reinstall verified pre-reboot)
+
+The corrected artifact set is now installed on disk and the missing QWIIC overlay was restored into `/boot`.
+
+### Findings
+
+- `modinfo i2c-slave-testunit` now succeeds by module name
+- the running kernel package reports:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #2 ...`
+- the DTB package refresh removed `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`, which explains why only `i2c-0` and `i2c-2` were present and why the bring-up helper could not find `/sys/bus/i2c/devices/i2c-1/new_device`
+- reinstalling the overlay restored:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+  - `name_overlays=... ti/k3-am62l3-badge-qwiic-i2c.dtbo` in `/boot/uEnv.txt`
+
+### Changes
+
+- updated `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` to reapply the local QWIIC overlay after reinstalling the kernel DTB package
+
+### Next step
+
+- reboot so the restored QWIIC overlay takes effect again
+- verify `i2c-1` and `i2c-3` reappear
+- rerun `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
