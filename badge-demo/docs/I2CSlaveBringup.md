@@ -36,6 +36,20 @@ Even with those configs enabled, target-mode bring-up still depends on
 
 Until that exists, `slave-testunit` cannot actually bind on AM62L.
 
+## Build Scope
+
+There are two different iteration paths here:
+
+- `i2c-slave-testunit` and `i2c-slave-eeprom` are loadable modules
+- `i2c-omap` is built into the K3 kernel image
+
+That means:
+
+- for validating the stock slave backends, a local module-only build is a reasonable faster path
+- for the eventual AM62L slave-mode enablement in `i2c-omap.c`, a full kernel image rebuild and reboot are still required
+
+So the current corrective rebuild is only needed because the returned kernel packages were missing the module config entirely. After that, module-only iteration should be preferred until work moves into `i2c-omap.c`.
+
 ## First Validation Target
 
 Use the kernel's own backend:

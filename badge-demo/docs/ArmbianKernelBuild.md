@@ -86,3 +86,19 @@ Two install-time messages are expected on the current board image and do not ind
 - it is enough to validate the staged `CONFIG_I2C_SLAVE_TESTUNIT=m` and `CONFIG_I2C_SLAVE_EEPROM=m` changes
 - it avoids jumping ahead to a full image replacement before state-preservation work is in place
 - it keeps the next test focused on `i2c-omap` slave bring-up
+
+## Local Module Iteration
+
+There is a good reason to distinguish between the short-term and long-term work here:
+
+- `i2c-slave-testunit` and `i2c-slave-eeprom` are built as modules when enabled
+- `i2c-omap` is built into the K3 kernel image with `CONFIG_I2C_OMAP=y`
+
+So yes, local module-only builds on the BeagleBadge are a valid faster iteration path for the stock slave test backends once the config is correct.
+
+What module-only builds cannot avoid is the eventual `i2c-omap.c` work:
+
+- changes to `i2c-omap` require rebuilding and booting a new kernel image
+- they cannot be delivered as a standalone `.ko`
+
+For the immediate missing-`slave-testunit` problem, the current rebuild is only correcting the package contents. After that, module-only iteration is the better path until bus-driver changes begin.

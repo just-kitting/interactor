@@ -1082,3 +1082,20 @@ The first rebuilt `vendor-edge-k3` kernel install did not provide the expected s
 - rebuild the kernel artifacts again on the x86 Docker host
 - copy the corrected artifacts back into `components/armbian-build/output/`
 - reinstall and reboot again before retrying `modinfo i2c-slave-testunit`
+
+## 2026-04-27 (module-only iteration boundary)
+
+The reason for using a full rebuild versus a local module build is now explicit.
+
+### Findings
+
+- `i2c-slave-testunit` and `i2c-slave-eeprom` are normal loadable modules under `drivers/i2c/`
+- `i2c-omap` is built into the K3 kernel image with `CONFIG_I2C_OMAP=y`
+- therefore:
+  - module-only builds are a valid faster path for stock slave backend validation
+  - module-only builds are not enough for the eventual AM62L slave-mode work in `i2c-omap.c`
+
+### Current recommendation
+
+- finish one corrective rebuild so the returned packages actually contain the slave backend modules
+- after that, prefer local module-only iteration until development moves into `i2c-omap.c`
