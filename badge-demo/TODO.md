@@ -99,5 +99,7 @@
 - [X] Add a board-state preservation capture process before any fresh microSD image work
 - [X] Run `scripts/capture_beaglebadge_state.sh` on the live board and copy the resulting archive off-board
 - [X] Run `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on an x86 Docker host
-- [ ] Reinstall the returned `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot into the rebuilt kernel
+- [X] Reinstall the returned `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot into the rebuilt kernel
+- [ ] Rebuild the BeagleBadge `vendor-edge-k3` kernel artifacts after restoring the missing K3 I2C slave config lines
+- [ ] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot again
 - [ ] Verify `i2c-slave-testunit` is present after reboot

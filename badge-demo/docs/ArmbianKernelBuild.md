@@ -60,6 +60,17 @@ Use:
 
 Then reboot and continue with the `slave-testunit` bring-up steps in `docs/I2CSlaveBringup.md`.
 
+## Current Correction
+
+After validating the live kernel, it turned out the corrected `components/armbian-build` branch no longer carried the intended K3 config deltas for:
+
+- `CONFIG_I2C_SLAVE_EEPROM`
+- `CONFIG_I2C_SLAVE_TESTUNIT`
+
+That means the previously returned `vendor-edge-k3` artifacts were built from the wrong effective config and do not contain `i2c-slave-testunit`.
+
+Before continuing AM62L slave-mode bring-up, rebuild the kernel artifacts again from the restored config in `components/armbian-build/config/kernel/`.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:

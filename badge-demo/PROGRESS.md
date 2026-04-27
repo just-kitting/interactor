@@ -1054,3 +1054,31 @@ The local reinstall of the returned `vendor-edge-k3` kernel packages completed, 
 
 - updated `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` to stage the `.deb` files into `/var/tmp/badgesnake-kernel-debs/` before calling `apt-get install --reinstall`
 - updated `docs/ArmbianKernelBuild.md` to document the expected FAT32 `/boot` behavior and the prior `_apt` warning
+
+## 2026-04-27 (rebuilt kernel missing slave-testunit)
+
+The first rebuilt `vendor-edge-k3` kernel install did not provide the expected slave test module.
+
+### Findings
+
+- after reboot, the live kernel still reported only:
+  - `CONFIG_I2C_SLAVE=y`
+- `modinfo i2c-slave-testunit` failed because the module was not present in the rebuilt package
+- the returned x86-host build log shows it used `config/kernel/linux-k3-vendor-edge.config`
+- on the corrected `components/armbian-build` branch, that config no longer contained the intended:
+  - `CONFIG_I2C_SLAVE_EEPROM=m`
+  - `CONFIG_I2C_SLAVE_TESTUNIT=m`
+- therefore the first returned `vendor-edge-k3` artifacts were built from the wrong effective config and are not the right validation kernel
+
+### Changes
+
+- restored `CONFIG_I2C_SLAVE_EEPROM=m` and `CONFIG_I2C_SLAVE_TESTUNIT=m` in:
+  - `components/armbian-build/config/kernel/linux-k3-vendor-edge.config`
+  - `components/armbian-build/config/kernel/linux-k3-beagle-vendor.config`
+  - `components/armbian-build/config/kernel/linux-k3-beagle-vendor-rt.config`
+
+### Next step
+
+- rebuild the kernel artifacts again on the x86 Docker host
+- copy the corrected artifacts back into `components/armbian-build/output/`
+- reinstall and reboot again before retrying `modinfo i2c-slave-testunit`
