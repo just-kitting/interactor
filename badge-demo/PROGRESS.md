@@ -1176,6 +1176,28 @@ first bus-driver patch in the TI kernel tree.
 - it has not yet been compiled into a BeagleBadge test kernel in this session
 - the next required step is another x86-host kernel rebuild and on-device reinstall
 
+## 2026-04-28 (copied build check after staged `i2c-omap` patch)
+
+The copied Armbian output was checked to see whether a new kernel build had arrived for the staged local `i2c-omap` patch.
+
+### Findings
+
+- there is a newer copied build session in `components/armbian-build/output/logs/`:
+  - `85c46fcc-f113-4c36-881e-c0f1535e7e23`
+- that build still reports:
+  - `KERNELSOURCE='https://github.com/TexasInstruments/ti-linux-kernel'`
+  - `KERNELBRANCH='branch:ti-linux-6.12.y-cicd'`
+- the copied artifacts in `output/debs/` are still only the two already-known sets:
+  - stale `Cd5e6...`
+  - corrected module-enabled `C2876...`
+- there is no third artifact suffix corresponding to a new post-`i2c-omap` build
+- therefore no copied build is yet visible that proves the staged local `components/ti-linux-kernel` patch was compiled
+
+### Meaning
+
+- a newer build was copied back
+- but it was not a new test build for the staged local `i2c-omap` patch
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

@@ -84,6 +84,23 @@ The current reinstall wrapper handles that by:
 
 That avoids accidentally reinstalling an older stale artifact set just because it was copied in earlier.
 
+## Current Source-Of-Truth Caveat
+
+The current Armbian kernel build still uses the source tuple from the build framework:
+
+- `KERNELSOURCE=https://github.com/TexasInstruments/ti-linux-kernel`
+- `KERNELBRANCH=branch:ti-linux-6.12.y-cicd`
+
+So copying back a freshly built artifact set does **not** by itself prove that it included local changes staged in `components/ti-linux-kernel/`.
+
+For the staged local `i2c-omap` slave-support patch, a successful validation build must either:
+
+- be redirected to the local kernel source tree, or
+- carry the patch through the Armbian kernel patch path, or
+- otherwise prove in the build log that the patched kernel source was used
+
+If the copied artifacts still only show the existing `C2876...` suffix, they are not a new post-`i2c-omap` test build.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
