@@ -1405,6 +1405,47 @@ The first live `P5507` validation narrowed the remaining AM62L problem to transa
 - copy the returned artifacts back into `components/armbian-build/output/`
 - reinstall, reboot, and repeat the `i2ctransfer -f -y 1 r1@0x30` validation
 
+## 2026-04-30 (installed `P024c` slave-TX follow-up kernel)
+
+The next AM62L slave-mode follow-up build has now been copied back, selected, and installed on the live board.
+
+### Findings
+
+- copied build log:
+  - `components/armbian-build/output/logs/log-kernel-a7a0cecc-b133-4f5e-86d2-3dc2f1235eea.log`
+- build summary:
+  - `kernel patching: 3 total patches; 3 applied; 0 with problems`
+- selected artifact suffix:
+  - `P024c`
+- selected packages:
+  - `linux-image-vendor-edge-k3_..._P024c_...`
+  - `linux-dtb-vendor-edge-k3_..._P024c_...`
+  - `linux-headers-vendor-edge-k3_..._P024c_...`
+  - `linux-libc-dev-vendor-edge-k3_..._P024c_...`
+
+### Changes
+
+- installed the `P024c` kernel package set on the BeagleBadge
+- reapplied the local QWIIC overlay after the DTB package refresh
+- backed up `/boot/uEnv.txt` to:
+  - `/boot/uEnv.txt.bak.20260430T210620Z`
+
+### Meaning
+
+- the next runtime test will be the first one with all three staged `i2c-omap` patches:
+  - slave registration support
+  - declaration-order fix
+  - slave TX underflow/FIFO follow-up
+
+### Next step
+
+- reboot the board
+- rerun:
+  - `uname -a`
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

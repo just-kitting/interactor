@@ -229,3 +229,14 @@ The next staged driver change is based on TI's documented target-transmit behavi
 That follow-up now lives in:
 
 - `components/armbian-build/patch/kernel/archive/k3-6.12/0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
+
+The first rebuild carrying that patch is now available and installed:
+
+- build UUID: `a7a0cecc-b133-4f5e-86d2-3dc2f1235eea`
+- artifact suffix: `P024c`
+- patching result: `3 total patches; 3 applied; 0 with problems`
+
+The next live step is to reboot into `P024c` and repeat:
+
+- `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+- `i2ctransfer -f -y 1 r1@0x30`

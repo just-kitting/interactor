@@ -131,6 +131,14 @@ The next host build should therefore include the additional slave-TX follow-up p
 
 - `0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
 
+That follow-up build has now been returned and installed with:
+
+- build UUID: `a7a0cecc-b133-4f5e-86d2-3dc2f1235eea`
+- artifact suffix: `P024c`
+- kernel patching summary: `3 total patches; 3 applied; 0 with problems`
+
+The board still needs to be rebooted into `P024c` before the new runtime result can be validated.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
