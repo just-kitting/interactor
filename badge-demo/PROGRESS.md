@@ -1379,6 +1379,32 @@ The board has now been rebooted into the installed `P5507` kernel and the first 
 - inspect why the bound slave target is not completing controller-originated transactions on `i2c-1`
 - add the next round of `i2c-omap` instrumentation or fixes based on that timeout behavior
 
+## 2026-04-30 (next `i2c-omap` follow-up for slave TX timeout)
+
+The first live `P5507` validation narrowed the remaining AM62L problem to transaction completion after slave bind. The next staged driver change is targeted specifically at slave-transmit startup.
+
+### Findings
+
+- the local AM62L TRM notes say target-transmit mode can hold SCL low while software intervention is required on `XUDF`
+- TI forum guidance and examples show `XUDF` appearing together with slave-transmit startup events
+- the previous patch series did not enable `XUDF` interrupts in slave mode and did not service `XUDF` as part of the slave TX path
+- the previous slave-listen restore path also did not explicitly reset FIFO state for slave operation
+
+### Changes
+
+- updated `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c` to:
+  - enable `XUDF` interrupts in slave mode
+  - service `XUDF` and `XRDY` through a shared slave-TX helper
+  - reset FIFO state and keep 1-byte thresholds when returning to slave-listen mode
+- refreshed the Armbian `archive/k3-6.12` patch series to include:
+  - `0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel packages again on the x86 Docker host
+- copy the returned artifacts back into `components/armbian-build/output/`
+- reinstall, reboot, and repeat the `i2ctransfer -f -y 1 r1@0x30` validation
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

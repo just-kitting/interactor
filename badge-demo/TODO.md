@@ -113,4 +113,5 @@
 - [X] Prove that `new_device` can instantiate a slave-testunit node on J6 / `i2c-1`
 - [X] Add enough AM62L `i2c-omap` slave registration support for `slave-testunit` to bind on J6 / `i2c-1`
 - [ ] Diagnose why forced same-adapter transactions to bound `slave-testunit` on J6 currently time out
+- [ ] Rebuild and test the AM62L `i2c-omap` slave TX underflow/FIFO fix on BeagleBadge
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

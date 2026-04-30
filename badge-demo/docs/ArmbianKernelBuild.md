@@ -95,6 +95,7 @@ The AM62L slave-mode test kernel is now carried through the Armbian patch path i
 
 - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
 - `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
 
 Those patches were generated from the staged `components/ti-linux-kernel` `i2c-omap` change set and are now the build input that matters for x86-host kernel-package rebuilds.
 
@@ -124,6 +125,11 @@ Later on 2026-04-30, a corrected build log and artifact set were copied back:
 
 That `P5507` set is now the first valid AM62L slave-test kernel artifact set.
 It has also been reinstalled on the BeagleBadge, but the board still needs to be rebooted into it before `slave-testunit` can be re-tested.
+
+After runtime validation on `P5507`, binding succeeded but same-adapter traffic to the bound target still timed out.
+The next host build should therefore include the additional slave-TX follow-up patch:
+
+- `0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
 
 ## Expected Install Notes
 

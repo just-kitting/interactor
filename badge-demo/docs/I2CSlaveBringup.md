@@ -40,6 +40,7 @@ The first BeagleBadge test patch for that gap is now carried through the Armbian
 
 - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
 - `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
 
 ## Build Scope
 
@@ -216,3 +217,15 @@ The next failure has moved further forward:
 
 So the remaining work is no longer “make the slave backend bind.”
 It is “make bound slave-mode traffic actually complete.”
+
+## Current Follow-Up Hypothesis
+
+The next staged driver change is based on TI's documented target-transmit behavior:
+
+- target-transmit mode can hold SCL low while software intervention is required on `XUDF`
+- the previous patch series enabled binding, but it did not enable or service `XUDF` in the slave TX path
+- the follow-up change also resets slave FIFO state and keeps slave thresholds at 1 byte when returning to listen mode
+
+That follow-up now lives in:
+
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch`
