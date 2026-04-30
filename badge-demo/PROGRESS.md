@@ -1211,8 +1211,8 @@ Two new pieces of state were confirmed.
   - `kernel patching: 0 total patches; 0 applied; 0 with problems`
 - so the `S3b4a...` build is newer than the earlier copied artifacts, but still does not prove the staged local `i2c-omap` patch was compiled
 - the BeagleBadge Grove connector is now wired to the attached Zepto control pins:
-  - Grove pin 4 (yellow) -> `BSL`
-  - Grove pin 3 (white) -> `RST`
+  - this original pin-number note was later corrected
+  - current corrected mapping is recorded below and in `docs/ZeptoControlWiring.md`
 
 ### Changes
 
@@ -1231,7 +1231,8 @@ The next BeagleBadge `vendor-edge` rebuild has been wired to carry the staged AM
 ### Changes
 
 - added:
-  - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
 - updated:
   - `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh`
   - `docs/ArmbianKernelBuild.md`
@@ -1250,6 +1251,38 @@ The next BeagleBadge `vendor-edge` rebuild has been wired to carry the staged AM
 - rerun `./scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on the x86 Docker host
 - copy the returned artifacts back into `components/armbian-build/output/`
 - reinstall on BeagleBadge and rerun `slave-testunit` binding tests
+
+## 2026-04-30 (first AM62L slave-patch build failure and Grove pin correction)
+
+The first x86-host rebuild that carried the AM62L `i2c-omap` slave patch failed in compile, but it usefully proved that the Armbian patch path is now active.
+
+### Findings
+
+- copied build log:
+  - `components/armbian-build/output/logs/log-kernel-7afe2c77-a105-4db4-954a-6d5cef614223.log`
+- the log now shows:
+  - `Summary: kernel patching: 1 total patches; 1 applied; 0 with problems`
+- the actual compile failure is narrow and local to the staged patch:
+  - `drivers/i2c/busses/i2c-omap.c:812:17: error: implicit declaration of function 'omap_i2c_set_master_mode'`
+  - `drivers/i2c/busses/i2c-omap.c:838:17: error: implicit declaration of function 'omap_i2c_restore_slave_listen'`
+  - later duplicate-definition diagnostics confirm the problem is missing forward declarations, not a broader design failure
+
+### Wiring correction
+
+- the temporary Grove-to-Zepto control wiring was corrected by the user:
+  - Grove pin 1, yellow -> `BSL`
+  - Grove pin 2, white -> `RST`
+  - earlier pin-3/pin-4 notes were backwards
+- user also noted package balls:
+  - Grove pin 1 / `BSL` -> `G23`
+  - Grove pin 2 / `RST` -> `G22`
+- Linux GPIO line names and final mux state are still not captured
+
+### Next step
+
+- add the missing helper forward declarations in `i2c-omap.c`
+- refresh the Armbian patch copy from the corrected source
+- rerun the x86 host kernel build
 
 ## 2026-04-27 (module-only iteration boundary)
 

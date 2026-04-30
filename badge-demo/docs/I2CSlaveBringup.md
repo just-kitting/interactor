@@ -38,7 +38,8 @@ Until that exists, `slave-testunit` cannot actually bind on AM62L.
 
 The first BeagleBadge test patch for that gap is now carried through the Armbian patchset at:
 
-- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
 
 ## Build Scope
 

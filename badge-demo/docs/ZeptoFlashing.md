@@ -29,12 +29,12 @@ Validated on this board:
 
 The BeagleBadge Grove connector is now wired into the attached Zepto control signals:
 
-- Grove pin 4 (yellow) -> Zepto `BSL`
-- Grove pin 3 (white) -> Zepto `RST`
+- Grove pin 1 (yellow) -> Zepto `BSL`
+- Grove pin 2 (white) -> Zepto `RST`
 
 See [ZeptoControlWiring.md](/root/interactor/badge-demo/docs/ZeptoControlWiring.md#L1).
 
-This should allow the host to automate Zepto BSL entry once the Linux GPIO line mapping for those Grove pins is identified.
+This should allow the host to automate Zepto BSL entry once the Linux GPIO line mapping and pinmux state for those Grove pins are identified.
 
 ## Expected CLI flow
 

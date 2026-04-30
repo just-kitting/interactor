@@ -35,7 +35,8 @@ Current conclusion:
   - slave IRQ dispatch
   - switching back to slave-listen mode after master transfers
 - that patch has also been mirrored into:
-  - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
 - the Armbian patch copy is the build-time source of truth for the next BeagleBadge validation kernel
 
 ## Planned BadgeSnake Use

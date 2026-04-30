@@ -29,7 +29,8 @@ This deliberately builds kernel packages only. It does not yet authorize replaci
 
 The current BeagleBadge-specific kernel patch for target-mode bring-up lives here:
 
-- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
 
 ## Update Procedure
 

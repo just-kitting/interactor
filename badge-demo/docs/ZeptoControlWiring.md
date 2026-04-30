@@ -4,14 +4,18 @@ This document records the current temporary hardware control wiring between the 
 
 ## Current Wiring
 
-User-provided live wiring on 2026-04-30:
+User-corrected live wiring on 2026-04-30:
 
-- BeagleBadge Grove pin 4
+- BeagleBadge Grove pin 1
   - wire color: yellow
   - connected to Zepto `BSL`
-- BeagleBadge Grove pin 3
+  - user-noted package ball: `G23`
+- BeagleBadge Grove pin 2
   - wire color: white
   - connected to Zepto `RST`
+  - user-noted package ball: `G22`
+
+The earlier pin-3/pin-4 note was backwards and should not be reused.
 
 This wiring is intended to support automated Zepto bootloader entry from the BeagleBadge host instead of requiring only manual button timing.
 
@@ -23,10 +27,10 @@ Current `gpioinfo` output on the BeagleBadge does not expose obvious Grove-speci
 
 ## Next Step
 
-Identify the exact Linux GPIO chip/line mapping for:
+Identify the exact Linux GPIO chip/line mapping and pinmux state for:
 
-- Grove pin 3 -> Zepto `RST`
-- Grove pin 4 -> Zepto `BSL`
+- Grove pin 1 -> Zepto `BSL`
+- Grove pin 2 -> Zepto `RST`
 
 Once those are known, add:
 

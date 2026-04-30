@@ -93,9 +93,10 @@ The BeagleBadge `vendor-edge` build still pulls the upstream TI source tuple fro
 
 The AM62L slave-mode test kernel is now carried through the Armbian patch path instead of relying on the local `components/ti-linux-kernel/` worktree:
 
-- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-Stage-OMAP-I2C-slave-registration-support.patch`
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0002-Fix-OMAP-slave-helper-declaration-order.patch`
 
-That patch was generated from the staged `components/ti-linux-kernel` `i2c-omap` change and is now the build input that matters for x86-host kernel-package rebuilds.
+Those patches were generated from the staged `components/ti-linux-kernel` `i2c-omap` change set and are now the build input that matters for x86-host kernel-package rebuilds.
 
 For the next validation build, the important proof point in the host build log is no longer “local kernel source was used.”
 It is that kernel patching reports at least this patch as applied from `archive/k3-6.12`.
