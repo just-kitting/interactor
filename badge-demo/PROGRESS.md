@@ -1198,6 +1198,32 @@ The copied Armbian output was checked to see whether a new kernel build had arri
 - a newer build was copied back
 - but it was not a new test build for the staged local `i2c-omap` patch
 
+## 2026-04-30 (newer copied artifacts and Zepto control wiring)
+
+Two new pieces of state were confirmed.
+
+### Findings
+
+- `components/armbian-build/output/debs/` now includes a newer artifact set with suffix `S3b4a...`
+- the corresponding copied build log still reports:
+  - `KERNELSOURCE='https://github.com/TexasInstruments/ti-linux-kernel'`
+  - `KERNELBRANCH='branch:ti-linux-6.12.y-cicd'`
+  - `kernel patching: 0 total patches; 0 applied; 0 with problems`
+- so the `S3b4a...` build is newer than the earlier copied artifacts, but still does not prove the staged local `i2c-omap` patch was compiled
+- the BeagleBadge Grove connector is now wired to the attached Zepto control pins:
+  - Grove pin 4 (yellow) -> `BSL`
+  - Grove pin 3 (white) -> `RST`
+
+### Changes
+
+- added `docs/ZeptoControlWiring.md`
+- updated flashing docs to point at the new control-wiring record
+
+### Next step
+
+- identify the Linux GPIO mapping for Grove pins 3 and 4
+- add host-side BSL/RST automation once that mapping is known
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

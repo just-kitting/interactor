@@ -101,6 +101,15 @@ For the staged local `i2c-omap` slave-support patch, a successful validation bui
 
 If the copied artifacts still only show the existing `C2876...` suffix, they are not a new post-`i2c-omap` test build.
 
+On 2026-04-30, a newer copied artifact set with suffix `S3b4a...` did appear in `output/debs/`.
+However, the corresponding build log still shows:
+
+- `KERNELSOURCE='https://github.com/TexasInstruments/ti-linux-kernel'`
+- `KERNELBRANCH='branch:ti-linux-6.12.y-cicd'`
+- `kernel patching: 0 total patches; 0 applied; 0 with problems`
+
+So that newer copied build is not yet evidence that the staged local `components/ti-linux-kernel` `i2c-omap` patch was compiled.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:

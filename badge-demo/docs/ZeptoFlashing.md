@@ -25,6 +25,17 @@ Validated on this board:
 - `scripts/flash_zepto_bsl.sh`
 - `scripts/flash_zepto_blink.sh`
 
+## Automated Control Direction
+
+The BeagleBadge Grove connector is now wired into the attached Zepto control signals:
+
+- Grove pin 4 (yellow) -> Zepto `BSL`
+- Grove pin 3 (white) -> Zepto `RST`
+
+See [ZeptoControlWiring.md](/root/interactor/badge-demo/docs/ZeptoControlWiring.md#L1).
+
+This should allow the host to automate Zepto BSL entry once the Linux GPIO line mapping for those Grove pins is identified.
+
 ## Expected CLI flow
 
 Build:

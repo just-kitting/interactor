@@ -58,6 +58,7 @@
 - [X] Add a first native Zepto PlatformIO project and build `blink`
 - [ ] Flash the first PlatformIO `blink` image successfully through MSPM0 I2C BSL
 - [ ] Diagnose the current `bb-imager-cli` MSPM0 flash failure after BSL handshake succeeds
+- [ ] Identify the Linux GPIO mapping for Grove pin 3 (`RST`) and pin 4 (`BSL`) so Zepto bootloader entry can be automated
 
 ## Build And Test
 
