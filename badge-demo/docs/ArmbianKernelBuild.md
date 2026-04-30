@@ -86,20 +86,25 @@ That avoids accidentally reinstalling an older stale artifact set just because i
 
 ## Current Source-Of-Truth Caveat
 
-The current Armbian kernel build still uses the source tuple from the build framework:
+The BeagleBadge `vendor-edge` build still pulls the upstream TI source tuple from the build framework:
 
 - `KERNELSOURCE=https://github.com/TexasInstruments/ti-linux-kernel`
 - `KERNELBRANCH=branch:ti-linux-6.12.y-cicd`
 
-So copying back a freshly built artifact set does **not** by itself prove that it included local changes staged in `components/ti-linux-kernel/`.
+The AM62L slave-mode test kernel is now carried through the Armbian patch path instead of relying on the local `components/ti-linux-kernel/` worktree:
 
-For the staged local `i2c-omap` slave-support patch, a successful validation build must either:
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
 
-- be redirected to the local kernel source tree, or
-- carry the patch through the Armbian kernel patch path, or
-- otherwise prove in the build log that the patched kernel source was used
+That patch was generated from the staged `components/ti-linux-kernel` `i2c-omap` change and is now the build input that matters for x86-host kernel-package rebuilds.
 
-If the copied artifacts still only show the existing `C2876...` suffix, they are not a new post-`i2c-omap` test build.
+For the next validation build, the important proof point in the host build log is no longer “local kernel source was used.”
+It is that kernel patching reports at least this patch as applied from `archive/k3-6.12`.
+
+If the host build log still reports:
+
+- `kernel patching: 0 total patches; 0 applied; 0 with problems`
+
+then the wrong Armbian worktree or branch was used for the build.
 
 On 2026-04-30, a newer copied artifact set with suffix `S3b4a...` did appear in `output/debs/`.
 However, the corresponding build log still shows:
@@ -108,7 +113,7 @@ However, the corresponding build log still shows:
 - `KERNELBRANCH='branch:ti-linux-6.12.y-cicd'`
 - `kernel patching: 0 total patches; 0 applied; 0 with problems`
 
-So that newer copied build is not yet evidence that the staged local `components/ti-linux-kernel` `i2c-omap` patch was compiled.
+So that newer copied build is not yet evidence that the staged AM62L slave-mode patch was compiled.
 
 ## Expected Install Notes
 

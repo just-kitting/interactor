@@ -34,7 +34,9 @@ Current conclusion:
   - slave registration
   - slave IRQ dispatch
   - switching back to slave-listen mode after master transfers
-- that patch still requires a rebuilt kernel for live validation on BeagleBadge
+- that patch has also been mirrored into:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+- the Armbian patch copy is the build-time source of truth for the next BeagleBadge validation kernel
 
 ## Planned BadgeSnake Use
 

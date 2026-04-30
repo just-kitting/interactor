@@ -36,6 +36,10 @@ Even with those configs enabled, target-mode bring-up still depends on
 
 Until that exists, `slave-testunit` cannot actually bind on AM62L.
 
+The first BeagleBadge test patch for that gap is now carried through the Armbian patchset at:
+
+- `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+
 ## Build Scope
 
 There are two different iteration paths here:
@@ -176,3 +180,9 @@ i2c_slave_register: not supported by adapter
 ```
 
 On this board that means the work is now correctly narrowed to the expected `i2c-omap` slave-hook gap, not module packaging, not DT overlay state, and not the `slave-testunit` backend itself.
+
+## Current Rebuild Input
+
+The next x86-host rebuild should be treated as valid only if the build log shows kernel patching from `archive/k3-6.12`.
+
+If the build log still shows zero applied kernel patches, the wrong Armbian checkout was used and the returned artifacts should not be trusted for AM62L slave-mode testing.

@@ -1224,6 +1224,33 @@ Two new pieces of state were confirmed.
 - identify the Linux GPIO mapping for Grove pins 3 and 4
 - add host-side BSL/RST automation once that mapping is known
 
+## 2026-04-30 (Armbian patch integration for AM62L slave-mode test kernel)
+
+The next BeagleBadge `vendor-edge` rebuild has been wired to carry the staged AM62L `i2c-omap` slave-mode work through Armbian's kernel patch path instead of depending on a separate local TI-kernel source tree.
+
+### Changes
+
+- added:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch`
+- updated:
+  - `scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh`
+  - `docs/ArmbianKernelBuild.md`
+  - `docs/I2CSlaveBringup.md`
+  - `docs/components/armbian-build.md`
+  - `docs/components/ti-linux-kernel.md`
+
+### Meaning
+
+- the x86 host build now has one concrete patch input for AM62L target-mode bring-up
+- the build wrapper fails fast if that patch file is missing
+- the next returned artifact set should only be trusted if the host build log shows kernel patching from `archive/k3-6.12`
+
+### Next step
+
+- rerun `./scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh` on the x86 Docker host
+- copy the returned artifacts back into `components/armbian-build/output/`
+- reinstall on BeagleBadge and rerun `slave-testunit` binding tests
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

@@ -109,4 +109,5 @@
 - [X] Verify `i2c-slave-testunit` is present after reboot
 - [X] Prove that `new_device` can instantiate a slave-testunit node on J6 / `i2c-1`
 - [ ] Add AM62L `i2c-omap` slave registration support so the instantiated slave node can actually bind
-- [ ] Rebuild and install a kernel that includes the staged `i2c-omap` slave-support patch
+- [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
+- [ ] Rebuild and install a kernel whose host build log shows the `archive/k3-6.12` AM62L slave patch applied

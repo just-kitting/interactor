@@ -5,6 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 ARMBIAN_DIR="${REPO_ROOT}/components/armbian-build"
+KERNEL_PATCH="${ARMBIAN_DIR}/patch/kernel/archive/k3-6.12/0001-i2c-omap-add-slave-registration-support.patch"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
 	echo "This script expects a Linux x86_64 host with Docker installed." >&2
@@ -18,6 +19,12 @@ fi
 
 if [[ ! -x "${ARMBIAN_DIR}/compile.sh" ]]; then
 	echo "Armbian build framework not found at ${ARMBIAN_DIR}" >&2
+	exit 1
+fi
+
+if [[ ! -f "${KERNEL_PATCH}" ]]; then
+	echo "Expected BeagleBadge slave-mode kernel patch not found:" >&2
+	echo "  ${KERNEL_PATCH}" >&2
 	exit 1
 fi
 
@@ -37,6 +44,8 @@ cd "${ARMBIAN_DIR}"
 echo "Building BeagleBadge vendor-edge kernel packages through Armbian's Docker workflow..."
 echo "Output packages will be written under:"
 echo "  ${ARMBIAN_DIR}/output/debs/"
+echo "Kernel patch expected in this build:"
+echo "  ${KERNEL_PATCH}"
 
 exec ./compile.sh \
 	kernel \
