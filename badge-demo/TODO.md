@@ -23,6 +23,7 @@
 - [ ] Define power budget and connector limits for multiple attached Zeptos
 - [ ] Capture display, LED, buzzer, and segment-display interface notes with control paths
 - [X] Enable BeagleBadge J6/J7 I2C controllers in the device tree and verify they appear as Linux adapters
+- [ ] Document Grove connector Linux line names and add a pinmux control path for switching Grove signals between UART, I2C, and GPIO roles
 
 ## Host Runtime
 
@@ -106,8 +107,9 @@
 - [X] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge
 - [X] Restore the local QWIIC overlay after the DTB package refresh
 - [ ] Reboot into the corrected kernel+overlay state
+- [X] Rebuild and install a kernel whose host build log shows the `archive/k3-6.12` AM62L slave patch series applied
+- [ ] Reboot into the newly installed `P5507` AM62L slave-test kernel and rerun `slave-testunit` binding checks
 - [X] Verify `i2c-slave-testunit` is present after reboot
 - [X] Prove that `new_device` can instantiate a slave-testunit node on J6 / `i2c-1`
 - [ ] Add AM62L `i2c-omap` slave registration support so the instantiated slave node can actually bind
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
-- [ ] Rebuild and install a kernel whose host build log shows the `archive/k3-6.12` AM62L slave patch applied

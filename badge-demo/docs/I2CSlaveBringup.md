@@ -187,3 +187,11 @@ On this board that means the work is now correctly narrowed to the expected `i2c
 The next x86-host rebuild should be treated as valid only if the build log shows kernel patching from `archive/k3-6.12`.
 
 If the build log still shows zero applied kernel patches, the wrong Armbian checkout was used and the returned artifacts should not be trusted for AM62L slave-mode testing.
+
+The first valid rebuilt artifact set is now:
+
+- build UUID: `1b53c454-a989-4c66-a5e6-e8b706e4bc05`
+- artifact suffix: `P5507`
+- patching result: `2 total patches; 2 applied; 0 with problems`
+
+That kernel has been installed on the BeagleBadge. The immediate next step is to reboot into it and repeat the `slave-testunit` binding test on `i2c-1`.

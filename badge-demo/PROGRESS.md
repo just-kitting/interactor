@@ -1221,7 +1221,7 @@ Two new pieces of state were confirmed.
 
 ### Next step
 
-- identify the Linux GPIO mapping for Grove pins 3 and 4
+- identify the Linux GPIO mapping and mux state for the corrected Grove pins
 - add host-side BSL/RST automation once that mapping is known
 
 ## 2026-04-30 (Armbian patch integration for AM62L slave-mode test kernel)
@@ -1283,6 +1283,66 @@ The first x86-host rebuild that carried the AM62L `i2c-omap` slave patch failed 
 - add the missing helper forward declarations in `i2c-omap.c`
 - refresh the Armbian patch copy from the corrected source
 - rerun the x86 host kernel build
+
+## 2026-04-30 (clean two-patch AM62L build artifacts returned)
+
+The rebuilt Armbian artifacts copied back after the source and patch-series fixes are the first clean AM62L slave-mode test set.
+
+### Findings
+
+- copied build log:
+  - `components/armbian-build/output/logs/log-kernel-1b53c454-a989-4c66-a5e6-e8b706e4bc05.log`
+- the corresponding summary confirms:
+  - `kernel patching: 2 total patches; 2 applied; 0 with problems`
+- the new returned artifact suffix is:
+  - `P5507`
+- older `P0000` and earlier stale artifact sets are still present in `output/debs/`
+
+### Changes
+
+- updated `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` to choose the newest artifact set that contains `i2c-slave-testunit.ko`
+- recorded a new generic hardware TODO to document Grove line names and pinmux control for UART/I2C/GPIO roles, not only Zepto control
+
+### Next step
+
+- reinstall the `P5507` BeagleBadge `vendor-edge-k3` kernel artifacts on the board
+- reboot and rerun the `slave-testunit` binding test on `i2c-1`
+
+## 2026-04-30 (installed `P5507` AM62L slave-test kernel on BeagleBadge)
+
+The first clean post-fix AM62L slave-test kernel artifact set has now been installed on the live board.
+
+### Findings
+
+- selected artifact suffix:
+  - `P5507`
+- selected packages:
+  - `linux-image-vendor-edge-k3_..._P5507_...`
+  - `linux-dtb-vendor-edge-k3_..._P5507_...`
+  - `linux-headers-vendor-edge-k3_..._P5507_...`
+  - `linux-libc-dev-vendor-edge-k3_..._P5507_...`
+- install completed successfully
+- expected install-time notes were observed:
+  - FAT32 `/boot` symlink fallback for `uInitrd`
+  - DTB refresh followed by local QWIIC overlay reinstall
+  - non-fatal firmware warnings during `update-initramfs`
+- `/boot/uEnv.txt` was backed up to:
+  - `/boot/uEnv.txt.bak.20260430T144428Z`
+
+### Changes
+
+- `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` now prefers the newest returned artifact set that contains `i2c-slave-testunit.ko`
+- the live system was reinstalled with the `P5507` artifact set
+- the QWIIC overlay was reapplied automatically after the DTB package refresh
+
+### Next step
+
+- reboot the BeagleBadge into the installed `P5507` kernel
+- run:
+  - `uname -a`
+  - `modinfo i2c-slave-testunit`
+  - `ls /sys/bus/i2c/devices | grep '^i2c-[13]$'`
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 
 ## 2026-04-27 (module-only iteration boundary)
 

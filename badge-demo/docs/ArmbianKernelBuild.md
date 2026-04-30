@@ -116,6 +116,15 @@ However, the corresponding build log still shows:
 
 So that newer copied build is not yet evidence that the staged AM62L slave-mode patch was compiled.
 
+Later on 2026-04-30, a corrected build log and artifact set were copied back:
+
+- build UUID: `1b53c454-a989-4c66-a5e6-e8b706e4bc05`
+- artifact suffix: `P5507`
+- kernel patching summary: `2 total patches; 2 applied; 0 with problems`
+
+That `P5507` set is now the first valid AM62L slave-test kernel artifact set.
+It has also been reinstalled on the BeagleBadge, but the board still needs to be rebooted into it before `slave-testunit` can be re-tested.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
@@ -125,6 +134,8 @@ Two install-time messages are expected on the current board image and do not ind
 - `_apt ... couldn't be accessed by user '_apt'`:
   - this warning appears when local `.deb` files are installed from a root-only path
   - the current reinstall wrapper stages the packages into `/var/tmp/badgesnake-kernel-debs/` first so future runs avoid that warning
+- `W: Possible missing firmware ...` during `update-initramfs`:
+  - these warnings were observed during the `P5507` reinstall and are not the blocker for current I2C slave-mode work
 
 ## Why This Is The Current Build Target
 

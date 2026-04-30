@@ -16,15 +16,18 @@ if [[ ${#image_matches[@]} -lt 1 ]]; then
 fi
 
 image_deb=""
+filtered_matches=()
 for candidate in "${image_matches[@]}"; do
 	listing="$(dpkg-deb -c "${candidate}" 2>/dev/null || true)"
 	if grep -q 'i2c-slave-testunit\.ko' <<< "${listing}"; then
-		image_deb="${candidate}"
-		break
+		filtered_matches+=( "${candidate}" )
 	fi
 done
 
-if [[ -z "${image_deb}" ]]; then
+if [[ ${#filtered_matches[@]} -gt 0 ]]; then
+	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${filtered_matches[@]}" | xargs -r ls -1t 2>/dev/null && printf '\0')
+	image_deb="${sorted_images[0]}"
+else
 	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${image_matches[@]}" | xargs -r ls -1t 2>/dev/null && printf '\0')
 	image_deb="${sorted_images[0]}"
 fi
