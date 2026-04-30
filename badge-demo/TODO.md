@@ -108,8 +108,9 @@
 - [X] Restore the local QWIIC overlay after the DTB package refresh
 - [ ] Reboot into the corrected kernel+overlay state
 - [X] Rebuild and install a kernel whose host build log shows the `archive/k3-6.12` AM62L slave patch series applied
-- [ ] Reboot into the newly installed `P5507` AM62L slave-test kernel and rerun `slave-testunit` binding checks
+- [X] Reboot into the newly installed `P5507` AM62L slave-test kernel and rerun `slave-testunit` binding checks
 - [X] Verify `i2c-slave-testunit` is present after reboot
 - [X] Prove that `new_device` can instantiate a slave-testunit node on J6 / `i2c-1`
-- [ ] Add AM62L `i2c-omap` slave registration support so the instantiated slave node can actually bind
+- [X] Add enough AM62L `i2c-omap` slave registration support for `slave-testunit` to bind on J6 / `i2c-1`
+- [ ] Diagnose why forced same-adapter transactions to bound `slave-testunit` on J6 currently time out
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

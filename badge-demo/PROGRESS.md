@@ -1344,6 +1344,41 @@ The first clean post-fix AM62L slave-test kernel artifact set has now been insta
   - `ls /sys/bus/i2c/devices | grep '^i2c-[13]$'`
   - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 
+## 2026-04-30 (runtime validation after booting `P5507`)
+
+The board has now been rebooted into the installed `P5507` kernel and the first live target-mode validation has been rerun.
+
+### Findings
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #4 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- `modinfo i2c-slave-testunit` still works
+- QWIIC adapters are present after reboot:
+  - `i2c-1`
+  - `i2c-3`
+- `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30` now succeeds
+- `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30` reports:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+- `dmesg` no longer shows:
+  - `i2c_slave_register: not supported by adapter`
+- forced same-adapter traffic still fails:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `i2ctransfer -f -y -b 1 w3@0x30 4 0 0 r32`
+  - both currently time out
+
+### Meaning
+
+- the AM62L `i2c-omap` work has crossed the first important threshold:
+  - slave registration and driver binding now work on live hardware
+- the remaining failure is in transaction completion after bind, not in adapter capability advertisement or slave registration
+
+### Next step
+
+- inspect why the bound slave target is not completing controller-originated transactions on `i2c-1`
+- add the next round of `i2c-omap` instrumentation or fixes based on that timeout behavior
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

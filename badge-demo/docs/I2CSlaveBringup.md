@@ -168,19 +168,20 @@ Only after that should BadgeSnake-specific bridge code be added.
 
 ## Current AM62L Result
 
-The current BeagleBadge state has now passed the packaging and overlay checks:
+The current BeagleBadge state has now moved past the old adapter-registration failure:
 
 - `modinfo i2c-slave-testunit` works
 - the QWIIC overlay restores `i2c-1` and `i2c-3`
 - `new_device` can instantiate the slave address node on `i2c-1`
+- `slave-testunit` now binds successfully on `i2c-1`
 
-The first real adapter-side failure is now visible in `dmesg`:
+The old blocker:
 
 ```text
 i2c_slave_register: not supported by adapter
 ```
 
-On this board that means the work is now correctly narrowed to the expected `i2c-omap` slave-hook gap, not module packaging, not DT overlay state, and not the `slave-testunit` backend itself.
+is no longer present after booting the `P5507` kernel.
 
 ## Current Rebuild Input
 
@@ -195,3 +196,23 @@ The first valid rebuilt artifact set is now:
 - patching result: `2 total patches; 2 applied; 0 with problems`
 
 That kernel has been installed on the BeagleBadge. The immediate next step is to reboot into it and repeat the `slave-testunit` binding test on `i2c-1`.
+
+## Current Runtime Result
+
+After rebooting into the `P5507` kernel:
+
+- `uname -a` shows build `#4` from `Thu Apr 30 08:25:00 UTC 2026`
+- `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30` reports:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+- `dmesg` shows only:
+  - `i2c i2c-1: new_device: Instantiated device slave-testunit at 0x30`
+
+The next failure has moved further forward:
+
+- forced same-adapter controller traffic such as `i2ctransfer -f -y 1 r1@0x30` now times out
+- there is no longer an immediate `-95` adapter rejection at slave registration time
+
+So the remaining work is no longer “make the slave backend bind.”
+It is “make bound slave-mode traffic actually complete.”
