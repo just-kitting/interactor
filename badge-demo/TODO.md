@@ -106,7 +106,7 @@
 - [~] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge and reboot again
 - [X] Reinstall the corrected `vendor-edge-k3` kernel artifacts on BeagleBadge
 - [X] Restore the local QWIIC overlay after the DTB package refresh
-- [ ] Reboot into the corrected kernel+overlay state
+- [X] Reboot into the corrected kernel+overlay state
 - [X] Rebuild and install a kernel whose host build log shows the `archive/k3-6.12` AM62L slave patch series applied
 - [X] Reboot into the newly installed `P5507` AM62L slave-test kernel and rerun `slave-testunit` binding checks
 - [X] Verify `i2c-slave-testunit` is present after reboot
@@ -114,5 +114,7 @@
 - [X] Add enough AM62L `i2c-omap` slave registration support for `slave-testunit` to bind on J6 / `i2c-1`
 - [ ] Diagnose why forced same-adapter transactions to bound `slave-testunit` on J6 currently time out
 - [X] Rebuild and install the AM62L `i2c-omap` slave TX underflow/FIFO follow-up kernel
-- [ ] Reboot into the newly installed `P024c` AM62L slave-test kernel and rerun forced-read validation
+- [X] Reboot into the newly installed `P024c` AM62L slave-test kernel and rerun forced-read validation
+- [ ] Rebuild and install the AM62L 1-byte slave FIFO threshold follow-up kernel
+- [ ] Re-test `i2ctransfer -f -y 1 r1@0x30` after the 1-byte slave FIFO threshold follow-up kernel boots
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

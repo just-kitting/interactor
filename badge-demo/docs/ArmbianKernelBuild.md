@@ -137,7 +137,17 @@ That follow-up build has now been returned and installed with:
 - artifact suffix: `P024c`
 - kernel patching summary: `3 total patches; 3 applied; 0 with problems`
 
-The board still needs to be rebooted into `P024c` before the new runtime result can be validated.
+The board has now been rebooted into `P024c` and validated:
+
+- `slave-testunit` still binds on J6 / `i2c-1`
+- forced same-adapter reads still time out
+- adapter IRQ activity is present during the timeout
+
+So the next follow-up is a fourth `k3-6.12` patch:
+
+- `0004-Program-1-byte-FIFO-thresholds-in-slave-listen-mode.patch`
+
+The next host build should therefore carry all four staged `k3-6.12` patches, then return to the same runtime validation sequence on the BeagleBadge.
 
 ## Expected Install Notes
 

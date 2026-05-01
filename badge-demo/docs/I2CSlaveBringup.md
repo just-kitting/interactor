@@ -236,7 +236,26 @@ The first rebuild carrying that patch is now available and installed:
 - artifact suffix: `P024c`
 - patching result: `3 total patches; 3 applied; 0 with problems`
 
-The next live step is to reboot into `P024c` and repeat:
+`P024c` is now running on the live board. The current runtime result is:
+
+- `slave-testunit` still binds successfully on `i2c-1`
+- `i2ctransfer -f -y 1 r1@0x30` still times out
+- the `20010000.i2c` interrupt count increments during that timed-out read
+- `dmesg` remains quiet aside from the original `slave-testunit` instantiation line
+
+That narrows the next follow-up from "binding support" to "active slave transaction service."
+
+The next follow-up is a fourth `k3-6.12` patch:
+
+- `0004-Program-1-byte-FIFO-thresholds-in-slave-listen-mode.patch`
+
+Why this is the next focused change:
+
+- AM62L target-transmit mode requires TX threshold `1`
+- the previous slave-listen helper only cleared the FIFOs
+- it did not actually program TX/RX thresholds to `1`
+
+After rebuilding with that fourth patch, repeat:
 
 - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 - `i2ctransfer -f -y 1 r1@0x30`

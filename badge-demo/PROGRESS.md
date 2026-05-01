@@ -1446,6 +1446,57 @@ The next AM62L slave-mode follow-up build has now been copied back, selected, an
   - `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30`
   - `i2ctransfer -f -y 1 r1@0x30`
 
+## 2026-05-01 (validated `P024c` runtime and staged 1-byte FIFO threshold follow-up)
+
+The `P024c` kernel is now booted and validated on the live BeagleBadge. Binding works, but the first forced same-adapter read still times out, so the next follow-up is narrowed to slave FIFO threshold programming.
+
+### Findings
+
+- running kernel after reboot:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #5 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- `modinfo i2c-slave-testunit` still works
+- J6 / J7 adapters are present after reboot:
+  - `i2c-1`
+  - `i2c-3`
+- `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30` reports:
+  - `slave-testunit already present at 1-1030`
+- `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30` reports:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+- forced same-adapter read still fails:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `Error: Sending messages failed: Connection timed out`
+- adapter IRQ activity is present during the timed-out read:
+  - IRQ line: `288`
+  - source: `20010000.i2c`
+  - observed count after the timed-out read: `4`
+- `dmesg` after the timeout still shows no new `i2c-omap` slave transaction diagnostics beyond device instantiation:
+  - `i2c i2c-1: new_device: Instantiated device slave-testunit at 0x30`
+
+### Meaning
+
+- the `P024c` patch series is sufficient for slave registration and bind on AM62L
+- the remaining runtime gap is in active slave transaction service, not adapter registration
+- the most concrete remaining mismatch with the TRM is slave FIFO threshold programming:
+  - AM62L target-transmit requires TX threshold `1`
+  - the previous slave-listen helper only cleared FIFOs and did not actually program the TX/RX thresholds to `1`
+
+### Changes
+
+- committed a follow-up TI-kernel change in `components/ti-linux-kernel`:
+  - `38e256a46` `Program 1-byte FIFO thresholds in slave listen mode`
+- mirrored that into the Armbian patch series as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0004-Program-1-byte-FIFO-thresholds-in-slave-listen-mode.patch`
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the four-patch `k3-6.12` series
+- reinstall the returned artifacts
+- reboot and rerun:
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
