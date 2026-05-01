@@ -1497,6 +1497,40 @@ The `P024c` kernel is now booted and validated on the live BeagleBadge. Binding 
   - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
   - `i2ctransfer -f -y 1 r1@0x30`
 
+## 2026-05-01 (returned `P9d8b` build and pinned reinstall path)
+
+The next four-patch host build was returned successfully, but the on-device reinstall helper initially selected the older `P024c` package set because multiple artifact sets coexist under `components/armbian-build/output/debs`.
+
+### Findings
+
+- returned build UUID:
+  - `f13b89a7-6f9f-4da6-b75f-1856bd7715dd`
+- returned build summary:
+  - `kernel patching: 4 total patches; 4 applied; 0 with problems`
+- returned artifact suffix:
+  - `P9d8b`
+- the default reinstall helper selected:
+  - `P024c`
+- root cause:
+  - the helper ranked matching `.deb` files by filesystem modification time, which is not a reliable proxy for the newest copied build set
+
+### Changes
+
+- updated `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh` to accept:
+  - `BADGESNAKE_BUILD_SUFFIX='<full package suffix>.deb'`
+- documented the explicit-suffix path in `docs/ArmbianKernelBuild.md`
+- launched the pinned reinstall using:
+  - `BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P9d8b-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh`
+
+### Next step
+
+- wait for the pinned `P9d8b` reinstall to finish
+- reboot into that kernel
+- rerun:
+  - `uname -a`
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

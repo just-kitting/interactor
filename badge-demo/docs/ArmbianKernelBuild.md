@@ -149,6 +149,18 @@ So the next follow-up is a fourth `k3-6.12` patch:
 
 The next host build should therefore carry all four staged `k3-6.12` patches, then return to the same runtime validation sequence on the BeagleBadge.
 
+If multiple returned artifact sets coexist in `components/armbian-build/output/debs`, the reinstall helper can be pinned explicitly:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='<full package suffix>.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+Example:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P9d8b-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:

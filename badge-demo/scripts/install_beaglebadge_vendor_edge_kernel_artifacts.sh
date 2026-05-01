@@ -7,6 +7,7 @@ REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
 DEB_DIR="${REPO_ROOT}/components/armbian-build/output/debs"
 STAGE_DIR="/var/tmp/badgesnake-kernel-debs"
 QWIIC_OVERLAY_HELPER="${REPO_ROOT}/scripts/install_qwiic_i2c_overlay.sh"
+SELECTED_SUFFIX="${BADGESNAKE_BUILD_SUFFIX:-}"
 shopt -s nullglob
 
 image_matches=( "${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__"*.deb )
@@ -24,11 +25,17 @@ for candidate in "${image_matches[@]}"; do
 	fi
 done
 
-if [[ ${#filtered_matches[@]} -gt 0 ]]; then
-	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${filtered_matches[@]}" | xargs -r ls -1t 2>/dev/null && printf '\0')
+if [[ -n "${SELECTED_SUFFIX}" ]]; then
+	image_deb="${DEB_DIR}/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__${SELECTED_SUFFIX}"
+	if [[ ! -f "${image_deb}" ]]; then
+		echo "Requested BADGESNAKE_BUILD_SUFFIX does not exist: ${SELECTED_SUFFIX}" >&2
+		exit 1
+	fi
+elif [[ ${#filtered_matches[@]} -gt 0 ]]; then
+	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${filtered_matches[@]}" | while IFS= read -r f; do printf '%s\t%s\n' "$(stat -c '%Z' "${f}")" "${f}"; done | sort -rn | cut -f2- && printf '\0')
 	image_deb="${sorted_images[0]}"
 else
-	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${image_matches[@]}" | xargs -r ls -1t 2>/dev/null && printf '\0')
+	IFS=$'\n' read -r -d '' -a sorted_images < <(printf '%s\n' "${image_matches[@]}" | while IFS= read -r f; do printf '%s\t%s\n' "$(stat -c '%Z' "${f}")" "${f}"; done | sort -rn | cut -f2- && printf '\0')
 	image_deb="${sorted_images[0]}"
 fi
 
@@ -47,6 +54,9 @@ done
 
 echo "Reinstalling locally built BeagleBadge vendor-edge kernel artifacts:"
 printf '  %s\n' "${image_deb}" "${dtb_deb}" "${headers_deb}" "${libc_deb}"
+if [[ -n "${SELECTED_SUFFIX}" ]]; then
+	echo "Using requested BADGESNAKE_BUILD_SUFFIX=${SELECTED_SUFFIX}"
+fi
 
 rm -rf "${STAGE_DIR}"
 install -d -m 0755 "${STAGE_DIR}"
