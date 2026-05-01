@@ -1539,6 +1539,48 @@ The next four-patch host build was returned successfully, but the on-device rein
   - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
   - `i2ctransfer -f -y 1 r1@0x30`
 
+## 2026-05-01 (validated `P9d8b` runtime)
+
+The four-patch `P9d8b` kernel is now booted on the live board. The 1-byte FIFO threshold follow-up did not resolve the read timeout.
+
+### Findings
+
+- running kernel after reboot:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #6 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- J6 / J7 adapters are present after reboot:
+  - `i2c-1`
+  - `i2c-3`
+- `modinfo i2c-slave-testunit` still works
+- `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30` succeeds
+- `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30` reports:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+- forced same-adapter read still fails:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `Error: Sending messages failed: Connection timed out`
+- adapter IRQ activity is still present during the timed-out read:
+  - before: `1`
+  - after: `2`
+  - source: `20010000.i2c`
+- `dmesg` still shows no new `i2c-omap` transaction diagnostics beyond:
+  - `i2c i2c-1: new_device: Instantiated device slave-testunit at 0x30`
+
+### Meaning
+
+- the 1-byte slave FIFO threshold follow-up did not change the externally visible failure mode
+- AM62L slave registration and binding remain good
+- the remaining gap is still in the first active slave transaction path after address match
+
+### Next step
+
+- instrument or trace the first live AM62L slave transaction status path on J6 / `i2c-1`
+- determine whether the controller is stalling at:
+  - `AAS`
+  - `XRDY`
+  - `XUDF`
+  - another status transition not currently surfaced in `dmesg`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

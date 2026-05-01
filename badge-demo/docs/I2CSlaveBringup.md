@@ -259,3 +259,11 @@ After rebuilding with that fourth patch, repeat:
 
 - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 - `i2ctransfer -f -y 1 r1@0x30`
+
+That fourth-patch build is now `P9d8b`, and it has been validated on the live board:
+
+- `slave-testunit` still binds successfully on `i2c-1`
+- `i2ctransfer -f -y 1 r1@0x30` still times out
+- the `20010000.i2c` interrupt count still increments during the timed-out read
+
+So the next follow-up is no longer FIFO threshold programming. It is direct instrumentation or tracing of the first live slave transaction status path after address match.
