@@ -1522,10 +1522,18 @@ The next four-patch host build was returned successfully, but the on-device rein
 - launched the pinned reinstall using:
   - `BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P9d8b-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh`
 
+### Changes
+
+- the pinned `P9d8b` reinstall completed on the live BeagleBadge
+- `dpkg.log` shows the image package finished at:
+  - `2026-05-01 14:21:55 UTC`
+- the local QWIIC overlay files were reapplied afterward:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+  - `/boot/uEnv.txt`
+
 ### Next step
 
-- wait for the pinned `P9d8b` reinstall to finish
-- reboot into that kernel
+- reboot into the pinned `P9d8b` kernel
 - rerun:
   - `uname -a`
   - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`

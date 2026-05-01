@@ -115,7 +115,7 @@
 - [ ] Diagnose why forced same-adapter transactions to bound `slave-testunit` on J6 currently time out
 - [X] Rebuild and install the AM62L `i2c-omap` slave TX underflow/FIFO follow-up kernel
 - [X] Reboot into the newly installed `P024c` AM62L slave-test kernel and rerun forced-read validation
-- [ ] Rebuild and install the AM62L 1-byte slave FIFO threshold follow-up kernel
-- [ ] Let the pinned `P9d8b` reinstall complete and reboot into it
+- [X] Rebuild and install the AM62L 1-byte slave FIFO threshold follow-up kernel
+- [ ] Reboot into the pinned `P9d8b` 4-patch kernel
 - [ ] Re-test `i2ctransfer -f -y 1 r1@0x30` after the 1-byte slave FIFO threshold follow-up kernel boots
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
