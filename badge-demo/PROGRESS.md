@@ -1581,6 +1581,42 @@ The four-patch `P9d8b` kernel is now booted on the live board. The 1-byte FIFO t
   - `XUDF`
   - another status transition not currently surfaced in `dmesg`
 
+## 2026-05-01 (staged 5-patch diagnostic kernel)
+
+The next follow-up is now a diagnostic kernel build that logs the live AM62L slave IRQ/status path during J6 target traffic.
+
+### Changes
+
+- committed a TI-kernel instrumentation patch in `components/ti-linux-kernel`:
+  - `d1fdd7a4f` `Instrument OMAP slave transaction state`
+- mirrored that into the Armbian patch series as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0005-Instrument-OMAP-slave-transaction-state.patch`
+- updated the x86 build wrapper so it now expects the full five-patch series
+
+### Meaning
+
+- the next host build is not trying to "fix" the timeout yet
+- it is specifically intended to surface:
+  - enabled slave IRQ status bits
+  - `I2C_CON`
+  - `I2C_BUFSTAT`
+  - `slave_read`
+  - current threshold
+- those logs should make it clear whether the first live target transaction stalls at:
+  - `AAS`
+  - `XRDY`
+  - `XUDF`
+  - or another unexpected status combination
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the five-patch `k3-6.12` series
+- copy the returned artifacts back
+- reinstall and reboot into that diagnostic kernel
+- capture the new `i2c-omap` log lines while reproducing:
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
