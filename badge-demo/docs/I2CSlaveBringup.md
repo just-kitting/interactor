@@ -344,3 +344,16 @@ The `Pb92b` runtime result narrowed the failure further:
 
 So the next focused diagnostic is no longer "was the slave pointer registered?"
 It is "what own-address and transfer-state registers are programmed when same-adapter traffic starts, and why do reads collapse to `ARDY|NACK` while writes never reach the slave IRQ path?"
+
+That next follow-up is now staged as:
+
+- `0008-Trace-OMAP-own-address-registers.patch`
+
+Its purpose is to add the missing register context to the existing logs:
+
+- `OA`
+- `SA`
+- `IE`
+- existing `CON`, `STAT`, and `BUFSTAT`
+
+It also adds a targeted `xfer-msg` trace when the adapter starts a master transfer to its own registered slave address.

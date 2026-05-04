@@ -185,7 +185,13 @@ The current slave-lifetime diagnostic reinstall uses:
 BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-Pb92b-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
 ```
 
-That `Pb92b` reinstall has completed on the BeagleBadge. Armbian marked `0007` as `needs_rebase`, but the build still completed and produced installable packages. The next step is to reboot into `Pb92b` and capture the slave registration lifetime logs during the J6 self-read.
+That `Pb92b` reinstall has completed on the BeagleBadge. Armbian marked `0007` as `needs_rebase`, but the build still completed and produced installable packages.
+
+The current next build should carry an eighth `k3-6.12` diagnostic patch:
+
+- `0008-Trace-OMAP-own-address-registers.patch`
+
+That follow-up adds `OA`, `SA`, and `IE` register context to the existing slave diagnostics and adds a targeted `xfer-msg` trace when J6 starts a same-adapter master transfer to its own registered slave address.
 
 ## Expected Install Notes
 

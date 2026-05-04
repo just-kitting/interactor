@@ -1948,6 +1948,34 @@ The seven-patch `Pb92b` runtime result changed the picture again. The failing sa
   - `i2ctransfer -f -y 1 r1@0x30`
   - `i2ctransfer -f -y 1 w1@0x30 0x00`
 
+## 2026-05-04 (staged own-address register diagnostics)
+
+The next AM62L follow-up is now staged in both the TI kernel tree and the Armbian patch series.
+
+### Changes
+
+- committed in `components/ti-linux-kernel`:
+  - `79146a484` `Trace OMAP own-address registers`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0008-Trace-OMAP-own-address-registers.patch`
+- committed in `components/armbian-build`:
+  - `0dcb10d36` `Carry OMAP own-address diagnostics patch`
+- updated the x86 build wrapper to expect the eight-patch series
+
+### Purpose
+
+- include `OA`, `SA`, and `IE` in the existing slave diagnostic log lines
+- emit an `xfer-msg` trace when the adapter starts a same-adapter master transfer to its own registered slave address
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the eight-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that diagnostic kernel
+- reproduce both:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
