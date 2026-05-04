@@ -1894,6 +1894,60 @@ The seven-patch diagnostic build completed and has now been installed on the liv
   - `i2ctransfer -f -y 1 r1@0x30`
   - `dmesg | tail -n 80`
 
+## 2026-05-04 (validated `Pb92b` slave-lifetime diagnostics and narrowed the failure mode)
+
+The seven-patch `Pb92b` runtime result changed the picture again. The failing same-adapter self-read no longer looks like a missing slave registration at transfer start.
+
+### Findings
+
+- running kernel after reboot:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #9 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- J6 / J7 adapters are present after reboot:
+  - `i2c-1`
+  - `i2c-3`
+- `slave-testunit` remains present and bound on J6 / `i2c-1`:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+- a clean same-adapter self-read still fails with:
+  - `Error: Sending messages failed: Connection timed out`
+- the current diagnostic `dmesg` output for that failing read is now:
+  - `omap_i2c 20010000.i2c: slave irq stat=0x06 con=0x8000 bufstat=0x8001 read=0 threshold=1`
+  - `omap_i2c 20010000.i2c: slave irq stat=0x02 con=0x8000 bufstat=0x8001 read=0 threshold=1`
+- decoded against the OMAP status bits, those IRQs are:
+  - `0x06` = `ARDY | NACK`
+  - `0x02` = `NACK`
+- notably absent during the failing read:
+  - `AAS`
+  - `RRDY`
+  - `XRDY`
+  - `XUDF`
+  - `master-xfer addr=0x30 no registered slave`
+- an additional same-adapter self-write probe:
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+  - also times out
+  - produces no slave IRQ log lines
+
+### Meaning
+
+- the current `Pb92b` kernel is no longer failing at the old "no registered slave" point
+- same-adapter self-read is now reaching `omap_i2c_slave_irq()`
+- but it is only reaching the `ARDY/NACK` tail of a transaction, not an address-match or data-ready event
+- same-adapter self-write is even earlier-failing: timeout with no slave IRQ activity at all
+- the next useful discriminator is own-address and master/slave register state around listen mode and transaction start, not more slave lifetime logging alone
+
+### Next step
+
+- stage a follow-up diagnostic patch that logs:
+  - `OA`
+  - `SA`
+  - `CON`
+  - `STAT`
+  - `IE`
+- capture those values for both:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

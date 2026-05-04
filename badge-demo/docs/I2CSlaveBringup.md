@@ -321,3 +321,26 @@ Its purpose is to tell us:
 - when `reg_slave()` runs
 - if `unreg_slave()` runs unexpectedly
 - whether `xfer_common()` starts a transfer to `0x30` with no live slave pointer
+
+The `Pb92b` runtime result narrowed the failure further:
+
+- same-adapter self-read still fails:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `Error: Sending messages failed: Connection timed out`
+- but the driver now logs slave IRQ state during that failure:
+  - `slave irq stat=0x06 con=0x8000 bufstat=0x8001 read=0 threshold=1`
+  - `slave irq stat=0x02 con=0x8000 bufstat=0x8001 read=0 threshold=1`
+- decoded against the OMAP status bits:
+  - `0x06` = `ARDY | NACK`
+  - `0x02` = `NACK`
+- there is still no observed:
+  - `AAS`
+  - `RRDY`
+  - `XRDY`
+  - `XUDF`
+- same-adapter self-write also times out:
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+  - and produces no slave IRQ log lines
+
+So the next focused diagnostic is no longer "was the slave pointer registered?"
+It is "what own-address and transfer-state registers are programmed when same-adapter traffic starts, and why do reads collapse to `ARDY|NACK` while writes never reach the slave IRQ path?"

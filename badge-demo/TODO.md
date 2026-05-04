@@ -128,6 +128,8 @@
 - [ ] Reboot into the 6-patch ISR-branch diagnostic kernel
 - [X] Capture the first ISR-branch diagnostic result on J6
 - [X] Build and install the 7-patch slave-lifetime diagnostic kernel
-- [ ] Reboot into the 7-patch slave-lifetime diagnostic kernel
-- [ ] Capture whether the slave pointer is being dropped before the self-read on J6
+- [X] Reboot into the 7-patch slave-lifetime diagnostic kernel
+- [X] Capture the first `Pb92b` self-read result on J6
+- [ ] Instrument own-address and register state during same-adapter self-read and self-write on J6
+- [ ] Explain why self-read reaches only `ARDY|NACK` / `NACK` without `AAS` or data-ready events
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
