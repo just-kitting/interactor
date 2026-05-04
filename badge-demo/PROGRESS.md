@@ -1854,6 +1854,46 @@ The six-patch ISR-branch diagnostic kernel still did not produce `master-enter` 
   - `i2ctransfer -f -y 1 r1@0x30`
   - `dmesg | tail -n 80`
 
+## 2026-05-04 (installed `Pb92b` slave-lifetime diagnostic kernel)
+
+The seven-patch diagnostic build completed and has now been installed on the live BeagleBadge.
+
+### Findings
+
+- returned build UUID:
+  - `5e4b0975-693d-46fa-a009-9756e65b7d75`
+- build summary:
+  - `kernel patching: 7 total patches; 7 applied; 1 with problems; 1 needs_rebase`
+- important detail:
+  - Armbian marked `0007-Trace-OMAP-slave-registration-lifetime` as `needs_rebase`, but the build still completed and produced installable packages
+- selected artifact suffix:
+  - `Pb92b`
+- the diagnostic reinstall was pinned explicitly with:
+  - `BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-Pb92b-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb'`
+- `update-initramfs` completed normally with the usual FAT32 `/boot` rename fallback
+- the local QWIIC overlay was reinstalled automatically afterward:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+  - `/boot/uEnv.txt`
+- `/boot/uEnv.txt` still includes:
+  - `name_overlays=ti/k3-am62l3-badge-eink-gdey042t81.dtbo ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+
+### Meaning
+
+- the seven-patch slave-lifetime diagnostic kernel is ready to boot
+- the next runtime pass should tell us whether:
+  - `reg_slave()` logs
+  - `unreg_slave()` runs unexpectedly
+  - `xfer_common()` starts a transfer to `0x30` with no live slave pointer
+
+### Next step
+
+- reboot into `Pb92b`
+- rerun:
+  - `uname -a`
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `dmesg | tail -n 80`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

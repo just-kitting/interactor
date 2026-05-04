@@ -127,6 +127,7 @@
 - [X] Build and install the 6-patch ISR-branch diagnostic kernel
 - [ ] Reboot into the 6-patch ISR-branch diagnostic kernel
 - [X] Capture the first ISR-branch diagnostic result on J6
-- [ ] Build and boot the 7-patch slave-lifetime diagnostic kernel
+- [X] Build and install the 7-patch slave-lifetime diagnostic kernel
+- [ ] Reboot into the 7-patch slave-lifetime diagnostic kernel
 - [ ] Capture whether the slave pointer is being dropped before the self-read on J6
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
