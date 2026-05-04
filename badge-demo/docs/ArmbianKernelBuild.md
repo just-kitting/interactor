@@ -171,6 +171,14 @@ BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P0380-C2876Hb496-HK01ba-Vc222-Be8e3
 
 That `P0380` reinstall has completed on the BeagleBadge. The next step is to reboot into it and capture the new `i2c-omap` slave diagnostic log lines during the failing J6 read.
 
+The current ISR-branch diagnostic reinstall uses:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P803a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+That `P803a` reinstall has completed on the BeagleBadge. The next step is to reboot into it and capture whether the J6 self-read is handled on the master ISR path instead of the slave ISR path.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:

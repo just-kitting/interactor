@@ -1765,6 +1765,41 @@ The next host build still failed with the same compile error even after the TI-k
 - the expected `0006` diffstat is now:
   - `(+2/-0)[1M]`
 
+## 2026-05-04 (installed `P803a` six-patch diagnostic kernel)
+
+The corrected six-patch diagnostic build has now been returned and installed on the live BeagleBadge.
+
+### Findings
+
+- returned build UUID:
+  - `d29eab67-4837-464d-8f22-14ebbc1062c6`
+- returned build summary:
+  - `kernel patching: 6 total patches; 6 applied; 0 with problems`
+- selected artifact suffix:
+  - `P803a`
+- the diagnostic reinstall was pinned explicitly with:
+  - `BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P803a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb'`
+- `update-initramfs` completed normally with the usual FAT32 `/boot` rename fallback
+- the local QWIIC overlay was reinstalled automatically afterward:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+  - `/boot/uEnv.txt`
+- `/boot/uEnv.txt` still includes:
+  - `name_overlays=ti/k3-am62l3-badge-eink-gdey042t81.dtbo ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+
+### Meaning
+
+- the six-patch ISR-branch diagnostic kernel is ready to boot
+- the next runtime pass should tell us whether the self-read stays on the master ISR path instead of entering the slave IRQ path
+
+### Next step
+
+- reboot into `P803a`
+- rerun:
+  - `uname -a`
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `dmesg | tail -n 80`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
