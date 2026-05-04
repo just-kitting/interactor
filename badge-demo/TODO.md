@@ -83,6 +83,7 @@
 - [ ] Add a systemd-based post-update reboot validation flow
 - [ ] Test failure cases: bad DTB, bad kernel, bad rootfs, interrupted update
 - [ ] Document full recovery from a non-booting OSPI image
+- [X] Add repo-managed reboot helpers for repeated kernel iteration
 
 ## Immediate Next Actions
 

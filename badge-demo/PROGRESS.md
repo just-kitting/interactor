@@ -1976,6 +1976,64 @@ The next AM62L follow-up is now staged in both the TI kernel tree and the Armbia
   - `i2ctransfer -f -y 1 r1@0x30`
   - `i2ctransfer -f -y 1 w1@0x30 0x00`
 
+## 2026-05-04 (added install-and-reboot wrapper and boot workspace service)
+
+To reduce repetitive manual steps around kernel iteration, the repo now includes:
+
+- `scripts/install_latest_kernel_and_reboot.sh`
+- `systemd/badgesnake-boot-session.service`
+- `scripts/install_badgesnake_boot_session_service.sh`
+- `scripts/uninstall_badgesnake_boot_session_service.sh`
+- `scripts/start_badgesnake_boot_session.sh`
+
+### Purpose
+
+- one command to install the newest returned kernel artifacts and reboot only on success
+- a reversible boot-time workspace helper so post-reboot recovery is predictable
+
+### Verification and recovery
+
+- the install wrapper delegates to the existing kernel reinstall helper and only calls `systemctl reboot` after that helper exits successfully
+- the boot-session service is repo-managed and reversible with:
+  - `./scripts/uninstall_badgesnake_boot_session_service.sh`
+- the boot-session helper writes:
+  - `artifacts/boot-status/latest.txt`
+- if `tmux` is available, it also creates:
+  - session `badgesnake`
+
+### Next step
+
+- enable the boot-session service on the live BeagleBadge
+- use `./scripts/install_latest_kernel_and_reboot.sh` for the next returned kernel install
+
+## 2026-05-04 (enabled boot workspace service on the live board)
+
+The repo-managed reboot helpers are now installed and verified on this BeagleBadge.
+
+### Findings
+
+- `./scripts/install_badgesnake_boot_session_service.sh` installed and enabled:
+  - `badgesnake-boot-session.service`
+- live service state:
+  - `Loaded: loaded (/etc/systemd/system/badgesnake-boot-session.service; enabled; preset: enabled)`
+  - `Active: active (exited)`
+- `./scripts/start_badgesnake_boot_session.sh` created:
+  - `tmux` session `badgesnake`
+- boot status file written and verified:
+  - `artifacts/boot-status/latest.txt`
+- `./scripts/install_latest_kernel_and_reboot.sh --help` prints the expected usage and environment controls
+
+### Meaning
+
+- future kernel install iterations can use one command to install and reboot
+- after reboot, reconnecting to the board can immediately recover the prepared workspace via:
+  - `tmux attach -t badgesnake`
+
+### Recovery
+
+- remove the boot-session service with:
+  - `./scripts/uninstall_badgesnake_boot_session_service.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

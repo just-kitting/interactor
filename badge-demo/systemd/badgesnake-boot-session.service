@@ -1,0 +1,12 @@
+[Unit]
+Description=BadgeSnake boot workspace session
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/root/interactor/badge-demo/scripts/start_badgesnake_boot_session.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

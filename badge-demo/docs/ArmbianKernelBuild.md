@@ -193,6 +193,45 @@ The current next build should carry an eighth `k3-6.12` diagnostic patch:
 
 That follow-up adds `OA`, `SA`, and `IE` register context to the existing slave diagnostics and adds a targeted `xfer-msg` trace when J6 starts a same-adapter master transfer to its own registered slave address.
 
+For on-device install + reboot, use:
+
+```sh
+./scripts/install_latest_kernel_and_reboot.sh
+```
+
+Optional exact-build pinning still works through:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='<full package suffix>.deb' ./scripts/install_latest_kernel_and_reboot.sh
+```
+
+The wrapper:
+
+- reuses `scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh`
+- stops on install failure
+- shows the currently running kernel before reboot
+- runs `sync`
+- triggers `systemctl reboot`
+
+For repeated recovery after reboot, the repo also carries a boot-session service:
+
+```sh
+./scripts/install_badgesnake_boot_session_service.sh
+```
+
+That installs a oneshot systemd unit which:
+
+- writes a boot summary to `artifacts/boot-status/latest.txt`
+- creates a `tmux` session named `badgesnake` in `/root/interactor/badge-demo`
+
+Recovery / rollback:
+
+- remove the service with:
+
+```sh
+./scripts/uninstall_badgesnake_boot_session_service.sh
+```
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
