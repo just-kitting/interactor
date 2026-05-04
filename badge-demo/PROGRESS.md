@@ -2076,6 +2076,65 @@ Two live follow-ups are now confirmed on this board:
 - `tmux display-message -p -t badgesnake:0 '#{session_name} #{window_name} #{pane_current_command}'` reports:
   - `badgesnake workspace codex`
 
+## 2026-05-04 (validated `Pdc8d` own-address diagnostics)
+
+The eight-patch own-address diagnostic kernel is now running and produced the first useful split between same-adapter read and write behavior.
+
+### Findings
+
+- the board booted the newly installed kernel and still reports:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #10 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- the stable boot tmux target now works as intended:
+  - `tmux ls` shows `badgesnake`
+  - `tmux attach -t badgesnake` succeeds
+- after re-instantiating `slave-testunit`:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+
+Same-adapter self-read:
+
+- command:
+  - `i2ctransfer -f -y 1 r1@0x30`
+- result:
+  - `Error: Sending messages failed: Connection timed out`
+- diagnostics:
+  - `slave xfer-msg stat=0x00 con=0x8400 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=1`
+  - `slave irq stat=0x06 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8001 read=0 threshold=1`
+  - `slave irq stat=0x02 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8001 read=0 threshold=1`
+
+Same-adapter self-write:
+
+- command:
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+- result:
+  - `Error: Sending messages failed: Connection timed out`
+- diagnostics:
+  - `slave xfer-msg stat=0x00 con=0x8400 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=1`
+  - `slave irq stat=0x16 con=0x8200 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8001 read=0 threshold=1`
+  - `slave irq stat=0x06 con=0x8200 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=1 threshold=1`
+  - `slave irq stat=0x02 con=0x8200 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=1`
+
+Decoded status bits:
+
+- `0x16` = `XRDY | ARDY | NACK`
+- `0x06` = `ARDY | NACK`
+- `0x02` = `NACK`
+
+### Meaning
+
+- the own-address state is sane during both transactions:
+  - `OA=0x30`
+  - `SA=0x30`
+  - `IE=0x61f`
+- same-adapter self-write does reach address-match / transmit-ready territory:
+  - `XRDY` is present
+  - `con=0x8200` indicates slave transmit path activity
+- same-adapter self-read still does not show `AAS`, `XRDY`, or `RRDY`
+- so the next problem is more specific than "slave mode is not working":
+  - write-side address-match exists but does not complete cleanly
+  - read-side path never reaches target-transmit startup
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

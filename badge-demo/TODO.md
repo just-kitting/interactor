@@ -134,7 +134,7 @@
 - [X] Capture the first `Pb92b` self-read result on J6
 - [X] Stage own-address and register-state diagnostics for same-adapter self-read and self-write on J6
 - [ ] Build and install the 8-patch own-address diagnostic kernel
-- [ ] Reboot into the 8-patch own-address diagnostic kernel
-- [ ] Capture `OA` / `SA` / `IE` state for same-adapter self-read and self-write on J6
-- [ ] Explain why self-read reaches only `ARDY|NACK` / `NACK` without `AAS` or data-ready events
+- [X] Reboot into the 8-patch own-address diagnostic kernel
+- [X] Capture `OA` / `SA` / `IE` state for same-adapter self-read and self-write on J6
+- [ ] Explain why self-write reaches `XRDY|ARDY|NACK` but self-read still reaches only `ARDY|NACK` / `NACK`
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

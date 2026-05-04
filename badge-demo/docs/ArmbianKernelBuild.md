@@ -233,6 +233,9 @@ codex resume --last --dangerously-bypass-approvals-and-sandbox --no-alt-screen -
 - after session creation, the helper forces stable tmux names:
   - session `badgesnake`
   - window `workspace`
+- observed on the latest reboot:
+  - `tmux attach -t badgesnake` works reliably
+  - the pane can return to `bash` if `codex resume --last` exits
 
 Control knob:
 
