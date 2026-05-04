@@ -2034,6 +2034,48 @@ The repo-managed reboot helpers are now installed and verified on this BeagleBad
 - remove the boot-session service with:
   - `./scripts/uninstall_badgesnake_boot_session_service.sh`
 
+## 2026-05-04 (updated boot workspace service to resume Codex)
+
+The boot-session helper now attempts to resume the latest local Codex session inside the `tmux` workspace instead of dropping directly to a shell.
+
+### Changes
+
+- updated:
+  - `scripts/start_badgesnake_boot_session.sh`
+- the `tmux` session now prefers:
+  - `codex resume --last --dangerously-bypass-approvals-and-sandbox --no-alt-screen -C /root/interactor/badge-demo`
+- if that exits, it falls back to `bash -l`
+
+### Meaning
+
+- the post-reboot `tmux` session can resume the latest Codex session automatically
+- the literal `--yolo` spelling is not used here because the installed `codex` build exposes `resume --last` and the current approval/sandbox flags instead
+
+## 2026-05-04 (verified rebooted kernel and fixed tmux attach target)
+
+Two live follow-ups are now confirmed on this board:
+
+### Findings
+
+- the install-and-reboot wrapper did boot the newly installed kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #10 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- the boot-session helper did start Codex, but the tmux session name ended up as `0` instead of `badgesnake`
+- the live pane showed Codex running inside tmux and resuming the latest session
+
+### Fix
+
+- updated `scripts/start_badgesnake_boot_session.sh` to force stable names after session creation:
+  - rename session to `badgesnake`
+  - rename window `0` to `workspace`
+  - disable automatic window rename on that target
+- applied the same rename fix to the live session immediately
+
+### Current live state
+
+- `tmux has-session -t badgesnake` succeeds
+- `tmux display-message -p -t badgesnake:0 '#{session_name} #{window_name} #{pane_current_command}'` reports:
+  - `badgesnake workspace codex`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

@@ -6,6 +6,7 @@ REPO_ROOT="/root/interactor/badge-demo"
 SESSION_NAME="badgesnake"
 BOOT_LOG_DIR="${REPO_ROOT}/artifacts/boot-status"
 BOOT_LOG="${BOOT_LOG_DIR}/latest.txt"
+CODEX_BOOT_MODE="${BADGESNAKE_CODEX_BOOT_MODE:-resume-last}"
 
 install -d -m 0755 "${BOOT_LOG_DIR}"
 
@@ -28,9 +29,21 @@ if tmux has-session -t "${SESSION_NAME}" 2>/dev/null; then
 	exit 0
 fi
 
-tmux new-session -d -s "${SESSION_NAME}" -c "${REPO_ROOT}" \
-	"printf 'BadgeSnake boot session started at %s\n\n' \"\$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; \
-	 uname -a; printf '\n'; \
-	 git status --short --branch --ignore-submodules=dirty || true; \
-	 printf '\nBoot log: %s\n' '${BOOT_LOG}'; \
-	 exec bash -l"
+TMUX_CMD="printf 'BadgeSnake boot session started at %s\n\n' \"\$(date -u +%Y-%m-%dT%H:%M:%SZ)\"; \
+	uname -a; printf '\n'; \
+	git status --short --branch --ignore-submodules=dirty || true; \
+	printf '\nBoot log: %s\n' '${BOOT_LOG}'; \
+	printf 'Codex boot mode: %s\n\n' '${CODEX_BOOT_MODE}';"
+
+if command -v codex >/dev/null 2>&1 && [[ "${CODEX_BOOT_MODE}" == "resume-last" ]]; then
+	TMUX_CMD="${TMUX_CMD} printf 'Launching: codex resume --last --dangerously-bypass-approvals-and-sandbox --no-alt-screen -C %s\n\n' '${REPO_ROOT}'; \
+		codex resume --last --dangerously-bypass-approvals-and-sandbox --no-alt-screen -C '${REPO_ROOT}' || true; \
+		printf '\nCodex exited; falling back to shell.\n';"
+fi
+
+TMUX_CMD="${TMUX_CMD} exec bash -l"
+
+tmux new-session -d -s "${SESSION_NAME}" -c "${REPO_ROOT}" "${TMUX_CMD}"
+tmux rename-session -t "${SESSION_NAME}" "${SESSION_NAME}" 2>/dev/null || true
+tmux rename-window -t "${SESSION_NAME}:0" workspace 2>/dev/null || true
+tmux set-option -t "${SESSION_NAME}:0" automatic-rename off >/dev/null 2>&1 || true

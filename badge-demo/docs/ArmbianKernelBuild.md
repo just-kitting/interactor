@@ -223,6 +223,20 @@ That installs a oneshot systemd unit which:
 
 - writes a boot summary to `artifacts/boot-status/latest.txt`
 - creates a `tmux` session named `badgesnake` in `/root/interactor/badge-demo`
+- on this board, attempts:
+
+```sh
+codex resume --last --dangerously-bypass-approvals-and-sandbox --no-alt-screen -C /root/interactor/badge-demo
+```
+
+- if Codex exits, falls back to a login shell inside the same `tmux` session
+- after session creation, the helper forces stable tmux names:
+  - session `badgesnake`
+  - window `workspace`
+
+Control knob:
+
+- set `BADGESNAKE_CODEX_BOOT_MODE=shell` before running the installer if you want the service to skip Codex auto-resume and open only a shell
 
 Recovery / rollback:
 

@@ -84,6 +84,7 @@
 - [ ] Test failure cases: bad DTB, bad kernel, bad rootfs, interrupted update
 - [ ] Document full recovery from a non-booting OSPI image
 - [X] Add repo-managed reboot helpers for repeated kernel iteration
+- [X] Make the boot workspace service resume the latest local Codex session when possible
 
 ## Immediate Next Actions
 
