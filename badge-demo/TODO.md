@@ -119,6 +119,7 @@
 - [X] Reboot into the pinned `P9d8b` 4-patch kernel
 - [X] Re-test `i2ctransfer -f -y 1 r1@0x30` after the 1-byte slave FIFO threshold follow-up kernel boots
 - [X] Stage instrumentation for the first live AM62L slave transaction status path on J6 / `i2c-1`
-- [ ] Build and boot the 5-patch AM62L diagnostic kernel
+- [X] Build and install the 5-patch AM62L diagnostic kernel
+- [ ] Reboot into the 5-patch AM62L diagnostic kernel
 - [ ] Capture the new `i2c-omap` slave status logs from J6 / `i2c-1` during a timed-out read
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

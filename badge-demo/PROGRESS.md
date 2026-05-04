@@ -1617,6 +1617,41 @@ The next follow-up is now a diagnostic kernel build that logs the live AM62L sla
   - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
   - `i2ctransfer -f -y 1 r1@0x30`
 
+## 2026-05-04 (installed `P0380` diagnostic kernel)
+
+The five-patch diagnostic build has been returned and installed on the live BeagleBadge.
+
+### Findings
+
+- returned build UUID:
+  - `aeec0475-c697-43f7-b4c7-bee8e8e4539c`
+- returned build summary:
+  - `kernel patching: 5 total patches; 5 applied; 0 with problems`
+- selected artifact suffix:
+  - `P0380`
+- the diagnostic reinstall was pinned explicitly with:
+  - `BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P0380-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb'`
+- `update-initramfs` completed normally with the usual FAT32 `/boot` rename fallback
+- the local QWIIC overlay was reinstalled automatically afterward:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+  - `/boot/uEnv.txt`
+- `/boot/uEnv.txt` now again includes:
+  - `name_overlays=ti/k3-am62l3-badge-eink-gdey042t81.dtbo ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+
+### Meaning
+
+- the diagnostic kernel is ready to boot
+- the next runtime pass should finally surface `i2c-omap` slave-path status in `dmesg` during the timed-out read
+
+### Next step
+
+- reboot into `P0380`
+- rerun:
+  - `uname -a`
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `dmesg | tail -n 80`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

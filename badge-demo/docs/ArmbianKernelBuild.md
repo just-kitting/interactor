@@ -163,6 +163,14 @@ BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P9d8b-C2876Hb496-HK01ba-Vc222-Be8e3
 
 That pinned reinstall has now completed on the BeagleBadge. The next step is only the runtime reboot and validation into `P9d8b`.
 
+The current diagnostic reinstall uses the same explicit-suffix path for the five-patch kernel:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P0380-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+That `P0380` reinstall has completed on the BeagleBadge. The next step is to reboot into it and capture the new `i2c-omap` slave diagnostic log lines during the failing J6 read.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
