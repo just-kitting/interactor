@@ -309,3 +309,15 @@ The first host build carrying that sixth patch failed to compile because the new
 - `0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch`
 
 One more build failure happened after that because the regenerated Armbian `0006` file still contained the old branch-selection payload. That patch file has now been corrected to carry only the 2-line forward-declaration fix.
+
+The `P803a` runtime with that corrected six-patch stack still did not emit any `master-enter`, `isr-master`, or `slave irq` log lines during the failing self-read. The only diagnostic line remained the initial listen-mode message.
+
+So the next staged follow-up is:
+
+- `0007-Trace-OMAP-slave-registration-lifetime.patch`
+
+Its purpose is to tell us:
+
+- when `reg_slave()` runs
+- if `unreg_slave()` runs unexpectedly
+- whether `xfer_common()` starts a transfer to `0x30` with no live slave pointer

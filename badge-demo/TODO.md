@@ -126,5 +126,7 @@
 - [X] Locally preflight `drivers/i2c/busses/i2c-omap.o` on the BeagleBadge against the corrected six-patch source
 - [X] Build and install the 6-patch ISR-branch diagnostic kernel
 - [ ] Reboot into the 6-patch ISR-branch diagnostic kernel
-- [ ] Capture whether `i2c-omap` handles the self-read on J6 in the master branch instead of the slave branch
+- [X] Capture the first ISR-branch diagnostic result on J6
+- [ ] Build and boot the 7-patch slave-lifetime diagnostic kernel
+- [ ] Capture whether the slave pointer is being dropped before the self-read on J6
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

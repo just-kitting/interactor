@@ -1800,6 +1800,60 @@ The corrected six-patch diagnostic build has now been returned and installed on 
   - `i2ctransfer -f -y 1 r1@0x30`
   - `dmesg | tail -n 80`
 
+## 2026-05-04 (validated `P803a` ISR-branch diagnostics and staged slave-lifetime follow-up)
+
+The six-patch ISR-branch diagnostic kernel still did not produce `master-enter` or `isr-master` logs during the failing self-read.
+
+### Findings
+
+- running kernel after reboot:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #8 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- J6 / J7 adapters are present after reboot:
+  - `i2c-1`
+  - `i2c-3`
+- fresh `slave-testunit` instantiation still reports success
+- first reproduced self-read after fresh bind failed with:
+  - `Error: Sending messages failed: Remote I/O error`
+- the adapter IRQ count still increments during the failing read:
+  - before: `0`
+  - after: `1`
+- the only new diagnostic line remains:
+  - `omap_i2c 20010000.i2c: slave listen stat=0x00 con=0x8002 bufstat=0x8001 read=0 threshold=1`
+- there was still no:
+  - `master-enter`
+  - `isr-master`
+  - `slave irq`
+- after a short delay, the client node is still present and bound:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+
+### Meaning
+
+- the failing self-read is still not reaching any of the new xfer/ISR branch diagnostics
+- the next most plausible gap is the slave registration lifetime itself:
+  - whether `reg_slave` is really sticking
+  - whether `unreg_slave` is being called unexpectedly
+  - whether `xfer_common()` is starting with no slave pointer at all
+
+### Changes
+
+- committed a TI-kernel follow-up in `components/ti-linux-kernel`:
+  - `a0413f647` `Trace OMAP slave registration lifetime`
+- mirrored that into the Armbian patch series as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0007-Trace-OMAP-slave-registration-lifetime.patch`
+- updated the x86 build wrapper to expect the seven-patch series
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the seven-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that slave-lifetime diagnostic kernel
+- reproduce:
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `dmesg | tail -n 80`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
