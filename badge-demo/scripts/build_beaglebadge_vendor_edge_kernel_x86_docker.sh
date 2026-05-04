@@ -11,7 +11,7 @@ KERNEL_PATCH_2="${KERNEL_PATCH_DIR}/0002-Fix-OMAP-slave-helper-declaration-order
 KERNEL_PATCH_3="${KERNEL_PATCH_DIR}/0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch"
 KERNEL_PATCH_4="${KERNEL_PATCH_DIR}/0004-Program-1-byte-FIFO-thresholds-in-slave-listen-mode.patch"
 KERNEL_PATCH_5="${KERNEL_PATCH_DIR}/0005-Instrument-OMAP-slave-transaction-state.patch"
-KERNEL_PATCH_6="${KERNEL_PATCH_DIR}/0006-Trace-OMAP-master-slave-ISR-branch-selection.patch"
+KERNEL_PATCH_6="${KERNEL_PATCH_DIR}/0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
 	echo "This script expects a Linux x86_64 host with Docker installed." >&2

@@ -303,3 +303,7 @@ So the next diagnostic point must move higher into the driver:
 That follow-up is now staged as:
 
 - `0006-Trace-OMAP-master-slave-ISR-branch-selection.patch`
+
+The first host build carrying that sixth patch failed to compile because the new ISR-branch trace called `omap_i2c_slave_log_state()` before its definition. That is now fixed in the TI kernel and mirrored into the Armbian patch series as:
+
+- `0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch`

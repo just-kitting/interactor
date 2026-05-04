@@ -1702,6 +1702,37 @@ The first diagnostic kernel produced usable log data. It still does not show any
   - `i2ctransfer -f -y 1 r1@0x30`
   - `dmesg | tail -n 80`
 
+## 2026-05-04 (fixed six-patch compile break)
+
+The first host build of the six-patch diagnostic kernel failed at compile time, but the failure was narrow and local.
+
+### Findings
+
+- failed build UUID:
+  - `7051ba70-863c-4ecf-98ef-d796f6382523`
+- patching still succeeded:
+  - `kernel patching: 6 total patches; 6 applied; 0 with problems`
+- compile failure in `drivers/i2c/busses/i2c-omap.c`:
+  - implicit declaration of `omap_i2c_slave_log_state`
+  - followed by conflicting/static declaration errors
+- root cause:
+  - the ISR-branch diagnostic patch called `omap_i2c_slave_log_state()` before its definition
+
+### Changes
+
+- committed a TI-kernel fix in `components/ti-linux-kernel`:
+  - `2e86d4d5a` `Fix OMAP ISR diagnostics declaration order`
+- regenerated the Armbian sixth patch as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch`
+- updated the x86 build wrapper to expect that regenerated `0006`
+
+### Next step
+
+- rerun the same x86 host build:
+  - `./scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh`
+- copy the returned artifacts back
+- continue with the six-patch diagnostic reinstall on the BeagleBadge
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
