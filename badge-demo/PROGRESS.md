@@ -2135,6 +2135,37 @@ Decoded status bits:
   - write-side address-match exists but does not complete cleanly
   - read-side path never reaches target-transmit startup
 
+## 2026-05-04 (staged slave-listen control cleanup follow-up)
+
+The next kernel change is now staged around `I2C_CON` cleanup when returning from master mode to slave listen mode.
+
+### Changes
+
+- committed in `components/ti-linux-kernel`:
+  - `5e394583e` `Clear stale master state before slave listen`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0009-Clear-stale-master-state-before-slave-listen.patch`
+- committed in `components/armbian-build`:
+  - `391059c2e` `Carry slave-listen master-state cleanup patch`
+- updated the x86 build wrapper to expect the nine-patch series
+
+### Hypothesis
+
+- same-adapter self-transfers are leaking the previous master transfer's `TRX` state into the slave listen phase
+- that matches the current split:
+  - self-write reaches `XRDY`
+  - self-read does not
+- clearing master-only `I2C_CON` bits before slave listen should remove that stale state
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the nine-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- reproduce:
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

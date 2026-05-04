@@ -357,3 +357,32 @@ Its purpose is to add the missing register context to the existing logs:
 - existing `CON`, `STAT`, and `BUFSTAT`
 
 It also adds a targeted `xfer-msg` trace when the adapter starts a master transfer to its own registered slave address.
+
+The resulting `Pdc8d` runtime narrowed the next follow-up:
+
+- same-adapter self-write now reaches:
+  - `XRDY | ARDY | NACK`
+- same-adapter self-read still reaches only:
+  - `ARDY | NACK`
+  - `NACK`
+- both paths show:
+  - `OA=0x30`
+  - `SA=0x30`
+  - `IE=0x61f`
+
+That points at a likely stale-control-state issue in `I2C_CON` when returning from master mode to slave listen mode.
+
+The next staged follow-up is:
+
+- `0009-Clear-stale-master-state-before-slave-listen.patch`
+
+It clears master-only `I2C_CON` bits when returning to slave listen mode:
+
+- `MST`
+- `TRX`
+- `STT`
+- `STP`
+- `RM`
+- `STB`
+
+The specific hypothesis is that same-adapter self-transfers are inheriting the previous master transfer's `TRX` state into the slave listen phase, which would explain why self-write reaches the transmit-ready path while self-read does not.

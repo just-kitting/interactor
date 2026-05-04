@@ -193,6 +193,12 @@ The current next build should carry an eighth `k3-6.12` diagnostic patch:
 
 That follow-up adds `OA`, `SA`, and `IE` register context to the existing slave diagnostics and adds a targeted `xfer-msg` trace when J6 starts a same-adapter master transfer to its own registered slave address.
 
+The current next build after `Pdc8d` should also carry:
+
+- `0009-Clear-stale-master-state-before-slave-listen.patch`
+
+That follow-up clears master-only `I2C_CON` bits before returning the controller to slave listen mode, targeting the observed same-adapter divergence where self-write reaches `XRDY` but self-read does not.
+
 For on-device install + reboot, use:
 
 ```sh
