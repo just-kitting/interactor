@@ -307,3 +307,5 @@ That follow-up is now staged as:
 The first host build carrying that sixth patch failed to compile because the new ISR-branch trace called `omap_i2c_slave_log_state()` before its definition. That is now fixed in the TI kernel and mirrored into the Armbian patch series as:
 
 - `0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch`
+
+One more build failure happened after that because the regenerated Armbian `0006` file still contained the old branch-selection payload. That patch file has now been corrected to carry only the 2-line forward-declaration fix.

@@ -1733,6 +1733,35 @@ The first host build of the six-patch diagnostic kernel failed at compile time, 
 - copy the returned artifacts back
 - continue with the six-patch diagnostic reinstall on the BeagleBadge
 
+## 2026-05-04 (corrected stale regenerated `0006` patch payload)
+
+The next host build still failed with the same compile error even after the TI-kernel source fix. The cause was not new code; it was a stale Armbian patch payload.
+
+### Findings
+
+- failed build UUID:
+  - `308cf8d8-5664-47a2-bd0b-e35424d40f92`
+- patching still succeeded:
+  - `kernel patching: 6 total patches; 6 applied; 0 with problems`
+- compile failure was unchanged:
+  - implicit declaration of `omap_i2c_slave_log_state`
+- root cause:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch`
+    still contained the old branch-selection patch payload instead of the 2-line declaration-order fix
+
+### Changes
+
+- regenerated `0006-Fix-OMAP-ISR-diagnostics-declaration-order.patch` from the actual TI-kernel commit:
+  - `2e86d4d5a`
+- committed the corrected Armbian patch payload in `components/armbian-build`:
+  - `1be756694` `Correct OMAP ISR declaration fix patch payload`
+
+### Next step
+
+- rerun the same x86 host build again
+- the expected `0006` diffstat is now:
+  - `(+2/-0)[1M]`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
