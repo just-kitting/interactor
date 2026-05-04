@@ -1755,6 +1755,9 @@ The next host build still failed with the same compile error even after the TI-k
   - `2e86d4d5a`
 - committed the corrected Armbian patch payload in `components/armbian-build`:
   - `1be756694` `Correct OMAP ISR declaration fix patch payload`
+- locally preflighted the corrected source on the BeagleBadge by building:
+  - `make -C components/ti-linux-kernel O=/usr/src/linux-headers-$(uname -r) CC=gcc HOSTCC=gcc drivers/i2c/busses/i2c-omap.o`
+  - result: `drivers/i2c/busses/i2c-omap.o` compiled successfully
 
 ### Next step
 
