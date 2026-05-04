@@ -121,5 +121,7 @@
 - [X] Stage instrumentation for the first live AM62L slave transaction status path on J6 / `i2c-1`
 - [X] Build and install the 5-patch AM62L diagnostic kernel
 - [ ] Reboot into the 5-patch AM62L diagnostic kernel
-- [ ] Capture the new `i2c-omap` slave status logs from J6 / `i2c-1` during a timed-out read
+- [X] Capture the initial `i2c-omap` slave status logs from J6 / `i2c-1` during a failing read
+- [ ] Build and boot the 6-patch ISR-branch diagnostic kernel
+- [ ] Capture whether `i2c-omap` handles the self-read on J6 in the master branch instead of the slave branch
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

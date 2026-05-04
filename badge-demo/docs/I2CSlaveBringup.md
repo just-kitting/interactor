@@ -285,3 +285,21 @@ After rebuilding and booting that diagnostic kernel, reproduce with:
 - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
 - `i2ctransfer -f -y 1 r1@0x30`
 - `dmesg | tail -n 80`
+
+That first diagnostic run is now complete on `P0380`.
+
+Observed result:
+
+- the adapter entered listen mode and logged:
+  - `slave listen stat=0x00 con=0x8002 bufstat=0x8001 read=0 threshold=1`
+- the first failing self-read still bumped the adapter IRQ count
+- there was still no `slave irq` log line during the transaction
+
+So the next diagnostic point must move higher into the driver:
+
+- trace when the adapter switches into master mode for self-traffic
+- trace whether the ISR thread stays on the master branch instead of entering `omap_i2c_slave_irq()`
+
+That follow-up is now staged as:
+
+- `0006-Trace-OMAP-master-slave-ISR-branch-selection.patch`

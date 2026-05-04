@@ -1652,6 +1652,56 @@ The five-patch diagnostic build has been returned and installed on the live Beag
   - `i2ctransfer -f -y 1 r1@0x30`
   - `dmesg | tail -n 80`
 
+## 2026-05-04 (validated `P0380` diagnostic logs and staged ISR-branch follow-up)
+
+The first diagnostic kernel produced usable log data. It still does not show any slave IRQ processing beyond listen-mode entry.
+
+### Findings
+
+- running kernel after reboot:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #7 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- J6 / J7 adapters are present after reboot:
+  - `i2c-1`
+  - `i2c-3`
+- `slave-testunit` still instantiates and binds on `i2c-1`
+- first reproduced read after fresh bind failed with:
+  - `Error: Sending messages failed: Remote I/O error`
+- the adapter IRQ count still increments during the failing read:
+  - before: `0`
+  - after: `1`
+- the only new diagnostic log line from `i2c-omap` was:
+  - `omap_i2c 20010000.i2c: slave listen stat=0x00 con=0x8002 bufstat=0x8001 read=0 threshold=1`
+- there was still no `slave irq` log line during the transaction
+- the client node remains present afterward:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+
+### Meaning
+
+- the current diagnostic point is too low in the stack
+- we know the adapter entered listen mode, but we still do not know whether the failing self-read is being serviced:
+  - in the slave IRQ path
+  - or in the master IRQ path after `omap_i2c_set_master_mode()`
+
+### Changes
+
+- committed a second TI-kernel diagnostic patch in `components/ti-linux-kernel`:
+  - `c5a94159b` `Trace OMAP master/slave ISR branch selection`
+- mirrored that into the Armbian patch series as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0006-Trace-OMAP-master-slave-ISR-branch-selection.patch`
+- updated the x86 build wrapper to expect the six-patch series
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the six-patch `k3-6.12` series
+- copy the returned artifacts back
+- reinstall and reboot into that branch-selection diagnostic kernel
+- reproduce:
+  - `./scripts/bringup_i2c_slave_testunit.sh start 1 0x30`
+  - `i2ctransfer -f -y 1 r1@0x30`
+  - `dmesg | tail -n 80`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

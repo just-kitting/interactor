@@ -11,6 +11,7 @@ KERNEL_PATCH_2="${KERNEL_PATCH_DIR}/0002-Fix-OMAP-slave-helper-declaration-order
 KERNEL_PATCH_3="${KERNEL_PATCH_DIR}/0003-Handle-slave-TX-underflow-on-OMAP-I2C.patch"
 KERNEL_PATCH_4="${KERNEL_PATCH_DIR}/0004-Program-1-byte-FIFO-thresholds-in-slave-listen-mode.patch"
 KERNEL_PATCH_5="${KERNEL_PATCH_DIR}/0005-Instrument-OMAP-slave-transaction-state.patch"
+KERNEL_PATCH_6="${KERNEL_PATCH_DIR}/0006-Trace-OMAP-master-slave-ISR-branch-selection.patch"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
 	echo "This script expects a Linux x86_64 host with Docker installed." >&2
@@ -27,13 +28,14 @@ if [[ ! -x "${ARMBIAN_DIR}/compile.sh" ]]; then
 	exit 1
 fi
 
-if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PATCH_3}" || ! -f "${KERNEL_PATCH_4}" || ! -f "${KERNEL_PATCH_5}" ]]; then
+if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PATCH_3}" || ! -f "${KERNEL_PATCH_4}" || ! -f "${KERNEL_PATCH_5}" || ! -f "${KERNEL_PATCH_6}" ]]; then
 	echo "Expected BeagleBadge slave-mode kernel patch series not found:" >&2
 	echo "  ${KERNEL_PATCH_1}" >&2
 	echo "  ${KERNEL_PATCH_2}" >&2
 	echo "  ${KERNEL_PATCH_3}" >&2
 	echo "  ${KERNEL_PATCH_4}" >&2
 	echo "  ${KERNEL_PATCH_5}" >&2
+	echo "  ${KERNEL_PATCH_6}" >&2
 	exit 1
 fi
 
@@ -59,6 +61,7 @@ echo "  ${KERNEL_PATCH_2}"
 echo "  ${KERNEL_PATCH_3}"
 echo "  ${KERNEL_PATCH_4}"
 echo "  ${KERNEL_PATCH_5}"
+echo "  ${KERNEL_PATCH_6}"
 
 exec ./compile.sh \
 	kernel \
