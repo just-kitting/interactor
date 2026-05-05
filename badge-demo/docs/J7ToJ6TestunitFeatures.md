@@ -167,3 +167,20 @@ misalignment.
 So the combined `XUDF|XRDY` two-slot hypothesis was not sufficient. The next
 iteration needs more detailed proc-call transmit tracing or a different model
 for how the controller consumes the first returned byte.
+
+## Next `P665e` Follow-up
+
+The next staged kernel change is:
+
+- `0013-Trace-slave-TX-byte-sequence.patch`
+
+Purpose:
+
+- log each slave TX callback as either:
+  - `slave tx-requested`
+  - `slave tx-processed`
+- log the byte value returned for that slot
+
+This should tell us whether the proc-call byte shift is already present on the
+J6 target side, or whether the J7 initiator path is transforming an otherwise
+correct target response.

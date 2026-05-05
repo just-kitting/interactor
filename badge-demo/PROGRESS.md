@@ -2674,6 +2674,41 @@ misalignment on J7 -> J6.
 - inspect the proc-call transmit sequence in more detail instead of assuming the
   first combined TX interrupt is the whole problem
 
+## 2026-05-05 (staged slave-TX byte trace follow-up for proc-call debugging)
+
+The next kernel change is now diagnostic rather than corrective. `P665e` proved
+that the combined `XUDF|XRDY` two-slot hypothesis was not enough, so the next
+useful data is the exact TX callback/value sequence seen by the J6 target.
+
+### What this diagnostic targets
+
+- whether J6 is issuing:
+  - `READ_REQUESTED`
+  - `READ_PROCESSED`
+- which byte value is produced for each slave TX slot
+- whether the proc-call length and payload bytes are already wrong on the target
+  side before they ever reach J7
+
+### Next fix staged
+
+- committed in `components/ti-linux-kernel`:
+  - `2e0d7a4ec` `Trace slave TX byte sequence`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0013-Trace-slave-TX-byte-sequence.patch`
+- committed in `components/armbian-build`:
+  - `3d4aa37f5` `Carry slave TX byte trace patch`
+- updated the x86 build wrapper to expect the thirteen-patch series
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the thirteen-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+  - `i2ctransfer -f -y 3 w3@0x30 3 1 4 r?`
+- inspect the new `slave tx-requested` / `slave tx-processed` log lines
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
