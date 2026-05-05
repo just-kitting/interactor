@@ -152,3 +152,18 @@ Reason:
 
 The follow-up therefore handles `XUDF` and `XRDY` as two explicit TX slots
 instead of collapsing them into one callback.
+
+## Current `P665e` Result
+
+Booting the twelve-patch `P665e` kernel does not change the remaining proc-call
+misalignment.
+
+- repeated-start version query still works
+- fixed-length proc-call read still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- recv-len proc-call read still returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+So the combined `XUDF|XRDY` two-slot hypothesis was not sufficient. The next
+iteration needs more detailed proc-call transmit tracing or a different model
+for how the controller consumes the first returned byte.

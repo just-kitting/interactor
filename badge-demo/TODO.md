@@ -158,7 +158,8 @@
 - [X] Stage a 12-patch follow-up that handles combined slave TX slots explicitly
 - [X] Fix the empty `0012` Armbian patch payload after the first 12-patch host build failure
 - [X] Build and install the 12-patch combined-slave-TX follow-up kernel
-- [ ] Reboot into the 12-patch combined-slave-TX follow-up kernel
-- [ ] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
+- [X] Reboot into the 12-patch combined-slave-TX follow-up kernel
+- [X] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
+- [ ] Diagnose the remaining proc-call response misalignment beyond the initial combined `XUDF|XRDY` condition
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

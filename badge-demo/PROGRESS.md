@@ -2636,6 +2636,44 @@ live BeagleBadge and ready for the next reboot-based validation pass.
 - rerun:
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-05 (`P665e` booted; combined-TX-slot follow-up did not change proc-call behavior)
+
+The twelve-patch combined-slave-TX follow-up kernel is now running on the live
+BeagleBadge. It boots cleanly, but it does not change the remaining proc-call
+misalignment on J7 -> J6.
+
+### Runtime validation
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #14 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux attach -t badgesnake` still works after reboot
+- the J7 -> J6 feature harness still starts and runs cleanly
+
+### J7 -> J6 feature results
+
+- `./scripts/validate_j7_to_j6_testunit_features.sh` still reports:
+  - `Version response: v6.12.57-vendor-edge-k3`
+  - `unexpected block-proc-call response: 0x00 0x04 0x03 0x02 0x01`
+  - `expected: 0x04 0x03 0x02 0x01 0x00`
+- recv-len form is also unchanged:
+  - `i2ctransfer -f -y 3 w3@0x30 3 1 4 r?`
+  - returns `0x04 0x00 0x00 0x00 0x00`
+
+### Meaning
+
+- the combined `XUDF|XRDY` two-slot hypothesis was not sufficient to fix the
+  proc-call response alignment
+- the remaining bug is now somewhere beyond that first combined TX condition
+- importantly, the working state remains:
+  - slave registration/bind works
+  - second-controller target-mode works
+  - repeated-start version queries work
+
+### Next step
+
+- inspect the proc-call transmit sequence in more detail instead of assuming the
+  first combined TX interrupt is the whole problem
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
