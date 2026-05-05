@@ -64,6 +64,15 @@ been validated with a true second controller:
 The remaining failure is specifically the same-adapter self-test path, not
 generic AM62L target support.
 
+So the current validation baseline should now be treated as:
+
+- J6 slave backend on `/dev/i2c-1`
+- J7 controller traffic on `/dev/i2c-3`
+- feature checks driven through `slave-testunit`
+
+This is a better proxy for the eventual multi-controller transport than the old
+same-adapter loopback.
+
 ## Recommended Architecture
 
 The end goal is **not** a target-only driver.

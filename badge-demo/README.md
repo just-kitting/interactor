@@ -22,6 +22,7 @@ rather than explaining what it looks like for game controllers to be replaced by
 - `TODO.md` tracks the staged build-out checklist for BadgeSnake.
 - `PROGRESS.md` records confirmed board and repository findings over time.
 - `docs/J7ToJ6TargetModeValidation.md` records the current best target-mode validation path on BeagleBadge.
+- `docs/J7ToJ6TestunitFeatures.md` records richer `slave-testunit` feature checks over J7 -> J6.
 
 ## Technology bits
 

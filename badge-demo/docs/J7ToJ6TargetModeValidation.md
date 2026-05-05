@@ -62,3 +62,17 @@ This is the current best proof that:
 - the remaining issue is specifically the same-adapter self-test path
 - future transport development should use J7 or another true initiator model as
   the validation baseline
+
+## Next-Level Validation
+
+Once the byte-level smoke test is passing, use:
+
+```sh
+./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+That script validates richer `slave-testunit` features over the same J7 -> J6
+topology:
+
+- repeated-start version query
+- SMBus block-proc-call style multi-byte reply
