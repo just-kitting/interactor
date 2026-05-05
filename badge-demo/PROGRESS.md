@@ -2166,6 +2166,56 @@ The next kernel change is now staged around `I2C_CON` cleanup when returning fro
   - `i2ctransfer -f -y 1 r1@0x30`
   - `i2ctransfer -f -y 1 w1@0x30 0x00`
 
+## 2026-05-05 (validated `P5123` slave-listen cleanup follow-up)
+
+The nine-patch cleanup kernel booted, but it did not change the same-adapter read/write behavior.
+
+### Findings
+
+- running kernel after reboot:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #11 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- boot-session behavior across reboot remains acceptable:
+  - `tmux ls` shows `badgesnake`
+  - `tmux attach -t badgesnake` succeeds
+- `slave-testunit` still binds on J6 / `i2c-1`
+
+Same-adapter self-read on `P5123`:
+
+- command:
+  - `i2ctransfer -f -y 1 r1@0x30`
+- result:
+  - `Error: Sending messages failed: Connection timed out`
+- diagnostics:
+  - `slave xfer-msg stat=0x00 con=0x8400 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=1`
+  - `slave irq stat=0x06 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8001 read=0 threshold=1`
+  - `slave irq stat=0x02 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8001 read=0 threshold=1`
+
+Same-adapter self-write on `P5123`:
+
+- command:
+  - `i2ctransfer -f -y 1 w1@0x30 0x00`
+- result:
+  - `Error: Sending messages failed: Connection timed out`
+- diagnostics:
+  - `slave xfer-msg stat=0x00 con=0x8400 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=1`
+  - `slave irq stat=0x16 con=0x8200 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8001 read=0 threshold=1`
+  - `slave irq stat=0x06 con=0x8200 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=1 threshold=1`
+  - `slave irq stat=0x02 con=0x8200 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=1`
+
+### Meaning
+
+- clearing master-only `I2C_CON` bits on the return-to-listen path did not change the same-adapter behavior
+- the current same-adapter divergence remains:
+  - self-write reaches `XRDY`
+  - self-read does not
+- that strongly suggests the next useful validation is no longer another same-adapter kernel tweak
+- the next useful validation is a true second controller or external initiator talking to J6 / `i2c-1`
+
+### Next step
+
+- obtain a real second-controller test path for J6 target mode
+- use that path to validate whether AM62L slave mode works correctly when the initiator is not the same adapter
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

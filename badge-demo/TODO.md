@@ -137,7 +137,8 @@
 - [X] Reboot into the 8-patch own-address diagnostic kernel
 - [X] Capture `OA` / `SA` / `IE` state for same-adapter self-read and self-write on J6
 - [X] Stage a follow-up for stale master `I2C_CON` state leaking into slave listen mode
-- [ ] Build and install the 9-patch slave-listen cleanup kernel
-- [ ] Reboot into the 9-patch slave-listen cleanup kernel
-- [ ] Re-test same-adapter self-read and self-write on J6 after clearing master-only `I2C_CON` state
+- [X] Build and install the 9-patch slave-listen cleanup kernel
+- [X] Reboot into the 9-patch slave-listen cleanup kernel
+- [X] Re-test same-adapter self-read and self-write on J6 after clearing master-only `I2C_CON` state
+- [ ] Validate J6 target mode with a true second controller or external initiator
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

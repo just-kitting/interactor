@@ -386,3 +386,22 @@ It clears master-only `I2C_CON` bits when returning to slave listen mode:
 - `STB`
 
 The specific hypothesis is that same-adapter self-transfers are inheriting the previous master transfer's `TRX` state into the slave listen phase, which would explain why self-write reaches the transmit-ready path while self-read does not.
+
+That `0009` follow-up has now been tested on `P5123`.
+
+Observed result:
+
+- same-adapter self-read is unchanged:
+  - `ARDY | NACK`
+  - `NACK`
+- same-adapter self-write is unchanged:
+  - `XRDY | ARDY | NACK`
+  - `ARDY | NACK`
+  - `NACK`
+
+So clearing master-only `I2C_CON` bits in `omap_i2c_set_slave_mode()` was not enough to change the same-adapter behavior.
+
+Current practical conclusion:
+
+- further same-adapter tuning is likely lower-value than moving to a true second-controller test
+- the next meaningful validation target is J6 as slave with another controller acting as initiator
