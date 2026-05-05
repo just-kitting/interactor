@@ -405,3 +405,16 @@ Current practical conclusion:
 
 - further same-adapter tuning is likely lower-value than moving to a true second-controller test
 - the next meaningful validation target is J6 as slave with another controller acting as initiator
+
+That second-controller validation is now complete with a short between J7 and J6:
+
+- J7 (`/dev/i2c-3`) -> J6 (`/dev/i2c-1`) write succeeds:
+  - `i2ctransfer -f -y 3 w1@0x30 0x00`
+- J7 (`/dev/i2c-3`) -> J6 (`/dev/i2c-1`) read succeeds:
+  - `i2ctransfer -f -y 3 r1@0x30`
+  - returned `0x00`
+
+That result materially changes the diagnosis:
+
+- AM62L target mode on J6 is working with a true second controller
+- the remaining fault is the forced same-adapter self-test path, not generic target-mode support

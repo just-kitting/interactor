@@ -140,5 +140,6 @@
 - [X] Build and install the 9-patch slave-listen cleanup kernel
 - [X] Reboot into the 9-patch slave-listen cleanup kernel
 - [X] Re-test same-adapter self-read and self-write on J6 after clearing master-only `I2C_CON` state
-- [ ] Validate J6 target mode with a true second controller or external initiator
+- [X] Validate J6 target mode with a true second controller or external initiator
+- [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

@@ -2216,6 +2216,60 @@ Same-adapter self-write on `P5123`:
 - obtain a real second-controller test path for J6 target mode
 - use that path to validate whether AM62L slave mode works correctly when the initiator is not the same adapter
 
+## 2026-05-05 (validated J6 target mode with J7 as a true second controller)
+
+The QWIIC loopback between J7 (`/dev/i2c-3`) and J6 (`/dev/i2c-1`) proves the AM62L slave path is working with a true second controller.
+
+### Findings
+
+- user-provided hardware setup:
+  - Zepto temporarily removed from J6
+  - short installed between J6 and J7
+- `slave-testunit` remained instantiated and bound on J6 / `i2c-1` at `0x30`
+
+Write from J7 to J6:
+
+- command:
+  - `i2ctransfer -f -y 3 w1@0x30 0x00`
+- result:
+  - `EXIT=0`
+- J6 slave diagnostics:
+  - `slave irq stat=0x200 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x8000 read=0 threshold=1`
+  - `slave irq stat=0x08 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x8100 read=0 threshold=1`
+  - `slave irq stat=0x04 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x8000 read=0 threshold=1`
+
+Read from J7 to J6:
+
+- command:
+  - `i2ctransfer -f -y 3 r1@0x30`
+- result:
+  - `0x00`
+  - `EXIT=0`
+- J6 slave diagnostics:
+  - `slave irq stat=0x610 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x8000 read=0 threshold=1`
+  - `slave irq stat=0x400 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x803f read=1 threshold=1`
+  - `slave irq stat=0x06 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x8000 read=1 threshold=1`
+  - `slave irq stat=0x02 con=0x8000 ie=0x61f oa=0x30 sa=0x3ff bufstat=0x8000 read=0 threshold=1`
+
+Decoded status bits:
+
+- `0x200` = `AAS`
+- `0x08` = `RRDY`
+- `0x04` = `ARDY`
+- `0x610` = `AAS | XUDF | XRDY`
+- `0x400` = `XUDF`
+- `0x06` = `ARDY | NACK`
+- `0x02` = `NACK`
+
+### Meaning
+
+- AM62L target mode on J6 works when another controller drives the bus
+- the major blocker is no longer generic slave support in `i2c-omap`
+- the remaining problem is specifically the forced same-adapter self-test path
+- that means the next software layer can move forward using a true second initiator model
+  - J7 as a host-side initiator for validation
+  - or an external controller / Zepto in the final topology
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
