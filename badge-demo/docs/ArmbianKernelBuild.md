@@ -255,6 +255,33 @@ Recovery / rollback:
 ./scripts/uninstall_badgesnake_boot_session_service.sh
 ```
 
+## Current Installed-But-Not-Yet-Booted Kernel
+
+The most recent completed reinstall on the live BeagleBadge is the repeated-start
+follow-up kernel built from the ten-patch `k3-6.12` stack.
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-709870f5-2d60-4e3a-9feb-8480867c915d.md`
+- selected suffix:
+  - `6.12.57-S3b4a-D0000-P92b0-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+- pinned reinstall command used:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P92b0-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+- `/var/log/dpkg.log` confirms completion through:
+  - `status installed linux-image-vendor-edge-k3:arm64 26.02.0-trunk`
+- post-install overlay check still passes:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo` exists
+  - `/boot/uEnv.txt` still includes `ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+
+Next validation after reboot:
+
+```sh
+./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
