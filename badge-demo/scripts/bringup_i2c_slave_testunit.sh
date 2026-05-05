@@ -45,9 +45,13 @@ modprobe_fallback() {
 case "$subcmd" in
   start)
     [ -e "$new_device" ] || { echo "missing $new_device" >&2; exit 1; }
-    if [ -e "/sys/bus/i2c/devices/$slave_node" ] && device_bound; then
-      echo "slave-testunit already present at $slave_node"
-      exit 0
+    if [ -e "/sys/bus/i2c/devices/$slave_node" ]; then
+      if device_bound; then
+        echo "slave-testunit already present at $slave_node"
+        exit 0
+      fi
+      echo "slave-testunit device exists at $slave_node but driver is not bound" >&2
+      exit 1
     fi
     if ! modprobe_fallback; then
       echo "i2c-slave-testunit module not available on this kernel" >&2

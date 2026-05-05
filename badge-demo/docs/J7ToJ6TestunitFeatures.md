@@ -115,3 +115,22 @@ The next staged kernel follow-up is:
 
 Its purpose is to send `WRITE_REQUESTED` only once per write transaction and
 keep the command payload intact across the repeated-start boundary.
+
+## Current `P1d46` Result
+
+Booting the eleven-patch `P1d46` kernel fixes the repeated-start version path:
+
+- `i2ctransfer -f -y -b 3 w3@0x30 4 0 0 r32`
+- now returns `v6.12.57-vendor-edge-k3`
+
+The block-proc-call path is improved but not fully correct yet:
+
+- `i2ctransfer -f -y 3 w3@0x30 3 1 4 r5@0x30`
+- returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- documented `slave-testunit` expectation remains:
+  - `0x04 0x03 0x02 0x01 0x00`
+
+So the current remaining bug is no longer loss of the full repeated-start
+command state. It is a narrower transmit-side issue where the proc-call
+response is still shifted by one byte.

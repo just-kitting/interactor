@@ -51,6 +51,10 @@ done
 	exit 1
 }
 
+if "${BRINGUP}" status "${SLAVE_BUS}" "${ADDR}" >/dev/null 2>&1; then
+	"${BRINGUP}" stop "${SLAVE_BUS}" "${ADDR}" >/dev/null
+	sleep 1
+fi
 "${BRINGUP}" start "${SLAVE_BUS}" "${ADDR}" >/dev/null
 sleep 1
 "${BRINGUP}" status "${SLAVE_BUS}" "${ADDR}" >/dev/null

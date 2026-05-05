@@ -2472,6 +2472,64 @@ the live BeagleBadge and ready for the next reboot-based validation pass.
 - rerun:
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-05 (`P1d46` booted; repeated-start version path fixed, block-proc-call still shifted)
+
+The eleven-patch write-transaction-state follow-up kernel is now running on the
+live BeagleBadge, and it fixes the repeated-start version query. The richer
+J7 -> J6 feature test is no longer broadly broken; it is now narrowed to the
+block-proc-call style response shape.
+
+### Runtime validation
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #13 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- `tmux attach -t badgesnake` still works after reboot
+- J6 target instantiation still works:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+
+### J7 -> J6 feature results
+
+- repeated-start version query now works:
+  - `i2ctransfer -f -y -b 3 w3@0x30 4 0 0 r32`
+  - returns `v6.12.57-vendor-edge-k3\n`
+- block-proc-call style query is still slightly wrong:
+  - `i2ctransfer -f -y 3 w3@0x30 3 1 4 r5@0x30`
+  - returns `0x00 0x04 0x03 0x02 0x01`
+  - expected per `slave-testunit` documentation:
+    - `0x04 0x03 0x02 0x01 0x00`
+
+### Meaning
+
+- the write-transaction-state fix did what it was supposed to do for the
+  partial-command repeated-start path
+- the remaining bug is now narrower:
+  - the proc-call length-prefixed response is shifted by one byte
+  - this is no longer a full command-state loss across the write->read boundary
+
+### Harness follow-up
+
+- `scripts/bringup_i2c_slave_testunit.sh` now treats an already-present node as
+  success only when it is actually bound
+- `scripts/validate_j7_to_j6_testunit_features.sh` now forces a clean
+  `slave-testunit` stop/start cycle before running the feature checks, avoiding
+  stale state and the post-reboot `new_device` write race seen on `P1d46`
+
+### Harness result after helper fix
+
+- `./scripts/validate_j7_to_j6_testunit_features.sh` now behaves cleanly on
+  `P1d46`
+- repeated-start version test passes and prints:
+  - `Version response: v6.12.57-vendor-edge-k3`
+- only the block-proc-call step still fails:
+  - `unexpected block-proc-call response: 0x00 0x04 0x03 0x02 0x01`
+  - `expected: 0x04 0x03 0x02 0x01 0x00`
+
+### Next step
+
+- diagnose why the block-proc-call response still loses the leading length byte
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
