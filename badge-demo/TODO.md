@@ -145,7 +145,12 @@
 - [ ] Make J7->J6 repeated-start / partial-command `slave-testunit` feature checks pass
 - [X] Stage a repeated-start follow-up that defers `I2C_SLAVE_STOP` until the bus is idle
 - [X] Build and install the 10-patch repeated-start follow-up kernel
-- [ ] Reboot into the 10-patch repeated-start follow-up kernel
+- [X] Reboot into the 10-patch repeated-start follow-up kernel
+- [X] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
+- [X] Narrow the remaining repeated-start failure to repeated `I2C_SLAVE_WRITE_REQUESTED` callbacks on J6
+- [X] Stage an 11-patch follow-up that tracks write transaction lifetime across `RRDY` bytes
+- [ ] Build and install the 11-patch write-transaction-state follow-up kernel
+- [ ] Reboot into the 11-patch write-transaction-state follow-up kernel
 - [ ] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

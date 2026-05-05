@@ -433,3 +433,18 @@ The next staged patch is:
 Its purpose is to preserve partial-command state across a repeated-start style
 write->read transaction by only mapping `ARDY` to `I2C_SLAVE_STOP` once the bus
 is no longer busy.
+
+After booting the `P92b0` ten-patch kernel, the repeated-start and block-proc-call
+transfers now complete cleanly, but they still return only zero bytes. That
+narrows the remaining bug further: the current OMAP slave IRQ path emits
+`I2C_SLAVE_WRITE_REQUESTED` on every `RRDY` byte. For `i2c-slave-testunit`, that
+callback clears the staged command registers, so the multi-byte request payload
+never survives intact into the read phase.
+
+The next staged patch is therefore:
+
+- `0011-Track-slave-write-transaction-state.patch`
+
+Its purpose is to emit `I2C_SLAVE_WRITE_REQUESTED` only once per write
+transaction and preserve the multi-byte write payload across the full
+write->read exchange.

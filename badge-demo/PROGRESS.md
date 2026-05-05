@@ -2380,6 +2380,61 @@ BeagleBadge and ready for the next reboot-based validation pass.
 - rerun:
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-05 (`P92b0` booted; repeated-start transactions now complete but still return zeros)
+
+The ten-patch kernel is now running on the live BeagleBadge, and the deferred
+`STOP` change did improve the second-controller path. The repeated-start tests
+no longer fail at the transfer layer; they now complete end-to-end but return
+only zero bytes.
+
+### Runtime validation
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #12 SMP PREEMPT Thu Apr 30 08:25:00 UTC 2026 aarch64 GNU/Linux`
+- `tmux attach -t badgesnake` still works after reboot
+- `./scripts/bringup_i2c_slave_testunit.sh status 1 0x30` reports:
+  - `present: 1-1030`
+  - `bound: yes`
+  - `slave-testunit`
+
+### J7 -> J6 feature results
+
+- `./scripts/validate_j7_to_j6_testunit_features.sh` still fails
+- repeated-start version query:
+  - transfer completes
+  - returns zero bytes instead of the expected `v...` string
+- block-proc-call style query:
+  - transfer completes
+  - returns `0x00 0x00 0x00 0x00 0x00`
+
+### Narrowed driver finding
+
+- the live J6 slave IRQ log now shows both write-side and read-side activity
+  during these transactions, so the bus no longer collapses at the write->read
+  boundary
+- the remaining bug is in the slave event mapping:
+  - `omap_i2c_slave_irq()` currently emits `I2C_SLAVE_WRITE_REQUESTED` on every
+    `RRDY` byte, not only on the first byte of a write transaction
+  - `i2c-slave-testunit` resets its register state in `WRITE_REQUESTED`
+  - multi-byte command payloads are therefore reset repeatedly and the later
+    read phase naturally returns zeroed state
+
+### Next fix staged
+
+- committed in `components/ti-linux-kernel`:
+  - `baf0e5a8c` `Track slave write transaction state`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0011-Track-slave-write-transaction-state.patch`
+- updated the x86 build wrapper to expect the eleven-patch series
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the eleven-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

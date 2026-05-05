@@ -94,3 +94,24 @@ The current kernel hypothesis is:
 
 The next staged kernel follow-up therefore defers `I2C_SLAVE_STOP` on `ARDY`
 until the bus is no longer busy.
+
+## Current `P92b0` Result
+
+On the current `#12` kernel:
+
+- the repeated-start version query completes
+- the block-proc-call style query also completes
+- both still return only zero bytes
+
+The remaining bug is now narrower than the original `STOP` hypothesis. In the
+current OMAP slave IRQ path, `I2C_SLAVE_WRITE_REQUESTED` is emitted on every
+`RRDY` byte. For `i2c-slave-testunit`, that callback clears the staged command
+registers, so a command such as `4 0 0` is repeatedly reset before the read
+phase starts.
+
+The next staged kernel follow-up is:
+
+- `0011-Track-slave-write-transaction-state.patch`
+
+Its purpose is to send `WRITE_REQUESTED` only once per write transaction and
+keep the command payload intact across the repeated-start boundary.

@@ -16,6 +16,7 @@ KERNEL_PATCH_7="${KERNEL_PATCH_DIR}/0007-Trace-OMAP-slave-registration-lifetime.
 KERNEL_PATCH_8="${KERNEL_PATCH_DIR}/0008-Trace-OMAP-own-address-registers.patch"
 KERNEL_PATCH_9="${KERNEL_PATCH_DIR}/0009-Clear-stale-master-state-before-slave-listen.patch"
 KERNEL_PATCH_10="${KERNEL_PATCH_DIR}/0010-Defer-slave-STOP-until-bus-is-idle.patch"
+KERNEL_PATCH_11="${KERNEL_PATCH_DIR}/0011-Track-slave-write-transaction-state.patch"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
 	echo "This script expects a Linux x86_64 host with Docker installed." >&2
@@ -32,7 +33,7 @@ if [[ ! -x "${ARMBIAN_DIR}/compile.sh" ]]; then
 	exit 1
 fi
 
-if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PATCH_3}" || ! -f "${KERNEL_PATCH_4}" || ! -f "${KERNEL_PATCH_5}" || ! -f "${KERNEL_PATCH_6}" || ! -f "${KERNEL_PATCH_7}" || ! -f "${KERNEL_PATCH_8}" || ! -f "${KERNEL_PATCH_9}" || ! -f "${KERNEL_PATCH_10}" ]]; then
+if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PATCH_3}" || ! -f "${KERNEL_PATCH_4}" || ! -f "${KERNEL_PATCH_5}" || ! -f "${KERNEL_PATCH_6}" || ! -f "${KERNEL_PATCH_7}" || ! -f "${KERNEL_PATCH_8}" || ! -f "${KERNEL_PATCH_9}" || ! -f "${KERNEL_PATCH_10}" || ! -f "${KERNEL_PATCH_11}" ]]; then
 	echo "Expected BeagleBadge slave-mode kernel patch series not found:" >&2
 	echo "  ${KERNEL_PATCH_1}" >&2
 	echo "  ${KERNEL_PATCH_2}" >&2
@@ -44,6 +45,7 @@ if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PAT
 	echo "  ${KERNEL_PATCH_8}" >&2
 	echo "  ${KERNEL_PATCH_9}" >&2
 	echo "  ${KERNEL_PATCH_10}" >&2
+	echo "  ${KERNEL_PATCH_11}" >&2
 	exit 1
 fi
 
@@ -74,6 +76,7 @@ echo "  ${KERNEL_PATCH_7}"
 echo "  ${KERNEL_PATCH_8}"
 echo "  ${KERNEL_PATCH_9}"
 echo "  ${KERNEL_PATCH_10}"
+echo "  ${KERNEL_PATCH_11}"
 
 exec ./compile.sh \
 	kernel \

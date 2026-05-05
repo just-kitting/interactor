@@ -282,6 +282,16 @@ Next validation after reboot:
 ./scripts/validate_j7_to_j6_testunit_features.sh
 ```
 
+That reboot has now happened. The `P92b0` ten-patch kernel boots as `#12`, and
+the repeated-start feature tests now complete but still return only zeros.
+
+The current next rebuild target is the eleven-patch follow-up that adds:
+
+- `0011-Track-slave-write-transaction-state.patch`
+
+The build wrapper now enforces that `0011` is present before starting the next
+x86-host kernel build.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
