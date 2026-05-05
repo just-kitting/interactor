@@ -18,6 +18,11 @@ multi-controller I2C, the preferred direction is now:
 So the longer-term plan is a kernel-visible serial-to-I2C endpoint bridge rather
 than a strict host-controller / target-responder model.
 
+That architectural direction now has a stronger hardware proof on BeagleBadge:
+
+* J6 target mode works when J7 is used as a true second controller
+* the remaining current limitation is the forced same-adapter self-test path on J6 itself
+
 Battlesnake HTTP semantics can still be preserved at the host-runtime layer, but
 they should ride on top of endpoint-oriented framed transport instead of directly
 mapping `GET`/`PUT` to fixed I2C read/write choreography.

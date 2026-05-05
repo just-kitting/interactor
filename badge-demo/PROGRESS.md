@@ -2270,6 +2270,40 @@ Decoded status bits:
   - J7 as a host-side initiator for validation
   - or an external controller / Zepto in the final topology
 
+## 2026-05-05 (added repeatable J7-to-J6 validation harness)
+
+The second-controller proof is now captured as a repo-owned validation script instead of a manual terminal recipe.
+
+### Changes
+
+- added:
+  - `scripts/validate_j7_to_j6_target_mode.sh`
+  - `docs/J7ToJ6TargetModeValidation.md`
+
+### Verification
+
+- `bash -n scripts/validate_j7_to_j6_target_mode.sh`
+- live run on this board:
+  - `./scripts/validate_j7_to_j6_target_mode.sh`
+
+Observed result from the live script run:
+
+- write succeeds from J7 to J6
+- read succeeds from J7 to J6 and returns `0x00`
+- representative slave-side diagnostics:
+  - write:
+    - `slave irq stat=0x208 ...`
+    - `slave irq stat=0x04 ...`
+  - read:
+    - `slave irq stat=0x606 ...`
+    - `slave irq stat=0x06 ...`
+    - `slave irq stat=0x02 ...`
+
+### Meaning
+
+- the working second-controller path is now easy to re-run after kernel or driver changes
+- future transport work can use this script as the current baseline validation path instead of the same-adapter self-test
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

@@ -54,8 +54,15 @@ That first implementation phase is now underway in the TI kernel submodule:
   - slave IRQ routing into `i2c_slave_event()`
   - restoration of slave-listen mode after host master transfers
 
-The next validation step is another rebuilt BeagleBadge kernel so this patch can
-be tested with `slave-testunit` on J6 / `i2c-1`.
+That first implementation phase is now far enough along that J6 target mode has
+been validated with a true second controller:
+
+- J6 `/dev/i2c-1` hosts `slave-testunit`
+- J7 `/dev/i2c-3` acts as the initiator via a short between J6 and J7
+- both write and read transactions succeed in that topology
+
+The remaining failure is specifically the same-adapter self-test path, not
+generic AM62L target support.
 
 ## Recommended Architecture
 

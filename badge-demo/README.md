@@ -21,6 +21,7 @@ rather than explaining what it looks like for game controllers to be replaced by
 - `AGENTS.md` defines the execution strategy for future work in this repo.
 - `TODO.md` tracks the staged build-out checklist for BadgeSnake.
 - `PROGRESS.md` records confirmed board and repository findings over time.
+- `docs/J7ToJ6TargetModeValidation.md` records the current best target-mode validation path on BeagleBadge.
 
 ## Technology bits
 
