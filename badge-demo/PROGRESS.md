@@ -2304,6 +2304,44 @@ Observed result from the live script run:
 - the working second-controller path is now easy to re-run after kernel or driver changes
 - future transport work can use this script as the current baseline validation path instead of the same-adapter self-test
 
+## 2026-05-05 (staged repeated-start follow-up for J7 -> J6 feature tests)
+
+The next kernel change is now aimed at the repeated-start / partial-command path exposed by the richer `slave-testunit` feature checks.
+
+### Findings behind this change
+
+- `./scripts/validate_j7_to_j6_testunit_features.sh` currently shows:
+  - combined write+read transactions complete
+  - but both the version query and block-proc-call style read return only zero bytes
+- the write-side portion of those transactions clearly reaches J6 and raises slave IRQs
+- the most plausible failure is that the slave backend state is being reset before the read phase starts
+
+### Changes
+
+- committed in `components/ti-linux-kernel`:
+  - `049fcadf0` `Defer slave STOP until bus is idle`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0010-Defer-slave-STOP-until-bus-is-idle.patch`
+- committed in `components/armbian-build`:
+  - `2707d0e1c` `Carry deferred slave STOP patch`
+- updated the x86 build wrapper to expect the ten-patch series
+
+### Hypothesis
+
+- the OMAP slave path currently maps `ARDY` directly to `I2C_SLAVE_STOP`
+- on repeated-start style write->read traffic, that likely resets the
+  `slave-testunit` state machine too early
+- if `STOP` is deferred until `STAT_BB` clears, partial-command state should
+  survive into the read phase
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the ten-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

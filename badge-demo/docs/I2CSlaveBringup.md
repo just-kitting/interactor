@@ -418,3 +418,18 @@ That result materially changes the diagnosis:
 
 - AM62L target mode on J6 is working with a true second controller
 - the remaining fault is the forced same-adapter self-test path, not generic target-mode support
+
+The next follow-up after that milestone is repeated-start / partial-command handling:
+
+- J7 -> J6 repeated-start and block-proc-call style `slave-testunit` commands
+  currently complete electrically but return only zero bytes
+- that points at the OMAP slave path emitting `I2C_SLAVE_STOP` too early on
+  `ARDY`
+
+The next staged patch is:
+
+- `0010-Defer-slave-STOP-until-bus-is-idle.patch`
+
+Its purpose is to preserve partial-command state across a repeated-start style
+write->read transaction by only mapping `ARDY` to `I2C_SLAVE_STOP` once the bus
+is no longer busy.

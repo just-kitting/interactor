@@ -142,5 +142,10 @@
 - [X] Re-test same-adapter self-read and self-write on J6 after clearing master-only `I2C_CON` state
 - [X] Validate J6 target mode with a true second controller or external initiator
 - [X] Add a repeatable J7-to-J6 target-mode validation harness
+- [ ] Make J7->J6 repeated-start / partial-command `slave-testunit` feature checks pass
+- [X] Stage a repeated-start follow-up that defers `I2C_SLAVE_STOP` until the bus is idle
+- [ ] Build and install the 10-patch repeated-start follow-up kernel
+- [ ] Reboot into the 10-patch repeated-start follow-up kernel
+- [ ] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
