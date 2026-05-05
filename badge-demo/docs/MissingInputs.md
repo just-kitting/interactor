@@ -6,3 +6,5 @@ If the bottom of this file is a block quote, there are still unanswered question
 If the bottom of this file is not a block quote, all current blocking questions have been answered.
 
 > Can you provide a true second-controller path for J6 target-mode validation, such as a short QWIIC loopback between J7 (`/dev/i2c-3`) and J6 (`/dev/i2c-1`), or another external initiator we should use instead?
+
+I have temporarily removed the BeagleConnect Zepto that was connected on J6. I have replaced it with a short between J6 and J7.
