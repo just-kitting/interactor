@@ -2570,6 +2570,35 @@ J7 -> J6.
 - rerun:
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-05 (fixed empty `0012` Armbian patch payload)
+
+The first host build attempt for the combined-slave-TX follow-up failed before
+patch application because the mirrored Armbian `0012` file had been committed as
+an empty patch.
+
+### Root cause
+
+- copied build failure:
+  - `components/armbian-build/output/logs/log-kernel-e7cf49cc-7ee8-4893-8195-d45595f015e7.log`
+- Armbian patch parser error:
+  - `Patch file .../0012-Handle-combined-slave-TX-slots.patch has no changes`
+- `components/armbian-build` commit `6e9ab1b4a` had recorded `0012` as a zero-line add
+  even though the intended patch payload was non-empty
+
+### Fix
+
+- committed in `components/armbian-build`:
+  - `926d8e730` `Fix combined slave TX patch payload`
+- `0012-Handle-combined-slave-TX-slots.patch` now contains the expected 51-line
+  patch payload derived from TI kernel commit `7aae21bc0`
+
+### Next step
+
+- rerun the same host build:
+  - `./scripts/build_beaglebadge_vendor_edge_kernel_x86_docker.sh`
+- copy the returned artifacts back
+- continue with the `P1d46` proc-call alignment follow-up
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
