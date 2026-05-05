@@ -2530,6 +2530,46 @@ block-proc-call style response shape.
 
 - diagnose why the block-proc-call response still loses the leading length byte
 
+## 2026-05-05 (staged combined slave-TX-slot follow-up for proc-call response alignment)
+
+The next kernel change is now aimed at the remaining one-byte proc-call shift on
+J7 -> J6.
+
+### Findings behind this change
+
+- the version repeated-start path is already correct on `P1d46`
+- the proc-call fixed-length read still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- the proc-call recv-len read returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+- the proc-call read phase is the one case where the first slave TX interrupt
+  arrives with a combined `XUDF|XRDY` condition
+
+### Hypothesis
+
+- the OMAP slave path currently services that combined `XUDF|XRDY` condition as
+  a single TX slot
+- for the proc-call response, the controller appears to need two bytes queued at
+  the start of the read phase
+- handling the combined condition as two sequential TX slots should align the
+  length-prefixed response correctly
+
+### Next fix staged
+
+- committed in `components/ti-linux-kernel`:
+  - `7aae21bc0` `Handle combined slave TX slots`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0012-Handle-combined-slave-TX-slots.patch`
+- updated the x86 build wrapper to expect the twelve-patch series
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the twelve-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

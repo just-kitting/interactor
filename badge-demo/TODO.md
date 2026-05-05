@@ -154,6 +154,10 @@
 - [X] Fix the `slave-testunit` bring-up helper to tolerate an already-present bound node
 - [X] Prove that `GET_VERSION_WITH_REP_START` now works on J7 -> J6
 - [X] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
-- [ ] Diagnose why the block-proc-call response is still shifted by one byte on J7 -> J6
+- [X] Narrow the remaining proc-call failure to the initial combined `XUDF|XRDY` slave TX condition
+- [X] Stage a 12-patch follow-up that handles combined slave TX slots explicitly
+- [ ] Build and install the 12-patch combined-slave-TX follow-up kernel
+- [ ] Reboot into the 12-patch combined-slave-TX follow-up kernel
+- [ ] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

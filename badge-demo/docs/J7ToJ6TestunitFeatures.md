@@ -134,3 +134,21 @@ The block-proc-call path is improved but not fully correct yet:
 So the current remaining bug is no longer loss of the full repeated-start
 command state. It is a narrower transmit-side issue where the proc-call
 response is still shifted by one byte.
+
+## Next `P1d46` Follow-up
+
+The next staged kernel change is:
+
+- `0012-Handle-combined-slave-TX-slots.patch`
+
+Reason:
+
+- the proc-call read phase is the case where the first slave TX interrupt shows
+  up with combined `XUDF|XRDY`
+- the version path does not need this
+- the current hypothesis is that the controller wants two TX bytes queued at the
+  start of the proc-call read phase, but the current slave TX path only services
+  that combined condition once
+
+The follow-up therefore handles `XUDF` and `XRDY` as two explicit TX slots
+instead of collapsing them into one callback.
