@@ -149,7 +149,7 @@
 - [X] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [X] Narrow the remaining repeated-start failure to repeated `I2C_SLAVE_WRITE_REQUESTED` callbacks on J6
 - [X] Stage an 11-patch follow-up that tracks write transaction lifetime across `RRDY` bytes
-- [ ] Build and install the 11-patch write-transaction-state follow-up kernel
+- [X] Build and install the 11-patch write-transaction-state follow-up kernel
 - [ ] Reboot into the 11-patch write-transaction-state follow-up kernel
 - [ ] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

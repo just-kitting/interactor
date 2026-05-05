@@ -2435,6 +2435,43 @@ only zero bytes.
 - rerun:
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-05 (installed `P1d46` write-transaction-state follow-up kernel, reboot pending)
+
+The eleven-patch write-transaction-state follow-up kernel is now installed on
+the live BeagleBadge and ready for the next reboot-based validation pass.
+
+### Build and artifact state
+
+- copied host build summary:
+  - `components/armbian-build/output/logs/summary-kernel-dc84f033-8db2-40dc-936f-15a77a639ee3.md`
+- build UUID:
+  - `dc84f033-8db2-40dc-936f-15a77a639ee3`
+- patch summary:
+  - `11 total patches; 11 applied`
+- selected package suffix:
+  - `6.12.57-S3b4a-D0000-P1d46-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+### Live install confirmation
+
+- pinned reinstall was started with:
+  - `BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P1d46-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh`
+- `/var/log/dpkg.log` confirms completion:
+  - `2026-05-05 16:07:46 status installed linux-headers-vendor-edge-k3:arm64 26.02.0-trunk`
+  - `2026-05-05 16:08:29 status installed linux-image-vendor-edge-k3:arm64 26.02.0-trunk`
+
+### Post-install verification before reboot
+
+- the QWIIC overlay artifact still exists:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+- `/boot/uEnv.txt` still carries:
+  - `name_overlays=ti/k3-am62l3-badge-eink-gdey042t81.dtbo ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+
+### Next step
+
+- reboot into the installed `P1d46` kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

@@ -257,17 +257,18 @@ Recovery / rollback:
 
 ## Current Installed-But-Not-Yet-Booted Kernel
 
-The most recent completed reinstall on the live BeagleBadge is the repeated-start
-follow-up kernel built from the ten-patch `k3-6.12` stack.
+The most recent completed reinstall on the live BeagleBadge is the
+write-transaction-state follow-up kernel built from the eleven-patch
+`k3-6.12` stack.
 
 - build summary:
-  - `components/armbian-build/output/logs/summary-kernel-709870f5-2d60-4e3a-9feb-8480867c915d.md`
+  - `components/armbian-build/output/logs/summary-kernel-dc84f033-8db2-40dc-936f-15a77a639ee3.md`
 - selected suffix:
-  - `6.12.57-S3b4a-D0000-P92b0-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+  - `6.12.57-S3b4a-D0000-P1d46-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
 - pinned reinstall command used:
 
 ```sh
-BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P92b0-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S3b4a-D0000-P1d46-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
 ```
 
 - `/var/log/dpkg.log` confirms completion through:
@@ -285,11 +286,12 @@ Next validation after reboot:
 That reboot has now happened. The `P92b0` ten-patch kernel boots as `#12`, and
 the repeated-start feature tests now complete but still return only zeros.
 
-The current next rebuild target is the eleven-patch follow-up that adds:
+The current next validation target after reboot is the installed eleven-patch
+follow-up that adds:
 
 - `0011-Track-slave-write-transaction-state.patch`
 
-The build wrapper now enforces that `0011` is present before starting the next
+The build wrapper already enforces that `0011` is present before starting the
 x86-host kernel build.
 
 ## Expected Install Notes
