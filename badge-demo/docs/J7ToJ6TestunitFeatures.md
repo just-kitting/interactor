@@ -293,3 +293,21 @@ So the current raw proc-call mismatch:
 
 is still useful as a surrogate signal, but it is not yet the same thing as a
 successful userspace SMBus block-proc-call validation on J7.
+
+## Next Master-Side Follow-up
+
+The next staged kernel change shifts to J7 master capability:
+
+- `0015-Add-OMAP-SMBus-recv-len-support.patch`
+
+Purpose:
+
+- add `I2C_M_RECV_LEN` handling to the OMAP master receive path
+- advertise `(I2C_FUNC_SMBUS_EMUL_ALL & ~I2C_FUNC_SMBUS_QUICK)`
+- enable Linux's generic userspace SMBus block-proc-call emulation on `/dev/i2c-3`
+
+If this works, the next live check is no longer only the raw surrogate:
+
+```sh
+./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+```

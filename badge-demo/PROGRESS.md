@@ -2898,6 +2898,55 @@ That changes the next priority:
 - `i2c-omap` currently does not expose that capability, and it also has no
   visible `I2C_M_RECV_LEN` handling in the driver today
 
+## 2026-05-06 (staged master-side SMBus recv-len follow-up for J7)
+
+The next kernel direction now targets the master side instead of continuing to
+guess at the J6 target startup path in isolation.
+
+### Why this is the next step
+
+- Linux generic SMBus block-proc-call emulation uses `I2C_M_RECV_LEN` for the
+  read phase
+- `i2c-omap` currently advertises only:
+  - `I2C_FUNC_I2C`
+  - `(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK)`
+  - `I2C_FUNC_PROTOCOL_MANGLING`
+  - `I2C_FUNC_SLAVE`
+- it does not currently advertise `I2C_FUNC_SMBUS_BLOCK_PROC_CALL`
+- and the driver has no existing `I2C_M_RECV_LEN` receive path
+
+### Next fix staged
+
+- committed in `components/ti-linux-kernel`:
+  - `0e6fbaefd` `Add OMAP SMBus recv-len support`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0015-Add-OMAP-SMBus-recv-len-support.patch`
+- committed in `components/armbian-build`:
+  - `cf3447950` `Carry OMAP SMBus recv-len patch`
+- updated the x86 build wrapper to expect the fifteen-patch series
+
+### Intended effect
+
+- advertise `(I2C_FUNC_SMBUS_EMUL_ALL & ~I2C_FUNC_SMBUS_QUICK)` on J7
+- accept `I2C_M_RECV_LEN` reads in the OMAP master path
+- grow the receive length dynamically after the first block-length byte
+- make a true userspace SMBus block-proc-call probe possible on `/dev/i2c-3`
+
+### Current status
+
+- the TI-kernel patch is staged and committed
+- I did not wait for a full local one-file compile preflight to finish on the
+  board; the next x86 host build is the real compile gate for this follow-up
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the fifteen-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- rerun:
+  - `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

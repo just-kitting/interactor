@@ -20,6 +20,7 @@ KERNEL_PATCH_11="${KERNEL_PATCH_DIR}/0011-Track-slave-write-transaction-state.pa
 KERNEL_PATCH_12="${KERNEL_PATCH_DIR}/0012-Handle-combined-slave-TX-slots.patch"
 KERNEL_PATCH_13="${KERNEL_PATCH_DIR}/0013-Trace-slave-TX-byte-sequence.patch"
 KERNEL_PATCH_14="${KERNEL_PATCH_DIR}/0014-Prime-first-slave-TX-byte-on-read-address-match.patch"
+KERNEL_PATCH_15="${KERNEL_PATCH_DIR}/0015-Add-OMAP-SMBus-recv-len-support.patch"
 
 if [[ "$(uname -s)" != "Linux" ]]; then
 	echo "This script expects a Linux x86_64 host with Docker installed." >&2
@@ -36,7 +37,7 @@ if [[ ! -x "${ARMBIAN_DIR}/compile.sh" ]]; then
 	exit 1
 fi
 
-if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PATCH_3}" || ! -f "${KERNEL_PATCH_4}" || ! -f "${KERNEL_PATCH_5}" || ! -f "${KERNEL_PATCH_6}" || ! -f "${KERNEL_PATCH_7}" || ! -f "${KERNEL_PATCH_8}" || ! -f "${KERNEL_PATCH_9}" || ! -f "${KERNEL_PATCH_10}" || ! -f "${KERNEL_PATCH_11}" || ! -f "${KERNEL_PATCH_12}" || ! -f "${KERNEL_PATCH_13}" || ! -f "${KERNEL_PATCH_14}" ]]; then
+if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PATCH_3}" || ! -f "${KERNEL_PATCH_4}" || ! -f "${KERNEL_PATCH_5}" || ! -f "${KERNEL_PATCH_6}" || ! -f "${KERNEL_PATCH_7}" || ! -f "${KERNEL_PATCH_8}" || ! -f "${KERNEL_PATCH_9}" || ! -f "${KERNEL_PATCH_10}" || ! -f "${KERNEL_PATCH_11}" || ! -f "${KERNEL_PATCH_12}" || ! -f "${KERNEL_PATCH_13}" || ! -f "${KERNEL_PATCH_14}" || ! -f "${KERNEL_PATCH_15}" ]]; then
 	echo "Expected BeagleBadge slave-mode kernel patch series not found:" >&2
 	echo "  ${KERNEL_PATCH_1}" >&2
 	echo "  ${KERNEL_PATCH_2}" >&2
@@ -52,6 +53,7 @@ if [[ ! -f "${KERNEL_PATCH_1}" || ! -f "${KERNEL_PATCH_2}" || ! -f "${KERNEL_PAT
 	echo "  ${KERNEL_PATCH_12}" >&2
 	echo "  ${KERNEL_PATCH_13}" >&2
 	echo "  ${KERNEL_PATCH_14}" >&2
+	echo "  ${KERNEL_PATCH_15}" >&2
 	exit 1
 fi
 
@@ -86,6 +88,7 @@ echo "  ${KERNEL_PATCH_11}"
 echo "  ${KERNEL_PATCH_12}"
 echo "  ${KERNEL_PATCH_13}"
 echo "  ${KERNEL_PATCH_14}"
+echo "  ${KERNEL_PATCH_15}"
 
 exec ./compile.sh \
 	kernel \

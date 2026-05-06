@@ -173,7 +173,11 @@
 - [X] Prove that plain `AAS`-time priming fires but does not change the visible proc-call response
 - [X] Add a true userspace SMBus block-proc-call probe for J7 -> J6
 - [X] Prove that `/dev/i2c-3` does not currently advertise `I2C_FUNC_SMBUS_BLOCK_PROC_CALL`
-- [ ] Decide whether the next fix should be target-side startup handling or master-side SMBus/`I2C_M_RECV_LEN` capability
+- [X] Decide that the next fix should target master-side SMBus/`I2C_M_RECV_LEN` capability
+- [X] Stage a 15-patch follow-up that adds OMAP master-side `I2C_M_RECV_LEN` support
+- [ ] Build and install the 15-patch SMBus recv-len follow-up kernel
+- [ ] Reboot into the 15-patch SMBus recv-len follow-up kernel
+- [ ] Re-run `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

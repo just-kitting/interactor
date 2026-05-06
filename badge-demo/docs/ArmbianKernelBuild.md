@@ -290,15 +290,16 @@ That reboot has now happened. The `P21f5` fourteen-patch kernel boots as `#16`,
 the repeated-start version query still works, and the proc-call response is
 still `0x00 0x04 0x03 0x02 0x01` even though the new `AAS` priming code fires.
 
-The current next debugging target is no longer “prime the first byte on `AAS`”.
-It is the combined read-start condition seen on J6 when the proc-call read
-phase begins.
+The current next build target now shifts to the master side on J7.
 
-The next useful follow-up should focus on combined slave startup state such as:
+The next useful follow-up is:
 
-- `stat=0x614` (`AAS|ARDY|XUDF|XRDY`)
+- `0015-Add-OMAP-SMBus-recv-len-support.patch`
 
-The build wrapper still enforces that `0014` is present before starting the
+Its purpose is to make the OMAP master path honor `I2C_M_RECV_LEN` and expose
+Linux's generic userspace SMBus block-proc-call emulation on `/dev/i2c-3`.
+
+The build wrapper now enforces that `0015` is present before starting the
 x86-host kernel build.
 
 ## Expected Install Notes
