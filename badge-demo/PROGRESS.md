@@ -2806,6 +2806,50 @@ So the target-side callback/value sequence is no longer the mystery:
 - confirm whether the proc-call response becomes:
   - `0x04 0x03 0x02 0x01 0x00`
 
+## 2026-05-06 (`P21f5` booted; read-address priming fires but does not change visible proc-call bytes)
+
+The fourteen-patch `P21f5` kernel is now running on the live board. The new
+read-address priming path does execute, but the visible J7 -> J6 proc-call
+response is still unchanged.
+
+### Runtime result
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #16 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux has-session -t badgesnake` still succeeds after reboot
+- `./scripts/validate_j7_to_j6_testunit_features.sh` still reports:
+  - repeated-start version query passes
+  - proc-call response remains `0x00 0x04 0x03 0x02 0x01`
+
+### What changed in the trace
+
+With a clean stop/start of `slave-testunit`, the proc-call path now logs:
+
+- `slave tx-requested stat=0x200 value=0x4`
+- `slave tx-processed stat=0x400 value=0x3`
+- `slave tx-processed stat=0x10 value=0x2`
+- `slave tx-processed stat=0x400 value=0x1`
+- `slave tx-processed stat=0x10 value=0x0`
+- `slave tx-processed stat=0x400 value=0x0`
+
+So the new `AAS` priming path is active, but the visible bus response is still:
+
+- `0x00 0x04 0x03 0x02 0x01`
+
+That means preloading the first byte on `AAS` alone is not sufficient on this
+controller. The remaining gap is now narrowed to the startup condition where the
+read phase arrives with combined slave state such as:
+
+- `stat=0x614` (`AAS|ARDY|XUDF|XRDY`)
+
+### Next step
+
+- treat the combined `AAS|ARDY|XUDF|XRDY` read-start condition as the next
+  debugging target
+- determine whether the OMAP controller ignores data written on plain `AAS`
+  until the subsequent `XUDF|XRDY` cycle, or whether the startup interrupt
+  should be serviced differently to make the primed byte visible on the bus
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

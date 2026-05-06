@@ -226,3 +226,40 @@ Expected effect:
 
 - proc-call response should become:
   - `0x04 0x03 0x02 0x01 0x00`
+
+## Current `P21f5` Result
+
+Booting the fourteen-patch `P21f5` kernel proves the new `AAS`-time priming
+path is active, but the visible proc-call bytes are still unchanged.
+
+- repeated-start version query still works
+- proc-call response still is:
+  - `0x00 0x04 0x03 0x02 0x01`
+
+The new slave trace shows:
+
+- `slave tx-requested stat=0x200 value=0x4`
+- `slave tx-processed stat=0x400 value=0x3`
+- `slave tx-processed stat=0x10 value=0x2`
+- `slave tx-processed stat=0x400 value=0x1`
+- `slave tx-processed stat=0x10 value=0x0`
+- `slave tx-processed stat=0x400 value=0x0`
+
+So the target is now definitely trying to preload the read phase earlier, but
+the controller still exposes the same visible five-byte proc-call response to
+J7. The remaining problem is therefore more specific than “prime the first byte
+earlier”; it is about how the controller treats the combined startup state at
+the beginning of the repeated-start read phase.
+
+## Next `P21f5` Follow-up
+
+The next debugging target is the combined read-start state seen on J6, such as:
+
+- `stat=0x614` (`AAS|ARDY|XUDF|XRDY`)
+
+Purpose:
+
+- determine whether data written on plain `AAS` is ignored until the following
+  `XUDF|XRDY` cycle
+- decide whether the combined startup interrupt needs a different servicing
+  order to make the primed byte visible on the bus

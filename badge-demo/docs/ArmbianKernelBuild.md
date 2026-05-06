@@ -286,15 +286,19 @@ i2ctransfer -f -y -b 3 w3@0x30 3 1 4 r5@0x30
 dmesg | tail -n 120
 ```
 
-That reboot has now happened. The `P0e03` thirteen-patch kernel boots as `#15`,
-the repeated-start version query still works, and the proc-call trace now shows
-that J6 itself is generating `0x04 0x03 0x02 0x01` on the read phase.
+That reboot has now happened. The `P21f5` fourteen-patch kernel boots as `#16`,
+the repeated-start version query still works, and the proc-call response is
+still `0x00 0x04 0x03 0x02 0x01` even though the new `AAS` priming code fires.
 
-The current next build target is a fourteen-patch follow-up that adds:
+The current next debugging target is no longer “prime the first byte on `AAS`”.
+It is the combined read-start condition seen on J6 when the proc-call read
+phase begins.
 
-- `0014-Prime-first-slave-TX-byte-on-read-address-match.patch`
+The next useful follow-up should focus on combined slave startup state such as:
 
-The build wrapper now enforces that `0014` is present before starting the
+- `stat=0x614` (`AAS|ARDY|XUDF|XRDY`)
+
+The build wrapper still enforces that `0014` is present before starting the
 x86-host kernel build.
 
 ## Expected Install Notes
