@@ -2747,6 +2747,65 @@ BADGESNAKE_BUILD_SUFFIX='6.12.57-S22fb-D0000-P0e03-C2876Hb496-HK01ba-Vc222-Be8e3
   - `i2ctransfer -f -y -b 3 w3@0x30 3 1 4 r5@0x30`
 - inspect the new `slave tx-requested` / `slave tx-processed` log lines
 
+## 2026-05-06 (`P0e03` booted; TX trace narrows proc-call gap to read-address priming)
+
+The thirteen-patch `P0e03` kernel is now running on the live board, and the
+new slave-TX trace points to a narrower transmit-start issue rather than a bad
+`slave-testunit` command state machine.
+
+### Runtime result
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #15 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux has-session -t badgesnake` succeeds after reboot
+- `./scripts/validate_j7_to_j6_testunit_features.sh` still reports:
+  - repeated-start version query passes
+  - proc-call response is still `0x00 0x04 0x03 0x02 0x01`
+
+### What the new TX trace proved
+
+During:
+
+```sh
+i2ctransfer -f -y 3 w3@0x30 3 1 4 r5@0x30
+```
+
+the J6 target now logs:
+
+- `slave tx-requested stat=0x400 value=0x4`
+- `slave tx-processed stat=0x10 value=0x3`
+- `slave tx-processed stat=0x400 value=0x2`
+- `slave tx-processed stat=0x400 value=0x1`
+
+So the target-side callback/value sequence is no longer the mystery:
+
+- J6 is already generating `0x04 0x03 0x02 0x01`
+- the missing trailing `0x00` and synthetic leading `0x00` are a read-start
+  slot handling problem around the repeated-start read address phase
+- the next likely fix is to prime the first TX byte on the read-address match
+  (`AAS`) instead of waiting for the first `XUDF|XRDY` interrupt
+
+### Next fix staged
+
+- committed in `components/ti-linux-kernel`:
+  - `66f3770df` `Prime first slave TX byte on read address match`
+- mirrored into the Armbian `k3-6.12` patch stack as:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0014-Prime-first-slave-TX-byte-on-read-address-match.patch`
+- committed in `components/armbian-build`:
+  - `fbea62968` `Carry first-slave-TX-byte priming patch`
+- updated the x86 build wrapper to expect the fourteen-patch series
+
+### Next step
+
+- rebuild the BeagleBadge `vendor-edge` kernel package set with the fourteen-patch `k3-6.12` series
+- copy the returned artifacts back
+- install and boot that follow-up kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+  - `i2ctransfer -f -y 3 w3@0x30 3 1 4 r5@0x30`
+- confirm whether the proc-call response becomes:
+  - `0x04 0x03 0x02 0x01 0x00`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

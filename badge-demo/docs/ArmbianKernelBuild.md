@@ -286,12 +286,15 @@ i2ctransfer -f -y -b 3 w3@0x30 3 1 4 r5@0x30
 dmesg | tail -n 120
 ```
 
-The current validation target after reboot is the installed thirteen-patch
-follow-up that adds:
+That reboot has now happened. The `P0e03` thirteen-patch kernel boots as `#15`,
+the repeated-start version query still works, and the proc-call trace now shows
+that J6 itself is generating `0x04 0x03 0x02 0x01` on the read phase.
 
-- `0013-Trace-slave-TX-byte-sequence.patch`
+The current next build target is a fourteen-patch follow-up that adds:
 
-The build wrapper already enforces that `0013` is present before starting the
+- `0014-Prime-first-slave-TX-byte-on-read-address-match.patch`
+
+The build wrapper now enforces that `0014` is present before starting the
 x86-host kernel build.
 
 ## Expected Install Notes

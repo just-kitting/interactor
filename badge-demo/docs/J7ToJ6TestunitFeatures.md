@@ -184,3 +184,45 @@ Purpose:
 This should tell us whether the proc-call byte shift is already present on the
 J6 target side, or whether the J7 initiator path is transforming an otherwise
 correct target response.
+
+## Current `P0e03` Result
+
+Booting the thirteen-patch `P0e03` kernel answers the TX-side question.
+
+- repeated-start version query still works
+- proc-call response is still:
+  - `0x00 0x04 0x03 0x02 0x01`
+
+But the new J6 trace now shows the target-side TX callback/value sequence:
+
+- `slave tx-requested stat=0x400 value=0x4`
+- `slave tx-processed stat=0x10 value=0x3`
+- `slave tx-processed stat=0x400 value=0x2`
+- `slave tx-processed stat=0x400 value=0x1`
+
+So the target is already producing the leading four meaningful bytes in the
+expected order. The remaining proc-call bug is narrower:
+
+- the repeated-start read phase still begins with an empty slot on the bus
+- the final `0x00` never gets a chance to leave the target
+
+That points to read-start handling on the repeated-start address phase, not to
+the `slave-testunit` state machine or byte ordering within the target callback
+sequence.
+
+## Next `P0e03` Follow-up
+
+The next staged kernel change is:
+
+- `0014-Prime-first-slave-TX-byte-on-read-address-match.patch`
+
+Purpose:
+
+- preload the first proc-call response byte on the read-address match (`AAS`)
+- avoid losing the first bus slot to an initial empty TX condition before
+  `XUDF|XRDY` is raised
+
+Expected effect:
+
+- proc-call response should become:
+  - `0x04 0x03 0x02 0x01 0x00`

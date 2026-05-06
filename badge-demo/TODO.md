@@ -162,7 +162,13 @@
 - [X] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [X] Stage a 13-patch diagnostic follow-up to trace slave TX callback/value sequence
 - [X] Build and install the 13-patch slave-TX-trace follow-up kernel
-- [ ] Reboot into the 13-patch slave-TX-trace follow-up kernel
-- [ ] Capture `slave tx-requested` / `slave tx-processed` logs during the proc-call tests
+- [X] Reboot into the 13-patch slave-TX-trace follow-up kernel
+- [X] Capture `slave tx-requested` / `slave tx-processed` logs during the proc-call tests
+- [X] Prove that J6 already generates `0x04 0x03 0x02 0x01` during the proc-call read phase
+- [X] Narrow the remaining proc-call gap to first-byte handling at repeated-start read address match
+- [X] Stage a 14-patch follow-up that primes the first slave TX byte on read address match
+- [ ] Build and install the 14-patch first-byte-priming follow-up kernel
+- [ ] Reboot into the 14-patch first-byte-priming follow-up kernel
+- [ ] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
