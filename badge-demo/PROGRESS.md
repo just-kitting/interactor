@@ -2709,6 +2709,44 @@ useful data is the exact TX callback/value sequence seen by the J6 target.
   - `i2ctransfer -f -y 3 w3@0x30 3 1 4 r?`
 - inspect the new `slave tx-requested` / `slave tx-processed` log lines
 
+## 2026-05-06 (installed `P0e03` slave-TX-trace follow-up kernel, reboot pending)
+
+The copied thirteen-patch host build has now been reinstalled on the live
+BeagleBadge, and the board is ready for the next reboot into the TX-trace
+diagnostic kernel.
+
+### Installed build
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-f2f0b16c-b1bc-4684-ac57-ea0ba75d1cd2.md`
+- selected suffix:
+  - `6.12.57-S22fb-D0000-P0e03-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+- pinned reinstall command used:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S22fb-D0000-P0e03-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_beaglebadge_vendor_edge_kernel_artifacts.sh
+```
+
+### Verification
+
+- `/var/log/dpkg.log` confirms completion through:
+  - `2026-05-06 00:22:12 status installed linux-headers-vendor-edge-k3:arm64 26.02.0-trunk`
+  - `2026-05-06 00:23:00 status installed linux-image-vendor-edge-k3:arm64 26.02.0-trunk`
+- post-install overlay check still passes:
+  - `/boot/dtb/ti/k3-am62l3-badge-qwiic-i2c.dtbo` exists
+  - `/boot/uEnv.txt` still includes `ti/k3-am62l3-badge-qwiic-i2c.dtbo`
+- expected FAT32 `/boot` behavior was observed again:
+  - `update-initramfs` failed to symlink `uInitrd` and fell back to `rename()`
+
+### Next step
+
+- reboot into the installed `P0e03` kernel
+- rerun:
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+  - `i2ctransfer -f -y 3 w3@0x30 3 1 4 r5@0x30`
+  - `i2ctransfer -f -y -b 3 w3@0x30 3 1 4 r5@0x30`
+- inspect the new `slave tx-requested` / `slave tx-processed` log lines
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
