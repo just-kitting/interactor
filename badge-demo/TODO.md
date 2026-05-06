@@ -171,6 +171,9 @@
 - [X] Reboot into the 14-patch first-byte-priming follow-up kernel
 - [X] Re-run `scripts/validate_j7_to_j6_testunit_features.sh`
 - [X] Prove that plain `AAS`-time priming fires but does not change the visible proc-call response
+- [X] Add a true userspace SMBus block-proc-call probe for J7 -> J6
+- [X] Prove that `/dev/i2c-3` does not currently advertise `I2C_FUNC_SMBUS_BLOCK_PROC_CALL`
+- [ ] Decide whether the next fix should be target-side startup handling or master-side SMBus/`I2C_M_RECV_LEN` capability
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

@@ -2850,6 +2850,54 @@ read phase arrives with combined slave state such as:
   until the subsequent `XUDF|XRDY` cycle, or whether the startup interrupt
   should be serviced differently to make the primed byte visible on the bus
 
+## 2026-05-06 (confirmed J7 lacks true SMBus block-proc-call userspace support)
+
+The proc-call validation path now has an important master-side caveat.
+
+### What was verified
+
+- added:
+  - `scripts/test_smbus_block_proc_call.c`
+  - `scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+- live adapter functionality on both `/dev/i2c-1` and `/dev/i2c-3` is:
+  - `0xefe002d`
+- `i2c-omap` currently advertises:
+  - `I2C_FUNC_I2C`
+  - `(I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK)`
+  - `I2C_FUNC_PROTOCOL_MANGLING`
+  - `I2C_FUNC_SLAVE`
+- it does **not** advertise `I2C_FUNC_SMBUS_BLOCK_PROC_CALL`
+
+### Live result
+
+Running:
+
+```sh
+./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+```
+
+fails immediately with:
+
+```text
+adapter /dev/i2c-3 does not advertise I2C_FUNC_SMBUS_BLOCK_PROC_CALL
+```
+
+### Meaning
+
+The current J7 -> J6 proc-call check using raw `i2ctransfer` is only a
+surrogate for the `slave-testunit` SMBus block-proc-call behavior. It is not a
+true `I2C_SMBUS_BLOCK_PROC_CALL` userspace validation on this AM62L initiator
+path.
+
+That changes the next priority:
+
+- the remaining `0x00 0x04 0x03 0x02 0x01` mismatch may still involve target
+  startup timing
+- but a true userspace block-proc-call test on J7 also requires master-side
+  support for `I2C_FUNC_SMBUS_BLOCK_PROC_CALL`
+- `i2c-omap` currently does not expose that capability, and it also has no
+  visible `I2C_M_RECV_LEN` handling in the driver today
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

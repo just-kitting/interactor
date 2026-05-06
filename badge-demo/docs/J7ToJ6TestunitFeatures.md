@@ -263,3 +263,33 @@ Purpose:
   `XUDF|XRDY` cycle
 - decide whether the combined startup interrupt needs a different servicing
   order to make the primed byte visible on the bus
+
+## True SMBus Proc-Call Note
+
+There is now an important distinction between:
+
+- the raw `i2ctransfer` surrogate used in this repo
+- a true userspace `I2C_SMBUS_BLOCK_PROC_CALL`
+
+The AM62L `i2c-omap` initiator on `/dev/i2c-3` currently does **not**
+advertise `I2C_FUNC_SMBUS_BLOCK_PROC_CALL`, so a direct userspace block-proc-
+call ioctl is not available yet on this board.
+
+The probe for that is now:
+
+```sh
+./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+```
+
+Current result:
+
+```text
+adapter /dev/i2c-3 does not advertise I2C_FUNC_SMBUS_BLOCK_PROC_CALL
+```
+
+So the current raw proc-call mismatch:
+
+- `0x00 0x04 0x03 0x02 0x01`
+
+is still useful as a surrogate signal, but it is not yet the same thing as a
+successful userspace SMBus block-proc-call validation on J7.
