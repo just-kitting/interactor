@@ -2973,6 +2973,57 @@ BADGESNAKE_BUILD_SUFFIX='6.12.57-S22fb-D0000-P6926-C2876Hb496-HK01ba-Vc222-Be8e3
   - `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-07 (`P6926` booted; J7 now exposes block-proc-call capability but true SMBus path is not stable)
+
+The fifteen-patch `P6926` kernel is now running on the live board. The
+master-side capability patch took effect, but the true userspace SMBus path is
+not correct yet.
+
+### Runtime result
+
+- running kernel:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #17 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux has-session -t badgesnake` still succeeds after reboot
+- adapter functionality changed from:
+  - `0xefe002d`
+  - to `0xffe802d`
+- this confirms the J7 initiator now advertises more SMBus capability than before
+
+### Validation results
+
+- `./scripts/validate_j7_to_j6_testunit_features.sh`
+  - repeated-start version query still works
+  - raw `i2ctransfer` proc-call surrogate still reports:
+    - `0x00 0x04 0x03 0x02 0x01`
+- `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+  - now gets past the old capability check
+  - but a clean direct run via `.cache/test_smbus_block_proc_call` can time out with:
+    - `ioctl(I2C_SMBUS BLOCK_PROC_CALL): Connection timed out`
+
+### Key kernel observation
+
+During the clean direct SMBus ioctl run, `dmesg` shows:
+
+- repeated:
+  - `omap_i2c 20010000.i2c: Too much work in one IRQ`
+- and then slave TX values of only:
+  - `0x00`
+
+So the current state is:
+
+- J7 master-side capability exposure did change
+- the true SMBus block-proc-call path is no longer blocked at the adapter flag level
+- but the new `I2C_M_RECV_LEN` receive handling is not stable yet and can drive the
+  path into an IRQ-work storm / timeout
+
+### Next step
+
+- debug the new master-side `I2C_M_RECV_LEN` path in `i2c-omap`
+- determine why the clean userspace SMBus proc-call path can stall with
+  repeated `Too much work in one IRQ`
+- only after that return to whether the raw `i2ctransfer` surrogate is still
+  worth keeping as a secondary signal
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

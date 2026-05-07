@@ -176,8 +176,11 @@
 - [X] Decide that the next fix should target master-side SMBus/`I2C_M_RECV_LEN` capability
 - [X] Stage a 15-patch follow-up that adds OMAP master-side `I2C_M_RECV_LEN` support
 - [X] Build and copy back the 15-patch SMBus recv-len follow-up kernel
-- [ ] Install and reboot into the 15-patch SMBus recv-len follow-up kernel
-- [ ] Re-run `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+- [X] Install and reboot into the 15-patch SMBus recv-len follow-up kernel
+- [X] Re-run `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+- [X] Prove that J7 functionality bits changed after the 15-patch kernel
+- [X] Prove that true SMBus block-proc-call is no longer blocked at the adapter capability check
+- [ ] Debug the new `I2C_M_RECV_LEN` path after the clean SMBus ioctl timeout / IRQ-work storm
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

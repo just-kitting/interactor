@@ -311,3 +311,29 @@ If this works, the next live check is no longer only the raw surrogate:
 ```sh
 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
 ```
+
+## Current `P6926` Result
+
+Booting the fifteen-patch `P6926` kernel changes the J7 initiator capability
+surface, but does not yet make the true userspace SMBus path reliable.
+
+- J7 adapter functionality changed from:
+  - `0xefe002d`
+  - to `0xffe802d`
+- so the old capability-gate failure is gone
+
+But a clean direct run of the real userspace SMBus path can still fail:
+
+```text
+ioctl(I2C_SMBUS BLOCK_PROC_CALL): Connection timed out
+```
+
+and `dmesg` shows repeated:
+
+```text
+omap_i2c 20010000.i2c: Too much work in one IRQ
+```
+
+So the new master-side patch did change the adapter-level story, but the
+receive-length handling behind that path is still not correct enough yet for a
+stable SMBus block-proc-call on J7.
