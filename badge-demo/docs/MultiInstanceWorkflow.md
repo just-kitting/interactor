@@ -36,6 +36,13 @@ Use `bq2` for:
 - build-log analysis
 - x86-host build orchestration
 
+Current limitation:
+
+- `bq2` does not have Docker access, so it should not be treated as the current
+  Armbian kernel build host
+- for now, actual Armbian kernel package builds still run on the separate x86
+  host, while `bq2` prepares source/patch state and reviews logs
+
 Use BeagleBadge for:
 
 - runtime validation
@@ -69,6 +76,7 @@ repo, not instead of it.
 For the current AM62L `i2c-omap` work:
 
 - do source edits and Armbian patch prep on `bq2`
+- run the actual Armbian kernel build on the x86 host
 - copy returned build artifacts into this repo
 - run `install_latest_kernel_and_reboot.sh` and all J7 -> J6 validation on the
   BeagleBadge instance
