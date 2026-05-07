@@ -1,0 +1,102 @@
+{
+  "format_version": 2,
+  "phases": [
+    {
+      "name": "host-setup",
+      "description": "Prepare cached sources and seed the rootfs from the host.",
+      "namespace": "host",
+      "install_prefix": "/",
+      "env": {
+        "BQ2_ARCH": "aarch64"
+      },
+      "steps": [
+        {
+          "name": "download-sources",
+          "strategy": "download-sources",
+          "configure_flags": [],
+          "patches": [],
+          "destdir": "workdir/badge-snake/sources",
+          "env": {},
+          "clean_build": false,
+          "sources": [
+            {
+              "name": "bootstrap-rootfs",
+              "version": "3.23.2",
+              "url": "https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/aarch64/alpine-minirootfs-3.23.2-aarch64.tar.gz",
+              "checksum_url": "https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/aarch64/alpine-minirootfs-3.23.2-aarch64.tar.gz.sha256",
+              "filename": "bootstrap-rootfs-alpine-minirootfs-3.23.2-aarch64.tar.gz"
+            }
+          ]
+        },
+        {
+          "name": "populate-seed",
+          "strategy": "populate-seed",
+          "configure_flags": [],
+          "patches": [],
+          "destdir": "workdir/badge-snake/seed-rootfs",
+          "env": {},
+          "clean_build": false,
+          "extract_sources": [
+            {
+              "name": "bootstrap-rootfs",
+              "version": "3.23.2",
+              "filename": "bootstrap-rootfs-alpine-minirootfs-3.23.2-aarch64.tar.gz"
+            }
+          ],
+          "sources_directory": "workdir/badge-snake/sources"
+        }
+      ]
+    },
+    {
+      "name": "sysroot-from-seed",
+      "description": "Build a self-contained sysroot using seed rootfs tools.",
+      "namespace": "seed",
+      "install_prefix": "/",
+      "env": {
+        "PATH": "/usr/bin:/bin:/usr/sbin:/sbin"
+      },
+      "steps": [
+        {
+          "name": "seed-resolv-conf",
+          "strategy": "write-file",
+          "configure_flags": [],
+          "patches": [],
+          "install_prefix": "/etc/resolv.conf",
+          "env": {},
+          "clean_build": false,
+          "content": "nameserver 8.8.8.8\n"
+        },
+        {
+          "name": "alpine-apk-add",
+          "strategy": "apk-add",
+          "configure_flags": [],
+          "patches": [],
+          "env": {},
+          "clean_build": false,
+          "packages": [
+            "bash",
+            "binutils",
+            "clang",
+            "libgcc",
+            "libstdc++-dev",
+            "libressl-dev",
+            "crystal",
+            "lld",
+            "llvm-libs",
+            "linux-headers",
+            "make",
+            "musl-dev",
+            "patch",
+            "zlib-dev",
+            "pcre2-dev",
+            "gc-dev",
+            "yaml-dev",
+            "perl",
+            "python3",
+            "shards"
+          ]
+        }
+      ]
+    }
+  ]
+}
