@@ -3084,6 +3084,23 @@ The current recommended split is now documented:
 - `bq2` for kernel/source edits, Armbian patch work, and build orchestration
 - BeagleBadge for live hardware validation, install/reboot loops, and Zepto/J6/J7 probing
 
+## 2026-05-07 (`bq2` Docker limitation clarified; `P641a` copied)
+
+The multi-instance plan has one practical constraint now recorded:
+
+- `bq2` does not currently have Docker access
+- so `bq2` is not the active Armbian kernel build host
+- the separate x86 host remains the place where `./compile.sh kernel ...` runs
+
+The latest returned kernel artifact set is now copied into the repo:
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-76600fe2-811c-4ddb-ab89-8edecab7aa52.md`
+- selected suffix:
+  - `6.12.57-S22fb-D0000-P641a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+The next live step is the pinned auto-install/reboot flow for `P641a`.
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
