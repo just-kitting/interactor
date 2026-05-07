@@ -3062,6 +3062,59 @@ real data-ready interrupt.
   headers tree, so this follow-up is currently staged based on source review and
   live runtime evidence rather than a successful local object rebuild
 
+## 2026-05-07 (`P641a` booted; recv-len IRQ-pacing patch regressed into IRQ-thread crash)
+
+The sixteen-patch `P641a` kernel is now running on the live board:
+
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #18 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux has-session -t badgesnake` still succeeds after reboot
+
+### Runtime results
+
+- `./scripts/validate_j7_to_j6_testunit_features.sh`
+  - repeated-start version query still works
+  - raw proc-call surrogate still reports:
+    - `0x00 0x04 0x03 0x02 0x01`
+- `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+  - still times out at the true SMBus ioctl layer
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` probe on J7 -> J6 now fails with:
+  - `ioctl(I2C_RDWR): Protocol error`
+
+### Critical kernel observation
+
+The new failure is no longer only the old IRQ-work storm. A clean direct
+`I2C_M_RECV_LEN` probe now produces:
+
+- many:
+  - `omap_i2c 20010000.i2c: Too much work in one IRQ`
+- followed by a kernel oops in the IRQ thread:
+  - `pc : omap_i2c_transmit_data.isra.0+0x70/0x1ac`
+  - `lr : omap_i2c_xfer_data+0x264/0x338`
+  - `x0 : 0000000000000000`
+
+This strongly suggests the master-side recv-len follow-up is leaving the OMAP
+state machine in a path where the threaded IRQ later reaches transmit handling
+with invalid buffer state.
+
+### Next step
+
+- debug the `P641a` regression before attempting another build
+- inspect how the recv-len reprogramming path interacts with later `XRDY`/`XDR`
+  handling and `omap->buf` / `omap->buf_len` state
+- treat `P641a` as a diagnostic regression, not a candidate fix
+
+## 2026-05-07 (`bq2` tasking guidance tightened)
+
+The current recommendation for `bq2` is now more specific:
+
+- give it narrow, file-scoped tasks with a single expected output
+- provide exact files, current commit context, and the validation command
+- avoid assigning it broad “continue from here” work on the full repo
+
+This should reduce drift and make it usable for patch preparation and focused
+analysis even if it is currently less reliable as a general-purpose driver of
+the whole project.
+
 ## 2026-05-07 (multi-instance workflow clarified)
 
 The project now has a second Codex-capable environment, currently referred to
