@@ -302,6 +302,19 @@ Linux's generic userspace SMBus block-proc-call emulation on `/dev/i2c-3`.
 The build wrapper now enforces that `0015` is present before starting the
 x86-host kernel build.
 
+The first returned fifteen-patch artifact set is now copied back:
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-05967de6-432a-449c-b3f1-758915e1406a.md`
+- selected suffix:
+  - `6.12.57-S22fb-D0000-P6926-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+The next live step is the pinned auto-install/reboot flow:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S22fb-D0000-P6926-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_latest_kernel_and_reboot.sh
+```
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:

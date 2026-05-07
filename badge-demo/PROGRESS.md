@@ -2947,6 +2947,32 @@ guess at the J6 target startup path in isolation.
   - `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
   - `./scripts/validate_j7_to_j6_testunit_features.sh`
 
+## 2026-05-07 (copied `P6926` fifteen-patch build, auto-install/reboot next)
+
+The first fifteen-patch host build is now copied back into the repo and ready
+for the pinned install-and-reboot flow.
+
+### Installed build target
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-05967de6-432a-449c-b3f1-758915e1406a.md`
+- selected suffix:
+  - `6.12.57-S22fb-D0000-P6926-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+- build log confirms:
+  - `kernel patching: 15 total patches; 15 applied; 9 with problems; 9 needs_rebase`
+
+### Next step
+
+- run the pinned auto-install/reboot flow:
+
+```sh
+BADGESNAKE_BUILD_SUFFIX='6.12.57-S22fb-D0000-P6926-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_latest_kernel_and_reboot.sh
+```
+
+- after reboot, validate:
+  - `./scripts/test_j7_to_j6_smbus_block_proc_call.sh`
+  - `./scripts/validate_j7_to_j6_testunit_features.sh`
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
