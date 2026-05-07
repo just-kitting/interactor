@@ -43,6 +43,39 @@ Treat this as a starting point, not a guarantee. Re-check after any system or bo
 - Do not rewrite or discard user changes unless explicitly asked.
 - When touching system boot or update logic, document the exact verification and recovery steps before marking a task done.
 
+## Multi-Instance Workflow
+
+If more than one Codex instance is working on BadgeSnake, use the repository as
+the source of truth rather than trying to couple the agents through a live
+session protocol.
+
+Rules:
+
+- Treat git commits, tracked docs, and file-based scripts as the primary
+  coordination channel.
+- Keep cross-instance handoff notes in committed docs, not only in chat.
+- Prefer one instance per workstream at a time:
+  - host/build/kernel-edit work on the stronger machine
+  - live hardware probing, install/reboot, and board validation on BeagleBadge
+- Do not have two instances edit the same file or submodule concurrently unless
+  the split is explicitly planned first.
+- When handing work from one instance to another, commit before the handoff.
+- If a temporary live coordination channel is useful, keep it secondary and
+  treat it as advisory only; decisions still need to land in git.
+
+Recommended split for current work:
+
+- `bq2`:
+  - large repo operations
+  - kernel/source editing
+  - Armbian patch maintenance
+  - host build orchestration
+- BeagleBadge instance:
+  - J6/J7 runtime validation
+  - kernel package install/reboot loops
+  - Zepto flashing/probing
+  - board-state capture after each reboot
+
 ## Repository Shape
 
 Target structure:

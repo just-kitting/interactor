@@ -3062,6 +3062,28 @@ real data-ready interrupt.
   headers tree, so this follow-up is currently staged based on source review and
   live runtime evidence rather than a successful local object rebuild
 
+## 2026-05-07 (multi-instance workflow clarified)
+
+The project now has a second Codex-capable environment, currently referred to
+as `bq2`.
+
+The coordination decision is:
+
+- use git, tracked docs, and committed scripts as the primary connection between
+  instances
+- keep any live session-to-session coordination secondary
+
+This is the better fit for BadgeSnake because:
+
+- BeagleBadge is memory-constrained
+- the work depends on exact kernel/build/install state
+- reboot-safe handoff matters more than live coupling
+
+The current recommended split is now documented:
+
+- `bq2` for kernel/source edits, Armbian patch work, and build orchestration
+- BeagleBadge for live hardware validation, install/reboot loops, and Zepto/J6/J7 probing
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
