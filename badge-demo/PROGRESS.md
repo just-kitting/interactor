@@ -3024,6 +3024,44 @@ So the current state is:
 - only after that return to whether the raw `i2ctransfer` surrogate is still
   worth keeping as a secondary signal
 
+## 2026-05-07 (staged 16-patch recv-len IRQ-pacing follow-up)
+
+The next master-side follow-up is now staged in git. The current evidence says
+the new `I2C_M_RECV_LEN` path is continuing to consume receive state inside the
+same IRQ pass immediately after the count byte, instead of waiting for the next
+real data-ready interrupt.
+
+### Evidence
+
+- a direct `I2C_RDWR` + `I2C_M_RECV_LEN` probe on J7 -> J6 now returns:
+  - `0x04 0x04 0x04 0x04 0x04`
+- the raw `i2ctransfer` proc-call surrogate still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- so the new SMBus receive-length path is not just exposing old target-side
+  behavior; it is introducing a distinct repeated-first-byte failure mode
+
+### Staged follow-up
+
+- `components/ti-linux-kernel`:
+  - `96ed9b94d` `Pause OMAP recv-len after count byte`
+- new Armbian patch:
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0016-Pause-OMAP-recv-len-after-count-byte.patch`
+
+### Intended behavior of the follow-up
+
+- after the first receive-length byte is consumed:
+  - reprogram `CNT` and FIFO thresholds
+  - acknowledge the current `RRDY`/`RDR`
+  - stop that IRQ work pass with `-EAGAIN`
+  - wait for the next interrupt before consuming payload bytes
+
+### Local note
+
+- the usual one-file `make ... i2c-omap.o` preflight was attempted again on the
+  badge but hit a local `syncconfig` segmentation fault in the installed
+  headers tree, so this follow-up is currently staged based on source review and
+  live runtime evidence rather than a successful local object rebuild
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.

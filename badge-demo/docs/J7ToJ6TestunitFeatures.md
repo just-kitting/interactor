@@ -337,3 +337,26 @@ omap_i2c 20010000.i2c: Too much work in one IRQ
 So the new master-side patch did change the adapter-level story, but the
 receive-length handling behind that path is still not correct enough yet for a
 stable SMBus block-proc-call on J7.
+
+## Current `P6926` Raw `I2C_RDWR|I2C_M_RECV_LEN` Result
+
+A direct userspace `I2C_RDWR` probe with `I2C_M_RECV_LEN` shows the new failure
+mode more clearly than the higher-level SMBus wrapper:
+
+```text
+data=0x04 0x04 0x04 0x04 0x04
+```
+
+That is distinct from the raw `i2ctransfer` surrogate:
+
+```text
+0x00 0x04 0x03 0x02 0x01
+```
+
+So the current master-side recv-len support is not merely exposing the old
+target-side proc-call misalignment. It is also capable of repeatedly consuming
+the first length byte inside the same IRQ work pass.
+
+The staged 16th patch therefore changes the OMAP master receive path so that
+the first recv-len byte only reprograms `CNT`/FIFO state and then exits that
+IRQ pass, leaving payload-byte consumption for the next real interrupt.
