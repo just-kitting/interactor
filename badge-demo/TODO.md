@@ -183,7 +183,10 @@
 - [X] Debug the new `I2C_M_RECV_LEN` path enough to isolate the repeated-first-byte / IRQ-loop failure mode
 - [ ] Build and copy back the 16-patch recv-len IRQ-pacing follow-up kernel
 - [ ] Install and reboot into the 16-patch recv-len IRQ-pacing follow-up kernel
-- [ ] Re-test raw `I2C_RDWR|I2C_M_RECV_LEN` and true SMBus block-proc-call on J7 -> J6
+- [X] Re-test raw `I2C_RDWR|I2C_M_RECV_LEN` and true SMBus block-proc-call on J7 -> J6
+- [X] Capture the `P641a` regression mode: IRQ-work storm followed by NULL dereference in `omap_i2c_transmit_data`
+- [ ] Diagnose why the 16-patch recv-len follow-up reaches `omap_i2c_transmit_data` with invalid state during a receive transaction
+- [ ] Stage a fix or revert for the `P641a` recv-len regression before the next build
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset

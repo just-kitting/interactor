@@ -60,6 +60,34 @@ Before handing work across instances:
 3. Update `TODO.md` if the task state changed.
 4. If the handoff is subtle, add a short committed note in the relevant doc.
 
+## How To Task `bq2`
+
+`bq2` appears to work better with narrow tasks than with open-ended “continue”
+requests on the full repo.
+
+Recommended task shape:
+
+- give one concrete goal
+- name the exact files it may edit
+- include the current relevant commit(s)
+- include the exact validation command to run or update
+- require a commit at the end
+
+Good examples:
+
+- “Update `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c` to avoid
+  the `P641a` recv-len regression, then mirror it into
+  `components/armbian-build/patch/kernel/archive/k3-6.12/0016-...`, and commit
+  both repos.”
+- “Read `log-kernel-...` and summarize only the new build failure in
+  `PROGRESS.md`.”
+
+Avoid:
+
+- “continue”
+- “work on whatever is next”
+- tasks that span unrelated files or subsystems without a concrete boundary
+
 ## What Not To Do
 
 Avoid relying on:

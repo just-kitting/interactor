@@ -360,3 +360,35 @@ the first length byte inside the same IRQ work pass.
 The staged 16th patch therefore changes the OMAP master receive path so that
 the first recv-len byte only reprograms `CNT`/FIFO state and then exits that
 IRQ pass, leaving payload-byte consumption for the next real interrupt.
+
+## Current `P641a` Result
+
+Booting the sixteen-patch `P641a` kernel changed the failure mode again, but it
+did not fix the true userspace recv-len path.
+
+- repeated-start version query still works
+- the raw proc-call surrogate still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- true SMBus block-proc-call still times out
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` now fails with:
+
+```text
+ioctl(I2C_RDWR): Protocol error
+```
+
+and `dmesg` shows:
+
+```text
+omap_i2c 20010000.i2c: Too much work in one IRQ
+```
+
+followed by a kernel oops in the IRQ thread:
+
+```text
+pc : omap_i2c_transmit_data.isra.0+0x70/0x1ac
+lr : omap_i2c_xfer_data+0x264/0x338
+x0 : 0000000000000000
+```
+
+So `P641a` should be treated as a regression diagnostic step, not a working
+recv-len fix.
