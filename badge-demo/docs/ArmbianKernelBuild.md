@@ -315,6 +315,13 @@ The next live step is the pinned auto-install/reboot flow:
 BADGESNAKE_BUILD_SUFFIX='6.12.57-S22fb-D0000-P6926-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb' ./scripts/install_latest_kernel_and_reboot.sh
 ```
 
+After validating `P6926`, the next staged build target is:
+
+- `0016-Pause-OMAP-recv-len-after-count-byte.patch`
+
+Its purpose is to stop the OMAP master path from continuing to consume payload
+bytes inside the same IRQ work pass immediately after the recv-len count byte.
+
 ## Expected Install Notes
 
 Two install-time messages are expected on the current board image and do not indicate failure:
