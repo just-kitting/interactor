@@ -3180,6 +3180,34 @@ recommended split:
 - `bq2` handles narrow source/patch tasks
 - BeagleBadge handles install/reboot/runtime validation
 
+## 2026-05-08 (`bq2` advanced the recv-len patch series; rebuilt package still reuses `P641a`)
+
+The repo was updated from `bq2` and now points at a narrower follow-up in the
+kernel patch chain:
+
+- `components/ti-linux-kernel`:
+  - `d17beeff6` `Guard OMAP recv-len against stale TX status`
+- `components/armbian-build`:
+  - `4d34addb4` `Refresh OMAP recv-len IRQ pacing patch`
+
+The copied Armbian build summary is:
+
+- `components/armbian-build/output/logs/summary-kernel-9fc91a9e-d794-4f6e-9d32-76b16dde19a3.md`
+
+Important packaging note:
+
+- the rebuilt artifact still re-versions to the same package suffix:
+  - `6.12.57-S22fb-D0000-P641a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+- so filename/suffix alone is not enough to distinguish the earlier crashing
+  `P641a` install from this newer rebuilt content
+- the next step should therefore be a forced reinstall from the newly copied
+  local `.deb` file, followed by reboot and revalidation
+
+Live board state before that reinstall:
+
+- running kernel remains:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #18 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
