@@ -3208,6 +3208,46 @@ Live board state before that reinstall:
 - running kernel remains:
   - `Linux beaglebadge 6.12.57-vendor-edge-k3 #18 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
 
+## 2026-05-08 (distinct 16-patch build now available as `P3659`)
+
+The latest copied Armbian build is now a distinct kernel artifact, not another
+repack of `P641a`.
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-89289242-752c-4f33-9f39-d0c717ce844e.md`
+- patch summary:
+  - `16 total patches; 16 applied; 10 with problems; 10 needs_rebase`
+- selected suffix:
+  - `6.12.57-S22fb-D0000-P3659-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+This clarifies the previous confusion:
+
+- the board rebooted into the already-installed `#18` kernel
+- the new `P3659` artifacts were copied back afterward
+- so the new build has not yet been installed on the badge
+
+## 2026-05-08 (why kernel identity has been hard to track)
+
+Current identity signals are weak for this workflow because:
+
+- `uname -a` only shows:
+  - upstream kernel release
+  - Armbian flavor
+  - local build number like `#18`
+- the package metadata is re-versioned back to:
+  - `26.02.0-trunk`
+- some rebuilds reused the same hashed suffix (`P641a`) when the effective
+  content did not clearly change from the package filename alone
+
+So the current reliable identity sources are:
+
+- the copied build summary/log
+- the exact local `.deb` filename suffix when it is distinct
+- the committed submodule pointers in this repo
+
+The repo should add a clearer runtime marker later, for example a small build-id
+file embedded into `/boot` or exposed under `/etc`, but that is not in place yet.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

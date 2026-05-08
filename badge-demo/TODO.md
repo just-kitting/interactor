@@ -188,8 +188,10 @@
 - [ ] Diagnose why the 16-patch recv-len follow-up reaches `omap_i2c_transmit_data` with invalid state during a receive transaction
 - [X] Stage a narrower fix for the `P641a` recv-len regression that guards against stale TX status
 - [X] Copy back the rebuilt kernel artifacts for the narrower recv-len follow-up
-- [ ] Force-reinstall the rebuilt `P641a`-named kernel artifact and reboot
+- [X] Identify that the latest distinct 16-patch artifact is now `P3659`
+- [ ] Install and reboot into `P3659`
 - [ ] Re-test direct `I2C_RDWR|I2C_M_RECV_LEN` and true SMBus block-proc-call after the narrower stale-TX-status follow-up
+- [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
 - [X] Mirror the staged AM62L `i2c-omap` slave-support change into the Armbian `archive/k3-6.12` kernel patchset
