@@ -195,7 +195,10 @@
 - [ ] Diagnose why `P3659` still returns `0x04 0x00 0x00 0x00 0x00` / `0x00 0x00 0x00 0x00` instead of the expected proc-call payload
 - [X] Identify the newer distinct 16-patch rebuilds after `P3659`
 - [ ] Install and reboot into the newest copied 16-patch artifact (`Pa309`)
-- [ ] Re-test SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on `Pa309`
+- [X] Install and reboot into the newest copied 16-patch artifact (`Pa309`)
+- [X] Re-test SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on `Pa309`
+- [X] Prove that `Pa309` still matches the `P3659` zero-after-count-byte behavior
+- [ ] Diagnose why the J7 master-side recv-len path still exposes only the count byte and zeros even though J6 generates non-zero payload bytes
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

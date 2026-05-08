@@ -3320,6 +3320,40 @@ So the next live validation target is now:
 
 The earlier `P8dc2` copy is superseded and should not be installed now.
 
+## 2026-05-08 (`Pa309` booted; behavior matches `P3659`)
+
+The newest copied distinct 16-patch artifact is now running:
+
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #21 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+Runtime result:
+
+- `./scripts/test_j7_to_j6_smbus_block_proc_call.sh` still returns:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` still returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+- the raw proc-call surrogate still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+
+The stale-TX-status crash remains fixed, but `Pa309` does not materially change
+the post-count-byte zeroing behavior compared with `P3659`.
+
+The slave-side trace still shows J6 generating the expected early sequence:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+and then continuing to serve zeros, while the master-visible recv-len result is
+still truncated to a correct count byte followed by zeros.
+
+So the next work should focus on why the J7 master-side recv-len receive path is
+not retaining or delivering the non-zero payload bytes after the count byte,
+not on the already-fixed stale-TX crash path.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

@@ -423,3 +423,34 @@ that regression.
 
 The remaining problem is now the master-visible payload path after the count
 byte, not the old crash path.
+
+## Current `Pa309` Result
+
+Booting `Pa309` does not materially change the `P3659` runtime behavior.
+
+- true SMBus block-proc-call still returns:
+
+```text
+count=4
+data=0x00 0x00 0x00 0x00
+```
+
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` still returns:
+
+```text
+data=0x04 0x00 0x00 0x00 0x00
+```
+
+- the raw surrogate still returns:
+
+```text
+0x00 0x04 0x03 0x02 0x01
+```
+
+The good news is that the old `P641a` IRQ-thread crash remains gone.
+
+The remaining issue is still the same narrowed problem:
+
+- J6 generates the expected non-zero payload bytes first
+- J7’s master-visible recv-len path still exposes only the count byte followed
+  by zeros
