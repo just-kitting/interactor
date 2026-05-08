@@ -3248,6 +3248,53 @@ So the current reliable identity sources are:
 The repo should add a clearer runtime marker later, for example a small build-id
 file embedded into `/boot` or exposed under `/etc`, but that is not in place yet.
 
+## 2026-05-08 (`P3659` booted; stale-TX-status guard removed the crash but recv-len is still wrong)
+
+The distinct `P3659` build is now running on the live board:
+
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #19 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux has-session -t badgesnake` still succeeds
+
+### What improved
+
+- the direct `I2C_RDWR` + `I2C_M_RECV_LEN` test no longer crashes the IRQ thread
+- the earlier `P641a` NULL-dereference / oops in `omap_i2c_transmit_data()` was not reproduced
+- the true SMBus block-proc-call path no longer times out in the observed run
+
+### What is still wrong
+
+- `./scripts/test_j7_to_j6_smbus_block_proc_call.sh` now returns:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- the raw proc-call surrogate still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- the direct `I2C_RDWR` + `I2C_M_RECV_LEN` probe now returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+### What the slave-side trace shows
+
+During the direct recv-len test, J6 still generates the expected sequence first:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+But after that, the master-visible result collapses to a length byte followed by
+zeros. So the stale-TX-status guard fixed the IRQ-thread crash path, but did
+not fix the underlying recv-len data plumbing on J7.
+
+### Current hypothesis
+
+The remaining issue is now narrower than before:
+
+- either the J7 master-side recv-len path is still mishandling the transition
+  after the count byte
+- or the combination of `CNT` reprogramming and later RX handling is causing
+  the payload bytes to be dropped or overwritten before they reach the userspace
+  buffer
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
