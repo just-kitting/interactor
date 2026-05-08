@@ -392,3 +392,34 @@ x0 : 0000000000000000
 
 So `P641a` should be treated as a regression diagnostic step, not a working
 recv-len fix.
+
+## Current `P3659` Result
+
+Booting the distinct `P3659` build fixes the `P641a` crash, but the recv-len
+data path is still not correct.
+
+- true SMBus block-proc-call now returns:
+
+```text
+count=4
+data=0x00 0x00 0x00 0x00
+```
+
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` now returns:
+
+```text
+data=0x04 0x00 0x00 0x00 0x00
+```
+
+- the older raw `i2ctransfer` surrogate still returns:
+
+```text
+0x00 0x04 0x03 0x02 0x01
+```
+
+Most importantly, the IRQ-thread crash from `P641a` was not reproduced on
+`P3659`, so the stale opposite-direction TX status guard appears to have fixed
+that regression.
+
+The remaining problem is now the master-visible payload path after the count
+byte, not the old crash path.

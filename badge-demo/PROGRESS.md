@@ -3180,6 +3180,121 @@ recommended split:
 - `bq2` handles narrow source/patch tasks
 - BeagleBadge handles install/reboot/runtime validation
 
+## 2026-05-08 (`bq2` advanced the recv-len patch series; rebuilt package still reuses `P641a`)
+
+The repo was updated from `bq2` and now points at a narrower follow-up in the
+kernel patch chain:
+
+- `components/ti-linux-kernel`:
+  - `d17beeff6` `Guard OMAP recv-len against stale TX status`
+- `components/armbian-build`:
+  - `4d34addb4` `Refresh OMAP recv-len IRQ pacing patch`
+
+The copied Armbian build summary is:
+
+- `components/armbian-build/output/logs/summary-kernel-9fc91a9e-d794-4f6e-9d32-76b16dde19a3.md`
+
+Important packaging note:
+
+- the rebuilt artifact still re-versions to the same package suffix:
+  - `6.12.57-S22fb-D0000-P641a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+- so filename/suffix alone is not enough to distinguish the earlier crashing
+  `P641a` install from this newer rebuilt content
+- the next step should therefore be a forced reinstall from the newly copied
+  local `.deb` file, followed by reboot and revalidation
+
+Live board state before that reinstall:
+
+- running kernel remains:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #18 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+## 2026-05-08 (distinct 16-patch build now available as `P3659`)
+
+The latest copied Armbian build is now a distinct kernel artifact, not another
+repack of `P641a`.
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-89289242-752c-4f33-9f39-d0c717ce844e.md`
+- patch summary:
+  - `16 total patches; 16 applied; 10 with problems; 10 needs_rebase`
+- selected suffix:
+  - `6.12.57-S22fb-D0000-P3659-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+This clarifies the previous confusion:
+
+- the board rebooted into the already-installed `#18` kernel
+- the new `P3659` artifacts were copied back afterward
+- so the new build has not yet been installed on the badge
+
+## 2026-05-08 (why kernel identity has been hard to track)
+
+Current identity signals are weak for this workflow because:
+
+- `uname -a` only shows:
+  - upstream kernel release
+  - Armbian flavor
+  - local build number like `#18`
+- the package metadata is re-versioned back to:
+  - `26.02.0-trunk`
+- some rebuilds reused the same hashed suffix (`P641a`) when the effective
+  content did not clearly change from the package filename alone
+
+So the current reliable identity sources are:
+
+- the copied build summary/log
+- the exact local `.deb` filename suffix when it is distinct
+- the committed submodule pointers in this repo
+
+The repo should add a clearer runtime marker later, for example a small build-id
+file embedded into `/boot` or exposed under `/etc`, but that is not in place yet.
+
+## 2026-05-08 (`P3659` booted; stale-TX-status guard removed the crash but recv-len is still wrong)
+
+The distinct `P3659` build is now running on the live board:
+
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #19 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- `tmux has-session -t badgesnake` still succeeds
+
+### What improved
+
+- the direct `I2C_RDWR` + `I2C_M_RECV_LEN` test no longer crashes the IRQ thread
+- the earlier `P641a` NULL-dereference / oops in `omap_i2c_transmit_data()` was not reproduced
+- the true SMBus block-proc-call path no longer times out in the observed run
+
+### What is still wrong
+
+- `./scripts/test_j7_to_j6_smbus_block_proc_call.sh` now returns:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- the raw proc-call surrogate still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- the direct `I2C_RDWR` + `I2C_M_RECV_LEN` probe now returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+### What the slave-side trace shows
+
+During the direct recv-len test, J6 still generates the expected sequence first:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+But after that, the master-visible result collapses to a length byte followed by
+zeros. So the stale-TX-status guard fixed the IRQ-thread crash path, but did
+not fix the underlying recv-len data plumbing on J7.
+
+### Current hypothesis
+
+The remaining issue is now narrower than before:
+
+- either the J7 master-side recv-len path is still mishandling the transition
+  after the count byte
+- or the combination of `CNT` reprogramming and later RX handling is causing
+  the payload bytes to be dropped or overwritten before they reach the userspace
+  buffer
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
