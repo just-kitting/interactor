@@ -3295,6 +3295,31 @@ The remaining issue is now narrower than before:
   the payload bytes to be dropped or overwritten before they reach the userspace
   buffer
 
+## 2026-05-08 (newer 16-patch builds copied: `P8dc2` and then `Pa309`)
+
+Two newer distinct 16-patch kernel artifacts were copied into
+`components/armbian-build/output/` after the `P3659` validation:
+
+- `P8dc2`
+- `Pa309`
+
+The newest summary is:
+
+- `components/armbian-build/output/logs/summary-kernel-dbfd0020-46ad-482b-80a0-e9c6a99a6049.md`
+
+Key facts from that build:
+
+- patch summary:
+  - `16 total patches; 16 applied; 10 with problems; 10 needs_rebase`
+- kernel package version:
+  - `6.12.57-S22fb-D0000-Pa309-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+So the next live validation target is now:
+
+- `6.12.57-S22fb-D0000-Pa309-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+The earlier `P8dc2` copy is superseded and should not be installed now.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
