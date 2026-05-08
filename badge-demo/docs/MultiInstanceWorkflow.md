@@ -4,6 +4,7 @@ This project now has more than one Codex-capable environment:
 
 - BeagleBadge
 - `bq2`
+- local Ollama analysis helper
 
 The best way to connect them is **git-first**, not through a fragile live
 Codex-to-Codex session link.
@@ -118,6 +119,71 @@ Avoid relying on:
 
 Those can still be used temporarily, but only as convenience layers above the
 repo, not instead of it.
+
+## How To Use The Ollama Helper
+
+The Ollama helper should be treated as a read-only analysis engine, not as a
+driver of workflow.
+
+Use it for:
+
+- patch review
+- log interpretation
+- Linux I2C / OMAP behavior analysis
+- narrowing hypotheses before source edits
+
+Do not use it for:
+
+- making coordination decisions
+- deciding what to edit next across the whole repo
+- editing files directly
+
+Recommended task shape:
+
+- provide one narrow question
+- include the exact file excerpt or `dmesg` excerpt
+- ask for concise findings with file/line references
+- ask it to rank 1-3 likely causes or review one specific patch
+
+Best return path:
+
+- paste the Ollama findings back into chat as plain text
+- if the findings are especially important, also save them in a tracked note or
+  commit them into the repo through the main Codex instance
+
+Current best Ollama task:
+
+- review the `P641a` recv-len regression
+- focus on why a receive transaction can later reach
+  `omap_i2c_transmit_data()` and crash in the IRQ thread
+- inspect:
+  - `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c`
+  - the `P641a` dmesg excerpt with `Too much work in one IRQ`
+  - the oops showing `pc : omap_i2c_transmit_data.isra.0`
+
+Suggested prompt:
+
+```text
+Review this AM62L/OMAP I2C regression in read-only mode.
+
+Context:
+- true SMBus block-proc-call on J7 -> J6 still fails
+- direct I2C_RDWR + I2C_M_RECV_LEN now fails with Protocol error
+- dmesg shows many "omap_i2c 20010000.i2c: Too much work in one IRQ"
+- then an oops with:
+  - pc : omap_i2c_transmit_data.isra.0+0x70/0x1ac
+  - lr : omap_i2c_xfer_data+0x264/0x338
+  - x0 : 0000000000000000
+
+Please analyze only:
+- components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c
+
+Question:
+- how can the recv-len receive path fall through into transmit handling with invalid state?
+- identify the most likely control-flow bug(s)
+- cite exact function names and the relevant branches
+- keep the answer concise
+```
 
 ## Current Recommendation
 

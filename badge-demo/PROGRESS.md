@@ -3180,6 +3180,27 @@ recommended split:
 - `bq2` handles narrow source/patch tasks
 - BeagleBadge handles install/reboot/runtime validation
 
+## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
+
+An Ollama instance is now available as a read-only BadgeSnake kernel analysis
+helper.
+
+Recommended use:
+
+- patch review
+- log interpretation
+- Linux I2C / OMAP controller reasoning
+
+Recommended non-use:
+
+- repo coordination
+- deciding broad next steps
+- editing files
+
+The current best Ollama task is to review the `P641a` recv-len regression and
+explain how the receive path can later reach `omap_i2c_transmit_data()` with
+invalid state during the IRQ-thread crash.
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
