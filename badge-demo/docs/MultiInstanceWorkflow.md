@@ -36,6 +36,13 @@ Use `bq2` for:
 - build-log analysis
 - x86-host build orchestration
 
+Current limitation:
+
+- `bq2` does not have Docker access, so it should not be treated as the current
+  Armbian kernel build host
+- for now, actual Armbian kernel package builds still run on the separate x86
+  host, while `bq2` prepares source/patch state and reviews logs
+
 Use BeagleBadge for:
 
 - runtime validation
@@ -53,6 +60,34 @@ Before handing work across instances:
 3. Update `TODO.md` if the task state changed.
 4. If the handoff is subtle, add a short committed note in the relevant doc.
 
+## How To Task `bq2`
+
+`bq2` appears to work better with narrow tasks than with open-ended “continue”
+requests on the full repo.
+
+Recommended task shape:
+
+- give one concrete goal
+- name the exact files it may edit
+- include the current relevant commit(s)
+- include the exact validation command to run or update
+- require a commit at the end
+
+Good examples:
+
+- “Update `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c` to avoid
+  the `P641a` recv-len regression, then mirror it into
+  `components/armbian-build/patch/kernel/archive/k3-6.12/0016-...`, and commit
+  both repos.”
+- “Read `log-kernel-...` and summarize only the new build failure in
+  `PROGRESS.md`.”
+
+Avoid:
+
+- “continue”
+- “work on whatever is next”
+- tasks that span unrelated files or subsystems without a concrete boundary
+
 ## What Not To Do
 
 Avoid relying on:
@@ -69,6 +104,7 @@ repo, not instead of it.
 For the current AM62L `i2c-omap` work:
 
 - do source edits and Armbian patch prep on `bq2`
+- run the actual Armbian kernel build on the x86 host
 - copy returned build artifacts into this repo
 - run `install_latest_kernel_and_reboot.sh` and all J7 -> J6 validation on the
   BeagleBadge instance
