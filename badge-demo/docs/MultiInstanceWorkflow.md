@@ -43,6 +43,16 @@ Current limitation:
 - for now, actual Armbian kernel package builds still run on the separate x86
   host, while `bq2` prepares source/patch state and reviews logs
 
+Current bootstrap path outside this repo:
+
+- `/root/interactor/scripts/setup-bq2.sh`
+- `/root/interactor/scripts/setup-repo.sh`
+- `/root/interactor/scripts/sysroot-build-plan.json`
+
+Those belong to the enclosing `interactor` checkout, not `badge-demo` itself.
+They are useful for bringing up the `bq2` environment, but they do not change
+the git-first coordination model for this repo.
+
 Use BeagleBadge for:
 
 - runtime validation
@@ -87,6 +97,16 @@ Avoid:
 - “continue”
 - “work on whatever is next”
 - tasks that span unrelated files or subsystems without a concrete boundary
+
+Recommended first `bq2` task for the current state:
+
+- inspect `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c`
+- explain why the `P641a` recv-len follow-up can fall through into
+  `omap_i2c_transmit_data()` during a receive transaction
+- update only:
+  - `components/ti-linux-kernel/drivers/i2c/busses/i2c-omap.c`
+  - `components/armbian-build/patch/kernel/archive/k3-6.12/0016-Pause-OMAP-recv-len-after-count-byte.patch`
+- commit both repos
 
 ## What Not To Do
 

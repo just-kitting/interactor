@@ -3154,6 +3154,32 @@ The latest returned kernel artifact set is now copied into the repo:
 
 The next live step is the pinned auto-install/reboot flow for `P641a`.
 
+## 2026-05-08 (new copy is still `P641a`; no new kernel target yet)
+
+After the latest copy-back and pull, the newest returned Armbian build summary is:
+
+- `components/armbian-build/output/logs/summary-kernel-9fc91a9e-d794-4f6e-9d32-76b16dde19a3.md`
+
+But it still re-versions to the same kernel artifact suffix:
+
+- `6.12.57-S22fb-D0000-P641a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
+So there is no new kernel target to install from this copy. The live board is
+already beyond that point and booted the `P641a` kernel as `#18`.
+
+The newer top-level `interactor` pull also added helper files outside this repo:
+
+- `/root/interactor/scripts/setup-bq2.sh`
+- `/root/interactor/scripts/setup-repo.sh`
+- `/root/interactor/scripts/sysroot-build-plan.json`
+
+These are useful for bringing up `bq2`, but they do not change the current
+recommended split:
+
+- x86 host builds Armbian kernels
+- `bq2` handles narrow source/patch tasks
+- BeagleBadge handles install/reboot/runtime validation
+
 ## 2026-04-27 (module-only iteration boundary)
 
 The reason for using a full rebuild versus a local module build is now explicit.
