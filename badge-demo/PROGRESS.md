@@ -3444,6 +3444,35 @@ followed by zeros to userspace.
 So the newer ARDY-ordering follow-up in `P5248` does not yet fix the remaining
 master-visible payload loss after the count byte.
 
+## 2026-05-09 (repo-backed request for recv-len payload tracing validation)
+
+The next request from `bq2` to the live `beaglebadge` validation agent is now
+tracked in:
+
+- `docs/BeagleBadgeRequests.md`
+
+The requested source state is:
+
+- top-level repo:
+  - `2a18b76` `Advance OMAP recv-len payload tracing`
+- `components/ti-linux-kernel`:
+  - `a140e1de8f36` `Trace OMAP recv-len payload handling`
+- `components/armbian-build`:
+  - `4d98c2f38` `Carry OMAP recv-len payload tracing`
+
+The purpose of this diagnostic build is to classify the remaining
+zero-after-count-byte behavior on J7:
+
+- payload RX interrupt/drain never fires after count-byte reprogramming
+- J7 reads zeros from `DATA_REG`
+- J7 copies non-zero payload bytes and they are lost after the driver copy
+
+The required live-board capture after the direct recv-len probe is:
+
+```sh
+dmesg | grep 'recv-len'
+```
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
