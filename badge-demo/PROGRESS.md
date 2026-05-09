@@ -3381,6 +3381,32 @@ This also explains the mismatch between repo state and copied artifacts:
   next host build actually consumes the newer submodule state before copying
   artifacts back
 
+## 2026-05-09 (new distinct ARDY-ordering build copied as `P5248`)
+
+After rebuilding from the fully updated repo/submodule state, there is now a
+new distinct kernel artifact on disk:
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-c2ebf1f5-1cab-40bd-9fa9-9e73995bc2ed.md`
+- patch summary:
+  - `16 total patches; 16 applied; 10 with problems; 10 needs_rebase`
+- package version:
+  - `6.12.57-S22fb-D0000-P5248-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+This is the first copied build that clearly reflects the newer ARDY-ordering
+follow-up tracked in git as:
+
+- top-level repo:
+  - `22102a7` `Advance OMAP recv-len ARDY ordering fix`
+- `components/ti-linux-kernel`:
+  - `f0fe74e4` `Drain OMAP recv-len payload before ARDY`
+- `components/armbian-build`:
+  - `f051e986` `Refresh OMAP recv-len ARDY ordering patch`
+
+The next live step is the pinned install/reboot flow for:
+
+- `6.12.57-S22fb-D0000-P5248-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
