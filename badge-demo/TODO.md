@@ -203,8 +203,10 @@
 - [ ] Ensure the next x86-host Armbian build actually consumes the newer `f0fe74e4` / `f051e986` submodule state before copying artifacts back
 - [X] Ensure the next x86-host Armbian build actually consumes the newer `f0fe74e4` / `f051e986` submodule state before copying artifacts back
 - [X] Identify the first distinct build from that newer state (`P5248`)
-- [ ] Install and reboot into `P5248`
-- [ ] Re-test SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on `P5248`
+- [X] Install and reboot into `P5248`
+- [X] Re-test SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on `P5248`
+- [X] Prove that `P5248` still matches the `P3659` / `Pa309` zero-after-count-byte behavior
+- [X] Keep the boot-session systemd unit installed but disabled by default on BeagleBadge
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

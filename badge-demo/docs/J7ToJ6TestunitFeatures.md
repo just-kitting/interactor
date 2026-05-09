@@ -338,6 +338,34 @@ So the new master-side patch did change the adapter-level story, but the
 receive-length handling behind that path is still not correct enough yet for a
 stable SMBus block-proc-call on J7.
 
+## Current `P5248` Result
+
+Booting the distinct sixteen-patch `P5248` kernel does not materially change
+the J7 -> J6 recv-len behavior compared with `P3659` / `Pa309`.
+
+- true userspace SMBus block-proc-call still returns:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- the raw proc-call surrogate still returns:
+  - `0x00 0x04 0x03 0x02 0x01`
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` still returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+The direct recv-len probe on `P5248` still shows J6 generating the expected
+early payload bytes:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+and then transitioning to zeros, while J7 still exposes only the count byte
+followed by zeros to userspace.
+
+So the newer ARDY-ordering follow-up in `P5248` does not yet fix the remaining
+master-visible payload loss after the count byte.
+
 ## Current `P6926` Raw `I2C_RDWR|I2C_M_RECV_LEN` Result
 
 A direct userspace `I2C_RDWR` probe with `I2C_M_RECV_LEN` shows the new failure

@@ -14,11 +14,11 @@ fi
 
 install -m 0644 "${UNIT_SRC}" "${UNIT_DST}"
 systemctl daemon-reload
-systemctl enable badgesnake-boot-session.service
-systemctl restart badgesnake-boot-session.service
 
-echo "Installed and enabled badgesnake-boot-session.service"
+echo "Installed badgesnake-boot-session.service (disabled by default)"
 echo "Check status with:"
 echo "  systemctl status badgesnake-boot-session.service"
+echo "Enable it explicitly if you want boot-time tmux/Codex startup:"
+echo "  systemctl enable --now badgesnake-boot-session.service"
 echo "Attach to the workspace tmux session with:"
 echo "  tmux attach -t badgesnake"

@@ -225,7 +225,14 @@ For repeated recovery after reboot, the repo also carries a boot-session service
 ./scripts/install_badgesnake_boot_session_service.sh
 ```
 
-That installs a oneshot systemd unit which:
+That installs a oneshot systemd unit definition but now leaves it disabled by
+default. Enable it explicitly only if you want boot-time session startup:
+
+```sh
+systemctl enable --now badgesnake-boot-session.service
+```
+
+When enabled, it:
 
 - writes a boot summary to `artifacts/boot-status/latest.txt`
 - creates a `tmux` session named `badgesnake` in `/root/interactor/badge-demo`
@@ -239,9 +246,15 @@ codex resume --last --dangerously-bypass-approvals-and-sandbox --no-alt-screen -
 - after session creation, the helper forces stable tmux names:
   - session `badgesnake`
   - window `workspace`
-- observed on the latest reboot:
+- observed on earlier reboots:
   - `tmux attach -t badgesnake` works reliably
   - the pane can return to `bash` if `codex resume --last` exits
+
+Current board policy:
+
+- keep the service disabled during kernel-validation loops on BeagleBadge
+- resume manually from the shell instead of spending RAM on an automatic boot
+  tmux session
 
 Control knob:
 
@@ -254,6 +267,9 @@ Recovery / rollback:
 ```sh
 ./scripts/uninstall_badgesnake_boot_session_service.sh
 ```
+
+On the live BeagleBadge, this removal was applied after the automatic session
+was observed to contribute too much memory pressure during runtime validation.
 
 ## Current Installed-But-Not-Yet-Booted Kernel
 

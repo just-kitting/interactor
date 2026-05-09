@@ -3407,6 +3407,43 @@ The next live step is the pinned install/reboot flow for:
 
 - `6.12.57-S22fb-D0000-P5248-C2876Hb496-HK01ba-Vc222-Be8e3-R448a.deb`
 
+## 2026-05-09 (`P5248` runtime still matches `P3659` / `Pa309`)
+
+After rebooting into the pinned `P5248` install:
+
+- `uname -a` reports:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #22 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- the automatic boot-session service is no longer used on the live board:
+  - `systemctl is-enabled badgesnake-boot-session.service` -> `not-found`
+  - `systemctl is-active badgesnake-boot-session.service` -> `inactive`
+
+Low-memory sequential validation still shows no behavioral improvement relative
+to `P3659` / `Pa309`:
+
+- `./scripts/test_j7_to_j6_smbus_block_proc_call.sh` returns:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- `./scripts/validate_j7_to_j6_testunit_features.sh` still reports the raw
+  proc-call surrogate:
+  - `0x00 0x04 0x03 0x02 0x01`
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` still returns:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+Direct recv-len tracing on `P5248` still shows J6 generating the expected early
+non-zero values:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+and then transitioning to zeros, while J7 still exposes only the count byte
+followed by zeros to userspace.
+
+So the newer ARDY-ordering follow-up in `P5248` does not yet fix the remaining
+master-visible payload loss after the count byte.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
