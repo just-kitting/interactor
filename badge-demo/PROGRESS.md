@@ -3354,6 +3354,33 @@ So the next work should focus on why the J7 master-side recv-len receive path is
 not retaining or delivering the non-zero payload bytes after the count byte,
 not on the already-fixed stale-TX crash path.
 
+## 2026-05-09 (latest copied build reused cached `Pa309`)
+
+After the next reported kernel build/copy, the latest returned summary was:
+
+- `components/armbian-build/output/logs/summary-kernel-3edd03ce-0e27-4786-a75e-106705e4c3aa.md`
+
+But the corresponding log shows that Armbian simply re-versioned the existing
+cached artifact:
+
+- `6.12.57-S22fb-D0000-Pa309-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+The key log lines are:
+
+- `Reversioning package [ re-version 'kernel-k3-vendor-edge(deb-tar)::6.12.57-S22fb-D0000-Pa309-...' to '26.02.0-trunk' ]`
+- `touch /armbian/output/debs/linux-image-vendor-edge-k3_26.02.0-trunk_arm64__6.12.57-S22fb-D0000-Pa309-...deb`
+
+So this copy does not represent a newer kernel than the already-tested `Pa309`
+install. There is no new install target yet from this copy alone.
+
+This also explains the mismatch between repo state and copied artifacts:
+
+- top-level repo/submodules already point at newer recv-len ARDY-ordering work
+- the copied Armbian output is still the cached `Pa309` package set
+- therefore the current next step is not another install, but making sure the
+  next host build actually consumes the newer submodule state before copying
+  artifacts back
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
