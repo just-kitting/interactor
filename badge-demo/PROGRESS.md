@@ -3605,6 +3605,31 @@ The remaining mismatch is now narrower:
 - direct `I2C_RDWR | I2C_M_RECV_LEN` is correct
 - only the raw `i2ctransfer` surrogate still shows the older shifted response
 
+## 2026-05-10 (cleaned recv-len patch after `Pac0a`)
+
+The successful no-`CNT`-rewrite behavior is now cleaned up in source and patch
+form:
+
+- `components/ti-linux-kernel`:
+  - `3c92960e2833` `Clean OMAP recv-len count-byte handling`
+- `components/armbian-build`:
+  - `e49bac3e9` `Clean OMAP recv-len Armbian patch`
+
+This cleanup keeps the functional behavior validated by `Pac0a`:
+
+- keep the original full controller transfer active after the recv-len count
+  byte
+- trim `msg->len` to `1 + count + extra`
+- pause after consuming the count byte so payload bytes are handled on a later
+  IRQ pass
+
+It removes the temporary successful-path `recv-len` `dev_info_ratelimited()`
+diagnostics from `i2c-omap.c`. The invalid-count diagnostic remains.
+
+The live-board validation request is recorded in:
+
+- `docs/BeagleBadgeRequests.md`
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

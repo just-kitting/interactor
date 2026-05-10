@@ -220,3 +220,63 @@ Conclusion:
   byte restores the non-zero payload bytes on true SMBus block-proc-call and
   direct `I2C_RDWR | I2C_M_RECV_LEN`
 - the remaining mismatch is now limited to the raw `i2ctransfer` surrogate path
+
+## 2026-05-10: Validate cleaned recv-len patch
+
+### Source State To Build
+
+Build and copy back a new BeagleBadge `vendor-edge-k3` kernel artifact from
+the repo state containing:
+
+- top-level repo:
+  - this request plus the submodule pointers to the commits below
+- `components/ti-linux-kernel`:
+  - `3c92960e2833` `Clean OMAP recv-len count-byte handling`
+- `components/armbian-build`:
+  - `e49bac3e9` `Clean OMAP recv-len Armbian patch`
+
+The new build should be distinct from `Pac0a`.
+
+### Purpose
+
+`Pac0a` proved that keeping the original controller transfer active after the
+recv-len count byte restores payload bytes on true SMBus block-proc-call and
+direct `I2C_RDWR | I2C_M_RECV_LEN`.
+
+This cleaned state preserves that behavior but removes the temporary
+successful-path `recv-len` `dev_info_ratelimited()` diagnostics from
+`i2c-omap.c`. The expected result is behavioral parity with `Pac0a`, not new
+raw-surrogate behavior.
+
+### Install And Test
+
+After installing and rebooting into the new distinct artifact, run:
+
+```sh
+./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+```
+
+Also run the direct `I2C_RDWR | I2C_M_RECV_LEN` probe used in the previous
+comparisons.
+
+### What `bq2` Needs From The Result
+
+Record:
+
+- the new package suffix and build summary path
+- true SMBus block-proc-call output
+- direct `I2C_RDWR | I2C_M_RECV_LEN` output
+- whether `dmesg | grep 'recv-len'` is empty after successful runs
+
+Expected functional outputs remain:
+
+```text
+count=4
+data=0x03 0x02 0x01 0x00
+```
+
+and:
+
+```text
+0x04 0x03 0x02 0x01 0x00
+```

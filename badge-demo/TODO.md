@@ -220,6 +220,13 @@
 - [X] Re-test SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on the no-CNT-rewrite artifact
 - [X] Capture whether J7 receives non-zero payload bytes when `CNT` is not rewritten after the recv-len count byte
 - [X] Prove that `Pac0a` restores non-zero payload bytes on true SMBus block-proc-call and direct recv-len
+- [X] Clean the successful recv-len no-`CNT`-rewrite patch to remove temporary successful-path diagnostics
+- [X] Regenerate the Armbian `0016` patch from the cleaned kernel source
+- [X] Encode the cleaned recv-len smoke-test request in `docs/BeagleBadgeRequests.md`
+- [ ] Build and copy back a distinct kernel artifact from the cleaned recv-len state (`3c92960` / `e49bac3`)
+- [ ] Install and reboot into the cleaned recv-len artifact
+- [ ] Re-test true SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on the cleaned artifact
+- [ ] Confirm the cleaned artifact keeps the `Pac0a` payload fix without the temporary successful-path `recv-len` logs
 - [ ] Diagnose why the raw `i2ctransfer` surrogate still reports `0x00 0x04 0x03 0x02 0x01` even after the no-CNT-rewrite fix
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
