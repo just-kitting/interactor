@@ -213,6 +213,12 @@
 - [X] Capture `dmesg | grep 'recv-len'` after direct `I2C_RDWR|I2C_M_RECV_LEN`
 - [X] Classify whether J7 skips payload RX, reads zeros from `DATA_REG`, or copies non-zero payload bytes that are lost later
 - [X] Prove that the `P7f58` payload-tracing kernel falls into the `DATA_REG` zeros case
+- [X] Stage a recv-len no-CNT-rewrite experiment in `i2c-omap`
+- [X] Encode the no-CNT-rewrite BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
+- [ ] Build and copy back a distinct kernel artifact from no-CNT-rewrite state (`e2cf5df` / `3d54c59`)
+- [ ] Install and reboot into the no-CNT-rewrite artifact
+- [ ] Re-test SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on the no-CNT-rewrite artifact
+- [ ] Capture whether J7 receives non-zero payload bytes when `CNT` is not rewritten after the recv-len count byte
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

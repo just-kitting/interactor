@@ -3529,6 +3529,28 @@ whether payload RX fires at all; it is that the OMAP initiator receives zeros
 from `DATA_REG` during the payload phase even though the J6 target is
 transmitting non-zero bytes at the start of that phase.
 
+## 2026-05-10 (staged no-CNT-rewrite recv-len experiment)
+
+The next `bq2` code experiment is staged in git:
+
+- `components/ti-linux-kernel`:
+  - `e2cf5df7bd9f` `Keep OMAP recv-len transfer count after length byte`
+- `components/armbian-build`:
+  - `3d54c59e8` `Carry OMAP recv-len no-CNT-rewrite experiment`
+
+The change keeps the original full recv-len controller transfer active after
+the count byte instead of rewriting `CNT` and `buf_len` mid-read. It still
+sets `msg->len` to `1 + count + extra` so upper layers should trim the returned
+message length.
+
+The purpose is to test whether the mid-read `CNT` rewrite is what makes the J7
+OMAP initiator read zeros from `DATA_REG` while J6 is still reporting non-zero
+target TX values.
+
+The live-board validation request is recorded in:
+
+- `docs/BeagleBadgeRequests.md`
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

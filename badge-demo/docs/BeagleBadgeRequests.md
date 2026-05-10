@@ -109,3 +109,69 @@ slave tx-processed stat=0x10 value=0x2
 slave tx-processed stat=0x400 value=0x1
 slave tx-processed stat=0x10 value=0x0
 ```
+
+## 2026-05-10: Validate recv-len without CNT rewrite
+
+### Source State To Build
+
+Build and copy back a new BeagleBadge `vendor-edge-k3` kernel artifact from
+the repo state containing:
+
+- top-level repo:
+  - this request plus the submodule pointers to the commits below
+- `components/ti-linux-kernel`:
+  - `e2cf5df7bd9f` `Keep OMAP recv-len transfer count after length byte`
+- `components/armbian-build`:
+  - `3d54c59e8` `Carry OMAP recv-len no-CNT-rewrite experiment`
+
+The new build should be distinct from the already-tested `P7f58` payload
+tracing artifact. Record the new package suffix and build summary path before
+installing.
+
+### Purpose
+
+`P7f58` proved that J7 reaches the payload receive path but reads zeros from
+`DATA_REG` after count-byte reprogramming. This experiment avoids rewriting
+`CNT` and `buf_len` after the first recv-len byte. It keeps the original
+full-length controller transfer running while trimming `msg->len` so the
+caller should still see only `1 + count + extra` bytes.
+
+This tests whether the mid-read `CNT` rewrite is what makes OMAP lose the
+target's early non-zero payload bytes.
+
+### Install And Test
+
+After installing and rebooting into the new distinct artifact, run:
+
+```sh
+./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+Also run the direct `I2C_RDWR | I2C_M_RECV_LEN` probe used in the previous
+comparisons.
+
+### Required Log Capture
+
+Capture the recv-len diagnostics immediately after the direct recv-len probe:
+
+```sh
+dmesg | grep 'recv-len'
+```
+
+### What `bq2` Needs From The Result
+
+Record whether the direct recv-len userspace output changes from:
+
+```text
+0x04 0x00 0x00 0x00 0x00
+```
+
+to any form containing the non-zero payload bytes:
+
+```text
+0x04 0x03 0x02 0x01 ...
+```
+
+Also record whether the new `recv-len count=... keep_buf_len=...` log appears
+and what subsequent `recv-len byte value=...` lines show.
