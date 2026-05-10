@@ -366,6 +366,66 @@ followed by zeros to userspace.
 So the newer ARDY-ordering follow-up in `P5248` does not yet fix the remaining
 master-visible payload loss after the count byte.
 
+## Current `P7f58` Result
+
+Booting the distinct payload-tracing `P7f58` kernel does not fix the recv-len
+data path, but it does classify the failure more precisely than `P5248`.
+
+- `uname -a`:
+
+```text
+Linux beaglebadge 6.12.57-vendor-edge-k3 #23 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux
+```
+
+- true SMBus block-proc-call still returns:
+
+```text
+count=4
+data=0x00 0x00 0x00 0x00
+```
+
+- the raw proc-call surrogate still returns:
+
+```text
+0x00 0x04 0x03 0x02 0x01
+```
+
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` still returns:
+
+```text
+data=0x04 0x00 0x00 0x00 0x00
+```
+
+The new master-side `recv-len` logs show that J7 *does* continue through the
+payload receive path after the count byte, but the payload bytes it reads are
+already zero:
+
+```text
+recv-len byte value=0x4 offset=1
+recv-len count=4
+recv-len byte value=0x0 offset=2
+recv-len byte value=0x0 offset=3
+recv-len byte value=0x0 offset=4
+recv-len byte value=0x0 offset=5
+```
+
+So the `P7f58` result falls into the second requested classification:
+
+- J7 reads zeros from `DATA_REG` after the count-byte reprogramming
+
+The same direct probe still shows J6 generating the expected early TX sequence:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+That means the remaining gap is no longer “does payload RX fire?” It is now the
+more specific issue that the OMAP initiator receives zeros from `DATA_REG`
+during the payload phase even though the J6 target is transmitting non-zero
+bytes at the start of that phase.
+
 ## Current `P6926` Raw `I2C_RDWR|I2C_M_RECV_LEN` Result
 
 A direct userspace `I2C_RDWR` probe with `I2C_M_RECV_LEN` shows the new failure

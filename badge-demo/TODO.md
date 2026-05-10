@@ -208,10 +208,11 @@
 - [X] Prove that `P5248` still matches the `P3659` / `Pa309` zero-after-count-byte behavior
 - [X] Keep the boot-session systemd unit installed but disabled by default on BeagleBadge
 - [X] Encode the next live BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
-- [ ] Build and copy back a distinct kernel artifact from recv-len payload tracing state (`a140e1d` / `4d98c2f`)
-- [ ] Install and reboot into the recv-len payload tracing artifact
-- [ ] Capture `dmesg | grep 'recv-len'` after direct `I2C_RDWR|I2C_M_RECV_LEN`
-- [ ] Classify whether J7 skips payload RX, reads zeros from `DATA_REG`, or copies non-zero payload bytes that are lost later
+- [X] Build and copy back a distinct kernel artifact from recv-len payload tracing state (`a140e1d` / `4d98c2f`)
+- [X] Install and reboot into the recv-len payload tracing artifact
+- [X] Capture `dmesg | grep 'recv-len'` after direct `I2C_RDWR|I2C_M_RECV_LEN`
+- [X] Classify whether J7 skips payload RX, reads zeros from `DATA_REG`, or copies non-zero payload bytes that are lost later
+- [X] Prove that the `P7f58` payload-tracing kernel falls into the `DATA_REG` zeros case
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

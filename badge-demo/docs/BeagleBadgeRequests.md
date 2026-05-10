@@ -66,3 +66,46 @@ For each run, record:
 - raw surrogate output
 - `recv-len` dmesg lines
 - relevant J6 slave TX trace lines
+
+### 2026-05-10 live validation result
+
+Completed on BeagleBadge with distinct kernel artifact:
+
+- `6.12.57-S22fb-D0000-P7f58-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+Classification:
+
+- J7 reads zeros from `DATA_REG` after the count-byte reprogramming
+
+Observed outputs:
+
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #23 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- true SMBus block-proc-call:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- raw surrogate:
+  - `0x00 0x04 0x03 0x02 0x01`
+- direct `I2C_RDWR | I2C_M_RECV_LEN`:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+Relevant master-side `recv-len` lines:
+
+```text
+recv-len byte value=0x4 offset=1
+recv-len count=4
+recv-len byte value=0x0 offset=2
+recv-len byte value=0x0 offset=3
+recv-len byte value=0x0 offset=4
+recv-len byte value=0x0 offset=5
+```
+
+Relevant J6 slave TX trace:
+
+```text
+slave tx-requested stat=0x200 value=0x4
+slave tx-processed stat=0x400 value=0x3
+slave tx-processed stat=0x10 value=0x2
+slave tx-processed stat=0x400 value=0x1
+slave tx-processed stat=0x10 value=0x0
+```

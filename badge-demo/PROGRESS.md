@@ -3473,6 +3473,62 @@ The required live-board capture after the direct recv-len probe is:
 dmesg | grep 'recv-len'
 ```
 
+## 2026-05-10 (`P7f58` payload tracing classifies the failure)
+
+The distinct payload-tracing artifact requested by `bq2` is now installed and
+validated on the live BeagleBadge:
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-ec3cdabb-1ca6-4640-b9dc-e499004c1aa2.md`
+- package version:
+  - `6.12.57-S22fb-D0000-P7f58-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #23 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+Sequential low-memory validation still shows the same userspace-visible
+behavior:
+
+- true SMBus block-proc-call:
+  - `count=4`
+  - `data=0x00 0x00 0x00 0x00`
+- raw surrogate:
+  - `0x00 0x04 0x03 0x02 0x01`
+- direct `I2C_RDWR | I2C_M_RECV_LEN`:
+  - `0x04 0x00 0x00 0x00 0x00`
+
+But the new master-side tracing now classifies the remaining failure
+precisely. J7 continues through the payload receive path after the count byte
+and logs explicit zero-valued payload bytes from `DATA_REG`:
+
+```text
+recv-len byte value=0x4 offset=1
+recv-len count=4
+recv-len byte value=0x0 offset=2
+recv-len byte value=0x0 offset=3
+recv-len byte value=0x0 offset=4
+recv-len byte value=0x0 offset=5
+```
+
+The same direct probe still shows J6 generating the expected early TX values:
+
+```text
+slave tx-requested stat=0x200 value=0x4
+slave tx-processed stat=0x400 value=0x3
+slave tx-processed stat=0x10 value=0x2
+slave tx-processed stat=0x400 value=0x1
+slave tx-processed stat=0x10 value=0x0
+```
+
+So the `P7f58` result falls into the second requested classification from
+`docs/BeagleBadgeRequests.md`:
+
+- J7 reads zeros from `DATA_REG` after the count-byte reprogramming
+
+This is a tighter conclusion than `P5248`. The remaining gap is no longer
+whether payload RX fires at all; it is that the OMAP initiator receives zeros
+from `DATA_REG` during the payload phase even though the J6 target is
+transmitting non-zero bytes at the start of that phase.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
