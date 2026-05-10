@@ -3551,6 +3551,60 @@ The live-board validation request is recorded in:
 
 - `docs/BeagleBadgeRequests.md`
 
+## 2026-05-10 (`Pac0a` restores recv-len payload bytes)
+
+The distinct no-`CNT`-rewrite artifact is now installed and validated on the
+live BeagleBadge:
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-9cbc25fe-7b24-47c5-91d0-1238c9c7c9d0.md`
+- package version:
+  - `6.12.57-S22fb-D0000-Pac0a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #24 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+This is the first kernel iteration that restores the non-zero payload bytes on
+the J7 master-side recv-len path:
+
+- true SMBus block-proc-call:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- direct `I2C_RDWR | I2C_M_RECV_LEN`:
+  - `0x04 0x03 0x02 0x01 0x00`
+- raw surrogate:
+  - `0x00 0x04 0x03 0x02 0x01`
+
+The new `recv-len` diagnostics show the expected no-`CNT`-rewrite behavior:
+
+```text
+recv-len count=4 extra=0 remaining=4 msg_len=5 keep_buf_len=32 cnt=0x0f threshold=16
+recv-len byte value=0x3 offset=2
+recv-len byte value=0x2 offset=3
+recv-len byte value=0x1 offset=4
+recv-len byte value=0x0 offset=5
+```
+
+The same direct probe still shows J6 generating the expected early TX values:
+
+```text
+slave tx-requested stat=0x200 value=0x4
+slave tx-processed stat=0x400 value=0x3
+slave tx-processed stat=0x10 value=0x2
+slave tx-processed stat=0x400 value=0x1
+slave tx-processed stat=0x10 value=0x0
+```
+
+So the no-`CNT`-rewrite experiment confirms the previous diagnosis:
+
+- rewriting `CNT`/`buf_len` after the recv-len count byte was what caused J7
+  to read zeros from `DATA_REG`
+
+The remaining mismatch is now narrower:
+
+- true SMBus block-proc-call is correct
+- direct `I2C_RDWR | I2C_M_RECV_LEN` is correct
+- only the raw `i2ctransfer` surrogate still shows the older shifted response
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

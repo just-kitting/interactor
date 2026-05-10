@@ -426,6 +426,64 @@ more specific issue that the OMAP initiator receives zeros from `DATA_REG`
 during the payload phase even though the J6 target is transmitting non-zero
 bytes at the start of that phase.
 
+## Current `Pac0a` Result
+
+Booting the no-`CNT`-rewrite experiment `Pac0a` is the first true improvement
+to the J7 master-side recv-len path.
+
+- `uname -a`:
+
+```text
+Linux beaglebadge 6.12.57-vendor-edge-k3 #24 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux
+```
+
+- true SMBus block-proc-call now returns the expected payload bytes:
+
+```text
+count=4
+data=0x03 0x02 0x01 0x00
+```
+
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` now returns:
+
+```text
+data=0x04 0x03 0x02 0x01 0x00
+```
+
+- the raw proc-call surrogate still returns:
+
+```text
+0x00 0x04 0x03 0x02 0x01
+```
+
+The new `recv-len` logs show the intended no-`CNT`-rewrite behavior:
+
+```text
+recv-len count=4 extra=0 remaining=4 msg_len=5 keep_buf_len=32 cnt=0x0f threshold=16
+recv-len byte value=0x3 offset=2
+recv-len byte value=0x2 offset=3
+recv-len byte value=0x1 offset=4
+recv-len byte value=0x0 offset=5
+```
+
+The same direct probe still shows J6 generating the expected early TX sequence:
+
+- `0x04`
+- `0x03`
+- `0x02`
+- `0x01`
+- `0x00`
+
+So the no-`CNT`-rewrite experiment confirms that the mid-read `CNT` rewrite was
+the reason J7 was previously reading zeros from `DATA_REG` after the count
+byte.
+
+The remaining mismatch is now narrower and confined to the raw surrogate path:
+
+- true SMBus block-proc-call is correct
+- direct `I2C_RDWR | I2C_M_RECV_LEN` is correct
+- raw `i2ctransfer` still exposes the older shifted response
+
 ## Current `P6926` Raw `I2C_RDWR|I2C_M_RECV_LEN` Result
 
 A direct userspace `I2C_RDWR` probe with `I2C_M_RECV_LEN` shows the new failure

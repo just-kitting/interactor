@@ -175,3 +175,48 @@ to any form containing the non-zero payload bytes:
 
 Also record whether the new `recv-len count=... keep_buf_len=...` log appears
 and what subsequent `recv-len byte value=...` lines show.
+
+### 2026-05-10 live validation result
+
+Completed on BeagleBadge with distinct kernel artifact:
+
+- `6.12.57-S22fb-D0000-Pac0a-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+Observed outputs:
+
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #24 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- true SMBus block-proc-call:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- raw surrogate:
+  - `0x00 0x04 0x03 0x02 0x01`
+- direct `I2C_RDWR | I2C_M_RECV_LEN`:
+  - `0x04 0x03 0x02 0x01 0x00`
+
+Required new log evidence:
+
+```text
+recv-len count=4 extra=0 remaining=4 msg_len=5 keep_buf_len=32 cnt=0x0f threshold=16
+recv-len byte value=0x3 offset=2
+recv-len byte value=0x2 offset=3
+recv-len byte value=0x1 offset=4
+recv-len byte value=0x0 offset=5
+```
+
+Relevant J6 slave TX trace:
+
+```text
+slave tx-requested stat=0x200 value=0x4
+slave tx-processed stat=0x400 value=0x3
+slave tx-processed stat=0x10 value=0x2
+slave tx-processed stat=0x400 value=0x1
+slave tx-processed stat=0x10 value=0x0
+```
+
+Conclusion:
+
+- keeping the original controller transfer active after the recv-len count
+  byte restores the non-zero payload bytes on true SMBus block-proc-call and
+  direct `I2C_RDWR | I2C_M_RECV_LEN`
+- the remaining mismatch is now limited to the raw `i2ctransfer` surrogate path
