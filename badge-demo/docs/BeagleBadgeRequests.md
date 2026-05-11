@@ -555,3 +555,32 @@ initiates after the role IRQ-mask patch.
 If reverse topology and dual-listener tests both pass, the next validation can
 move to one Zepto. If either still fails, keep the work on J6/J7 and capture the
 new `dmesg` signature.
+
+### 2026-05-11 copied-build check
+
+The first copied build after this request did **not** satisfy the requested
+source state.
+
+Observed copied summary:
+
+- `components/armbian-build/output/logs/summary-kernel-a3757ada-e16e-4d64-9688-5b518ebf372d.md`
+
+Observed package version:
+
+- `6.12.57-S22fb-D0000-P5910-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+Why it is stale:
+
+- the summary still shows only `16 total patches`
+- the resulting package suffix is the already-tested `P5910`
+- therefore it does **not** include the requested `0017` role IRQ-mask patch
+
+Current superproject pointers are already correct:
+
+- `components/ti-linux-kernel`:
+  - `ef2ef02cdcd0` `Switch OMAP IRQ masks across master-slave roles`
+- `components/armbian-build`:
+  - `4fb843095` `Add OMAP role IRQ mask patch`
+
+So the next required step is to rebuild from the updated submodule state and
+copy back a distinct post-`P5910` artifact before attempting live validation.
