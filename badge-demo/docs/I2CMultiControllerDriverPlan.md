@@ -335,6 +335,13 @@ Updated live status after the role IRQ-mask follow-up:
   - once both listeners are active, either initiation direction still fails
   - target-side `Transmit underflow` is still observed on the non-initiating adapter
 
+Next follow-up staged after that result:
+
+- `0018-Clear-OMAP-IRQ-enables-before-role-mask-writes.patch`
+- purpose:
+  - account for IP-v2 `I2C_IRQENABLE_SET` / `I2C_IRQENABLE_CLR` semantics
+  - clear the previous role's enabled IRQ bits before writing the next role mask
+
 Follow-up staged after that result:
 
 - `0017-Switch-OMAP-IRQ-masks-across-master-slave-roles.patch`

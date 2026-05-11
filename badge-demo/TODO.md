@@ -245,7 +245,14 @@
 - [X] Re-test dual-listener J6/J7 setup after the role IRQ-mask patch
 - [X] Decide whether the badge-only boundary is clear enough to connect one Zepto
 - [ ] Diagnose why the raw reverse-topology surrogate now returns `0x00 0x00 0x04 0x03 0x02` even though true SMBus succeeds
-- [ ] Diagnose why the dual-listener setup still triggers `Transmit underflow` in both directions even after the role IRQ-mask patch
+- [X] Diagnose why the dual-listener setup still triggers `Transmit underflow` in both directions even after the role IRQ-mask patch
+- [X] Stage an IRQENABLE clear follow-up for IP-v2 set/clear interrupt-enable semantics
+- [X] Mirror the IRQENABLE clear follow-up into the Armbian `k3-6.12` patch stack as `0018`
+- [X] Encode the IRQENABLE clear BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
+- [ ] Build and copy back a distinct kernel artifact from the IRQENABLE clear state (`eb09330` / `b17e72e`)
+- [ ] Install and reboot into the IRQENABLE clear artifact
+- [ ] Re-test the dual-listener J6/J7 setup after clearing IRQ enables before role-mask writes
+- [ ] Decide whether the badge-only boundary is clear enough to connect one Zepto after the IRQENABLE clear test
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

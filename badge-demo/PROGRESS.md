@@ -3942,6 +3942,32 @@ multi-controller boundary is still not clear because:
 
 So the next work should stay on J6/J7.
 
+## 2026-05-11 (staged IRQENABLE clear follow-up)
+
+`P957d` changed the failure shape enough that asking TI E2E is not the next best
+step yet. The remaining dual-listener logs still show `ie=0x661f` on the
+non-initiating adapter, even after the role IRQ-mask patch tried to switch
+between master and slave interrupt masks.
+
+The local hypothesis is now narrower:
+
+- on AM62L/IP-v2, `OMAP_I2C_IE_REG` maps to `I2C_IRQENABLE_SET`
+- writing the new mask there only sets bits
+- it does not clear bits that were enabled by the previous role
+- therefore `XUDF` can remain enabled even after switching to the master mask
+
+`bq2` staged a follow-up that clears the IP-v2 interrupt-enable state through
+`I2C_IRQENABLE_CLR` before writing the desired mask:
+
+- `components/ti-linux-kernel`:
+  - `eb09330dc065` `Clear OMAP IRQ enables before role mask writes`
+- `components/armbian-build`:
+  - `b17e72e32` `Add OMAP IRQENABLE clear patch`
+
+The next live-board validation request is recorded in:
+
+- `docs/BeagleBadgeRequests.md`
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

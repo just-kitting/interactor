@@ -659,6 +659,76 @@ The role IRQ-mask patch fixes the old reverse-topology hard failure, but the
 dual-listener setup still breaks both directions with `Transmit underflow`.
 Continue on J6/J7 until that boundary is understood.
 
+## 2026-05-11: Validate IRQENABLE clear follow-up
+
+### Source State To Build
+
+Build and copy back a new BeagleBadge `vendor-edge-k3` kernel artifact from
+the repo state containing:
+
+- top-level repo:
+  - this request plus the submodule pointers to the commits below
+- `components/ti-linux-kernel`:
+  - `eb09330dc065` `Clear OMAP IRQ enables before role mask writes`
+- `components/armbian-build`:
+  - `b17e72e32` `Add OMAP IRQENABLE clear patch`
+
+The new build should be distinct from `P957d`.
+
+### Purpose
+
+`P957d` fixed the reverse-topology hard failure, but the dual-listener setup
+still shows `ie=0x661f` and target-side `Transmit underflow`.
+
+The likely remaining bug is that AM62L/IP-v2 maps the normal interrupt-enable
+register to `I2C_IRQENABLE_SET`. Writing a new role mask there can leave old
+role bits enabled. The new patch clears `I2C_IRQENABLE_CLR` before writing the
+desired mask, so role changes should replace the live interrupt mask rather than
+accumulate it.
+
+### Keep Zepto Disconnected
+
+Keep BeagleConnect Zepto disconnected for this pass.
+
+### Install And Test
+
+After installing and rebooting into the distinct artifact, rerun the
+dual-listener setup:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x31
+./scripts/bringup_i2c_slave_testunit.sh start 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh start 3 0x31
+i2ctransfer -f -y 3 w1@0x30 0x00
+i2ctransfer -f -y 3 r1@0x30
+i2ctransfer -f -y 1 w1@0x31 0x00
+i2ctransfer -f -y 1 r1@0x31
+```
+
+Also rerun the clean reverse-topology true SMBus path as a regression check:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x30
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+```
+
+### What `bq2` Needs From The Result
+
+Record:
+
+- package suffix and build summary path
+- whether dual-listener J7 -> J6 and J6 -> J7 write/read commands pass
+- `dmesg` lines showing `ie=...` for `slave irq`, `isr-master`, and
+  `master-enter`
+- whether `Transmit underflow` remains
+- whether reverse-topology true SMBus still works
+
+If the live `ie=` values no longer contain stale role bits and the dual-listener
+case still fails, that is the point where a concise TI E2E question becomes
+worth preparing.
+
 ### 2026-05-11 copied-build check
 
 The first copied build after this request did **not** satisfy the requested
