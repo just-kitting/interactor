@@ -3662,6 +3662,33 @@ So the cleaned source/patch state preserves the fix from `Pac0a` while
 removing the temporary success-path tracing. The remaining mismatch is still
 limited to the raw `i2ctransfer` surrogate path.
 
+## 2026-05-11 (multi-controller validation boundary)
+
+The current `P5910` result should be documented as a validated controlled
+multi-controller transaction path, not a fully proven multi-master arbitration
+transport.
+
+Validated so far:
+
+- J6 `/dev/i2c-1` hosting `slave-testunit`
+- J7 `/dev/i2c-3` initiating over the shorted J6/J7 bus
+- byte write/read smoke tests
+- repeated-start reads
+- true SMBus block-proc-call
+- direct `I2C_RDWR | I2C_M_RECV_LEN`
+
+Not yet validated:
+
+- reverse role assignment with J7 as target and J6 as initiator
+- both adapters target-capable at different addresses on the same shorted bus
+- simultaneous or near-simultaneous initiator contention
+- arbitration-lost retry policy
+- BeagleConnect Zepto participation
+
+The next validation should stay badge-only. Do not connect Zepto yet for this
+specific driver boundary; first prove J6/J7 role reversal and a simple
+two-address dual-listener setup.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis

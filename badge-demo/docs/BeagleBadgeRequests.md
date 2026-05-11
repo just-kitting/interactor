@@ -309,3 +309,59 @@ Conclusion:
 
 - the cleaned patch preserves the working `Pac0a` recv-len behavior
 - the temporary successful-path `recv-len` diagnostics are gone as intended
+
+## 2026-05-11: Validate J6/J7 role reversal before Zepto
+
+### Purpose
+
+Before connecting BeagleConnect Zepto boards, validate the remaining
+multi-controller boundary with only the BeagleBadge J6/J7 shorted-bus setup.
+
+The current `P5910` result proves a controlled J7-initiator to J6-target path.
+It does not yet prove a general multi-master arbitration transport.
+
+### Keep Zepto Disconnected
+
+For this validation pass, keep Zepto boards disconnected. The goal is to reduce
+the problem to the two AM62L OMAP adapters first.
+
+### Test 1: Reverse The Current Topology
+
+Run the existing feature checks with J7 hosting `slave-testunit` and J6 acting
+as initiator:
+
+```sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+Record whether:
+
+- true SMBus block-proc-call returns `count=4` and `data=0x03 0x02 0x01 0x00`
+- direct or script-level feature checks return `0x04 0x03 0x02 0x01 0x00`
+- any `Arbitration lost`, timeout, NACK, or reset messages appear in `dmesg`
+
+### Test 2: Two-Address Dual-Listener Setup
+
+If Test 1 passes, try keeping both adapters target-capable on the same shorted
+bus at different target addresses:
+
+- J6 target address: `0x30`
+- J7 target address: `0x31`
+
+Then run alternating transactions:
+
+- J7 initiates to J6 at `0x30`
+- J6 initiates to J7 at `0x31`
+
+Record the exact commands used, outputs, and `dmesg` after each direction.
+
+### What `bq2` Needs From The Result
+
+Record:
+
+- whether reverse topology works
+- whether dual-listener setup works
+- whether adapters can return to target-listen mode after acting as initiators
+- whether any arbitration-lost or bus-recovery behavior is observed
+- whether the next step should stay J6/J7 or move to one Zepto

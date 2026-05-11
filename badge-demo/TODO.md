@@ -228,6 +228,11 @@
 - [X] Re-test true SMBus block-proc-call and direct `I2C_RDWR|I2C_M_RECV_LEN` on the cleaned artifact
 - [X] Confirm the cleaned artifact keeps the `Pac0a` payload fix without the temporary successful-path `recv-len` logs
 - [ ] Diagnose why the raw `i2ctransfer` surrogate still reports `0x00 0x04 0x03 0x02 0x01` even after the no-CNT-rewrite fix
+- [X] Document that `P5910` validates a controlled multi-controller transaction path, not a fully proven multi-master arbitration transport
+- [X] Encode the next badge-only J6/J7 role-reversal and dual-listener validation request
+- [ ] Validate the reverse topology with J7 as `slave-testunit` target and J6 as initiator
+- [ ] Validate a two-address J6/J7 setup with both adapters target-capable on the shared bus
+- [ ] Decide whether to move from badge-only validation to BeagleConnect Zepto testing
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

@@ -73,6 +73,42 @@ So the current validation baseline should now be treated as:
 This is a better proxy for the eventual multi-controller transport than the old
 same-adapter loopback.
 
+## Current Validation Boundary
+
+As of the cleaned `P5910` kernel, the driver is validated for a controlled
+multi-controller topology, not yet for an arbitrary multi-initiator shared bus.
+
+Validated:
+
+- J6 `/dev/i2c-1` can host `slave-testunit`
+- J7 `/dev/i2c-3` can initiate transactions to J6 over the shorted J6/J7 bus
+- byte write/read smoke tests work
+- repeated-start traffic works
+- true SMBus block-proc-call via OMAP `I2C_M_RECV_LEN` works
+- direct `I2C_RDWR | I2C_M_RECV_LEN` works
+
+Not yet validated:
+
+- role reversal with J7 hosting `slave-testunit` and J6 initiating
+- both J6 and J7 listening at different target addresses on the same shorted
+  bus while either controller may initiate
+- simultaneous or near-simultaneous initiators contending for the same bus
+- arbitration-lost retry policy under intentional contention
+- Zepto participation on the shared bus
+
+So this should currently be described as:
+
+- a validated OMAP multi-controller target/initiator transaction path
+
+It should not yet be described as:
+
+- a fully validated multi-master arbitration transport
+
+The next validation step should stay on J6/J7 before adding BeagleConnect
+Zepto boards. First prove the reverse J6/J7 role assignment, then test a
+two-address setup where each adapter can remain target-capable while the other
+initiates transactions.
+
 ## Recommended Architecture
 
 The end goal is **not** a target-only driver.
