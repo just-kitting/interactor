@@ -239,6 +239,7 @@
 - [X] Mirror the role IRQ-mask follow-up into the Armbian `k3-6.12` patch stack as `0017`
 - [X] Encode the role IRQ-mask BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
 - [ ] Build and copy back a distinct kernel artifact from the role IRQ-mask state (`ef2ef02` / `4fb8430`)
+- [X] Detect that the first copied rebuild after the role IRQ-mask request was still stale `P5910`
 - [ ] Install and reboot into the role IRQ-mask artifact
 - [ ] Re-test clean reverse topology with only J7 hosting `slave-testunit`
 - [ ] Re-test dual-listener J6/J7 setup after the role IRQ-mask patch

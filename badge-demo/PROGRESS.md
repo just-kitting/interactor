@@ -3821,6 +3821,38 @@ The next validation should stay badge-only. Do not connect Zepto yet for this
 specific driver boundary; first prove J6/J7 role reversal and a simple
 two-address dual-listener setup.
 
+## 2026-05-11 (first role IRQ-mask rebuild was stale)
+
+After the role IRQ-mask request was added, the next copied kernel build was
+checked before any install attempt.
+
+Observed copied summary:
+
+- `components/armbian-build/output/logs/summary-kernel-a3757ada-e16e-4d64-9688-5b518ebf372d.md`
+
+Observed package version:
+
+- `6.12.57-S22fb-D0000-P5910-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+That means the copied build is still the already-validated cleaned recv-len
+artifact, not a new role IRQ-mask kernel:
+
+- summary still shows `16 total patches`
+- resulting suffix is still `P5910`
+- the requested `0017` role IRQ-mask follow-up is therefore not present in that
+  copied artifact
+
+The repo state itself is already updated correctly:
+
+- `components/ti-linux-kernel` in the superproject points to:
+  - `ef2ef02cdcd0` `Switch OMAP IRQ masks across master-slave roles`
+- `components/armbian-build` in the superproject points to:
+  - `4fb843095` `Add OMAP role IRQ mask patch`
+
+So the next required action is not another live-board test. It is a corrected
+host rebuild from the updated submodule state, followed by copying back a
+distinct post-`P5910` artifact.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
