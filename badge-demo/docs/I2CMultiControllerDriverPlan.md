@@ -311,6 +311,19 @@ the real host driver, not on the current HTTP bridge semantics.
 - instantiate `slave-testunit` via sysfs on J6/J7 bus
 - verify multi-controller tests from `Documentation/i2c/slave-testunit-backend.rst`
 
+Current live status on BeagleBadge:
+
+- controlled single-target multi-controller traffic is validated:
+  - J6 target at `0x30`
+  - J7 initiator on the shorted J6/J7 bus
+  - repeated-start reads
+  - true SMBus block-proc-call
+  - direct `I2C_RDWR | I2C_M_RECV_LEN`
+- but the broader badge-only multi-controller boundary is not yet solved:
+  - reverse topology with J7 target and J6 initiator fails
+  - dual-listener J6/J7 target setup binds, but either initiation direction then fails
+  - the failing directions show target-side `Transmit underflow`
+
 ### Phase 2: Bridge Driver
 
 - add `i2c-badgesnake-bridge.c`
@@ -348,3 +361,10 @@ But the sequence matters:
 2. validate with `slave-testunit`
 3. add the BadgeSnake serial-to-I2C bridge driver
 4. then decide whether explicit tty glue is still needed beyond the endpoint devices
+
+Refined recommendation after the latest J6/J7 validation:
+
+1. keep validation on J6/J7 for now
+2. fix reverse-topology and dual-listener `Transmit underflow` behavior first
+3. only then add Zepto into the transport path
+4. only after that move on to the bridge driver work

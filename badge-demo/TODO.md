@@ -230,9 +230,11 @@
 - [ ] Diagnose why the raw `i2ctransfer` surrogate still reports `0x00 0x04 0x03 0x02 0x01` even after the no-CNT-rewrite fix
 - [X] Document that `P5910` validates a controlled multi-controller transaction path, not a fully proven multi-master arbitration transport
 - [X] Encode the next badge-only J6/J7 role-reversal and dual-listener validation request
-- [ ] Validate the reverse topology with J7 as `slave-testunit` target and J6 as initiator
-- [ ] Validate a two-address J6/J7 setup with both adapters target-capable on the shared bus
-- [ ] Decide whether to move from badge-only validation to BeagleConnect Zepto testing
+- [X] Validate the reverse topology with J7 as `slave-testunit` target and J6 as initiator
+- [X] Validate a two-address J6/J7 setup with both adapters target-capable on the shared bus
+- [X] Decide whether to move from badge-only validation to BeagleConnect Zepto testing
+- [ ] Diagnose why J6-as-initiator reverse topology fails with `Input/output error` and target-side `Transmit underflow`
+- [ ] Diagnose why a second active listener on the shorted J6/J7 bus causes both initiation directions to fail with `Transmit underflow`
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

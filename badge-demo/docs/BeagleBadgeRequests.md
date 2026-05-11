@@ -365,3 +365,112 @@ Record:
 - whether adapters can return to target-listen mode after acting as initiators
 - whether any arbitration-lost or bus-recovery behavior is observed
 - whether the next step should stay J6/J7 or move to one Zepto
+
+### 2026-05-11 live validation result
+
+Completed on BeagleBadge on the already-booted `P5910` kernel:
+
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #25 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+#### Test 1: Reverse topology
+
+Commands:
+
+```sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+Observed result:
+
+- reverse topology does **not** work
+- SMBus block-proc-call on `/dev/i2c-1` to J7 target `0x30` fails with:
+  - `ioctl(I2C_SMBUS BLOCK_PROC_CALL): Input/output error`
+- repeated-start version read on `/dev/i2c-1` to J7 target `0x30` fails with:
+  - `Error: Sending messages failed: Input/output error`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20010000.i2c: slave xfer-msg stat=0x00 con=0x8400 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=3
+omap_i2c 20010000.i2c: Transmit underflow
+omap_i2c 20020000.i2c: slave irq stat=0x208 ...
+```
+
+J7 target status after failure:
+
+- `present: 3-1030`
+- `bound: yes`
+
+So J7 can still bind as a target, but J6 acting as initiator is not yet a
+working mirror of the validated J7 -> J6 direction.
+
+#### Test 2: Dual-listener setup
+
+Target setup:
+
+- J6 target `0x30`
+- J7 target `0x31`
+
+Commands used:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh start 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh start 3 0x31
+i2ctransfer -f -y 3 w1@0x30 0x00
+i2ctransfer -f -y 3 r1@0x30
+i2ctransfer -f -y 1 w1@0x31 0x00
+i2ctransfer -f -y 1 r1@0x31
+```
+
+Observed result:
+
+- both target backends instantiate and bind successfully
+- once both listeners are active, **neither** initiation direction works
+
+J7 -> J6 at `0x30`:
+
+- write: `Input/output error`
+- read: `Connection timed out`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20020000.i2c: Transmit underflow
+omap_i2c 20020000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x31 sa=0x30 ...
+omap_i2c 20010000.i2c: slave irq stat=0x208 ...
+omap_i2c 20010000.i2c: slave irq stat=0x610 ...
+```
+
+J6 -> J7 at `0x31`:
+
+- write: `Input/output error`
+- read: `Connection timed out`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20010000.i2c: Transmit underflow
+omap_i2c 20010000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x30 sa=0x31 ...
+omap_i2c 20020000.i2c: slave tx-requested stat=0x400 value=0x0 read=1 write=0
+```
+
+Target status after both failed directions:
+
+- `present: 1-1030`, `bound: yes`
+- `present: 3-1031`, `bound: yes`
+
+So both adapters do return to a bound target state after acting as initiators,
+but the presence of the second active listener appears to poison the bus-level
+transaction path.
+
+#### Recommendation
+
+The next step should stay J6/J7, not move to Zepto yet.
+
+Reason:
+
+- the controlled J7 -> J6 single-target path is validated
+- reverse topology is still broken
+- dual-listener setup breaks both directions before Zepto enters the picture
+- this boundary should be understood on the two OMAP adapters first

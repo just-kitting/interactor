@@ -3662,6 +3662,109 @@ So the cleaned source/patch state preserves the fix from `Pac0a` while
 removing the temporary success-path tracing. The remaining mismatch is still
 limited to the raw `i2ctransfer` surrogate path.
 
+## 2026-05-11 (badge-only multi-controller boundary beyond the single-target case)
+
+The next live request was to stay badge-only and probe the remaining
+multi-controller boundary on the shorted J6/J7 bus before introducing Zepto.
+
+### Reverse topology result
+
+Reverse topology with:
+
+- J7 hosting `slave-testunit`
+- J6 acting as initiator
+
+does **not** work.
+
+Observed commands:
+
+```sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+Observed failures:
+
+- SMBus block-proc-call from `/dev/i2c-1` -> `0x30`:
+  - `Input/output error`
+- repeated-start version read from `/dev/i2c-1` -> `0x30`:
+  - `Input/output error`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20010000.i2c: slave xfer-msg stat=0x00 con=0x8400 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8000 read=0 threshold=3
+omap_i2c 20010000.i2c: Transmit underflow
+omap_i2c 20020000.i2c: slave irq stat=0x208 ...
+```
+
+The J7 target backend remains present and bound after the failure, so this is
+not a simple target teardown issue.
+
+### Dual-listener result
+
+Two simultaneous listeners on the shorted bus:
+
+- J6 target `0x30`
+- J7 target `0x31`
+
+can both instantiate and bind successfully.
+
+But once both listeners are active, **either** initiation direction fails.
+
+Observed commands:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh start 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh start 3 0x31
+i2ctransfer -f -y 3 w1@0x30 0x00
+i2ctransfer -f -y 3 r1@0x30
+i2ctransfer -f -y 1 w1@0x31 0x00
+i2ctransfer -f -y 1 r1@0x31
+```
+
+Observed failures:
+
+- J7 -> J6 at `0x30`:
+  - write: `Input/output error`
+  - read: `Connection timed out`
+- J6 -> J7 at `0x31`:
+  - write: `Input/output error`
+  - read: `Connection timed out`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20020000.i2c: Transmit underflow
+omap_i2c 20020000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x31 sa=0x30 ...
+```
+
+and in the opposite direction:
+
+```text
+omap_i2c 20010000.i2c: Transmit underflow
+omap_i2c 20010000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x30 sa=0x31 ...
+```
+
+After both failed directions, both target backends still report:
+
+- `present`
+- `bound: yes`
+
+### Current recommendation
+
+Do **not** move to Zepto yet for this transport boundary.
+
+The controlled single-target J7 -> J6 path is validated, but the broader
+badge-only multi-controller case is not:
+
+- reverse topology is broken
+- dual listeners break both directions
+- both failure classes already appear on the two OMAP adapters alone
+
+So the next step should stay on J6/J7 until the `Transmit underflow` behavior
+in those configurations is understood.
+
 ## 2026-05-11 (multi-controller validation boundary)
 
 The current `P5910` result should be documented as a validated controlled
