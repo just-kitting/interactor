@@ -15,4 +15,6 @@ bin/sysroot-builder -s Alpine --workdir=workdir/badge-snake
 ls scripts/
 cp scripts/sysroot-build-plan.json workdir/badge-snake/seed-rootfs/bq2-rootfs/var/lib/sysroot-build-plan.json
 bin/sysroot-runner --workdir=workdir/badge-snake
+#cd workdir/badge-snake/seed-rootfs/root
+#git clone https://github.com/just-kitting/interactor --recurse-submodules
 
