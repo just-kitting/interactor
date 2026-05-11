@@ -474,3 +474,84 @@ Reason:
 - reverse topology is still broken
 - dual-listener setup breaks both directions before Zepto enters the picture
 - this boundary should be understood on the two OMAP adapters first
+
+## 2026-05-11: Validate role IRQ-mask follow-up
+
+### Source State To Build
+
+Build and copy back a new BeagleBadge `vendor-edge-k3` kernel artifact from
+the repo state containing:
+
+- top-level repo:
+  - this request plus the submodule pointers to the commits below
+- `components/ti-linux-kernel`:
+  - `ef2ef02cdcd0` `Switch OMAP IRQ masks across master-slave roles`
+- `components/armbian-build`:
+  - `4fb843095` `Add OMAP role IRQ mask patch`
+
+The new build should be distinct from `P5910`.
+
+### Purpose
+
+The latest badge-only failures have a common shape: the adapter acting as
+initiator also has a slave backend registered, and the live interrupt mask still
+contains slave-only `XUDF`.
+
+The new patch switches to the normal master interrupt mask while an adapter is
+temporarily acting as a master, then restores the slave interrupt mask when it
+returns to target-listen mode.
+
+### Keep Zepto Disconnected
+
+Keep BeagleConnect Zepto disconnected for this pass. The goal is still to clear
+the J6/J7 badge-only boundary first.
+
+### Test 1: Clean Reverse Topology
+
+Before running the reverse test, explicitly remove any stale J6 target at
+`0x30`:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x30
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+Record:
+
+- true SMBus block-proc-call output
+- repeated-start feature output
+- whether any `Transmit underflow`, `Arbitration lost`, timeout, or NACK
+  appears in `dmesg`
+
+### Test 2: Dual-Listener Setup
+
+If Test 1 passes, retry the two-listener setup:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x31
+./scripts/bringup_i2c_slave_testunit.sh start 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh start 3 0x31
+i2ctransfer -f -y 3 w1@0x30 0x00
+i2ctransfer -f -y 3 r1@0x30
+i2ctransfer -f -y 1 w1@0x31 0x00
+i2ctransfer -f -y 1 r1@0x31
+```
+
+Record:
+
+- output and exit status for each direction
+- target status after each direction
+- `dmesg` lines mentioning `Transmit underflow`, `slave irq`, `isr-master`,
+  `Arbitration lost`, timeout, NACK, or reset
+
+### What `bq2` Needs From The Result
+
+Record whether `Transmit underflow` disappears when a target-capable adapter
+initiates after the role IRQ-mask patch.
+
+If reverse topology and dual-listener tests both pass, the next validation can
+move to one Zepto. If either still fails, keep the work on J6/J7 and capture the
+new `dmesg` signature.

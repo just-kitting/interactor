@@ -3765,6 +3765,35 @@ badge-only multi-controller case is not:
 So the next step should stay on J6/J7 until the `Transmit underflow` behavior
 in those configurations is understood.
 
+## 2026-05-11 (staged role IRQ-mask follow-up)
+
+`bq2` staged a new kernel follow-up for the badge-only multi-controller
+failure:
+
+- `components/ti-linux-kernel`:
+  - `ef2ef02cdcd0` `Switch OMAP IRQ masks across master-slave roles`
+- `components/armbian-build`:
+  - `4fb843095` `Add OMAP role IRQ mask patch`
+
+The suspected issue is that an adapter with a registered slave backend keeps
+the slave interrupt mask active while temporarily acting as a master. That mask
+includes `XUDF`, which is useful for slave-read servicing but can make an
+otherwise normal master-side status look like a fatal `Transmit underflow`.
+
+The evidence matches that model:
+
+- reverse topology logged J6 with `ie=0x61f` while J6 was initiating
+- dual-listener tests logged `ie=0x661f` on the initiating adapter
+- the controlled J7 -> J6 path only works when the initiating adapter is not
+  also running a slave backend
+
+The new patch switches the live IRQ mask to the normal master mask when entering
+master mode and restores the slave mask when returning to target-listen mode.
+
+The next live-board validation request is recorded in:
+
+- `docs/BeagleBadgeRequests.md`
+
 ## 2026-05-11 (multi-controller validation boundary)
 
 The current `P5910` result should be documented as a validated controlled

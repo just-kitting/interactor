@@ -233,8 +233,16 @@
 - [X] Validate the reverse topology with J7 as `slave-testunit` target and J6 as initiator
 - [X] Validate a two-address J6/J7 setup with both adapters target-capable on the shared bus
 - [X] Decide whether to move from badge-only validation to BeagleConnect Zepto testing
-- [ ] Diagnose why J6-as-initiator reverse topology fails with `Input/output error` and target-side `Transmit underflow`
-- [ ] Diagnose why a second active listener on the shorted J6/J7 bus causes both initiation directions to fail with `Transmit underflow`
+- [X] Diagnose why J6-as-initiator reverse topology fails with `Input/output error` and target-side `Transmit underflow`
+- [X] Diagnose why a second active listener on the shorted J6/J7 bus causes both initiation directions to fail with `Transmit underflow`
+- [X] Stage a role IRQ-mask follow-up for adapters that act as both target and initiator
+- [X] Mirror the role IRQ-mask follow-up into the Armbian `k3-6.12` patch stack as `0017`
+- [X] Encode the role IRQ-mask BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
+- [ ] Build and copy back a distinct kernel artifact from the role IRQ-mask state (`ef2ef02` / `4fb8430`)
+- [ ] Install and reboot into the role IRQ-mask artifact
+- [ ] Re-test clean reverse topology with only J7 hosting `slave-testunit`
+- [ ] Re-test dual-listener J6/J7 setup after the role IRQ-mask patch
+- [ ] Decide whether the badge-only boundary is clear enough to connect one Zepto
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

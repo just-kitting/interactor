@@ -324,6 +324,14 @@ Current live status on BeagleBadge:
   - dual-listener J6/J7 target setup binds, but either initiation direction then fails
   - the failing directions show target-side `Transmit underflow`
 
+Follow-up staged after that result:
+
+- `0017-Switch-OMAP-IRQ-masks-across-master-slave-roles.patch`
+- purpose:
+  - use the normal master IRQ mask while a target-capable adapter temporarily
+    acts as an initiator
+  - restore the slave IRQ mask when returning to target-listen mode
+
 ### Phase 2: Bridge Driver
 
 - add `i2c-badgesnake-bridge.c`
