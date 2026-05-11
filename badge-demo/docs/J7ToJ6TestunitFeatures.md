@@ -484,6 +484,47 @@ The remaining mismatch is now narrower and confined to the raw surrogate path:
 - direct `I2C_RDWR | I2C_M_RECV_LEN` is correct
 - raw `i2ctransfer` still exposes the older shifted response
 
+## Current `P5910` Result
+
+Booting the cleaned `P5910` kernel preserves the successful `Pac0a` recv-len
+behavior while removing the temporary successful-path `recv-len` logs.
+
+- `uname -a`:
+
+```text
+Linux beaglebadge 6.12.57-vendor-edge-k3 #25 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux
+```
+
+- true SMBus block-proc-call remains correct:
+
+```text
+count=4
+data=0x03 0x02 0x01 0x00
+```
+
+- direct `I2C_RDWR` + `I2C_M_RECV_LEN` remains correct:
+
+```text
+data=0x04 0x03 0x02 0x01 0x00
+```
+
+- after a successful direct recv-len run:
+
+```text
+dmesg | grep 'recv-len'
+```
+
+returns no lines.
+
+So the cleaned patch preserves the `Pac0a` payload fix and successfully
+removes the temporary successful-path `recv-len` diagnostics.
+
+The remaining mismatch is unchanged and still limited to the raw surrogate:
+
+- true SMBus block-proc-call is correct
+- direct `I2C_RDWR | I2C_M_RECV_LEN` is correct
+- raw `i2ctransfer` still shows `0x00 0x04 0x03 0x02 0x01`
+
 ## Current `P6926` Raw `I2C_RDWR|I2C_M_RECV_LEN` Result
 
 A direct userspace `I2C_RDWR` probe with `I2C_M_RECV_LEN` shows the new failure

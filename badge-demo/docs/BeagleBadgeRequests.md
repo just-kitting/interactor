@@ -280,3 +280,32 @@ and:
 ```text
 0x04 0x03 0x02 0x01 0x00
 ```
+
+### 2026-05-11 live validation result
+
+Completed on BeagleBadge with distinct kernel artifact:
+
+- `6.12.57-S22fb-D0000-P5910-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+
+Observed outputs:
+
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #25 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+- true SMBus block-proc-call:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- direct `I2C_RDWR | I2C_M_RECV_LEN`:
+  - `0x04 0x03 0x02 0x01 0x00`
+
+Successful-run `recv-len` log check:
+
+```text
+dmesg | grep 'recv-len'
+```
+
+returned no lines after the direct recv-len probe.
+
+Conclusion:
+
+- the cleaned patch preserves the working `Pac0a` recv-len behavior
+- the temporary successful-path `recv-len` diagnostics are gone as intended

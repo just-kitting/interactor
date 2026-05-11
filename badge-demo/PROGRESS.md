@@ -3630,6 +3630,38 @@ The live-board validation request is recorded in:
 
 - `docs/BeagleBadgeRequests.md`
 
+## 2026-05-11 (`P5910` keeps the `Pac0a` fix without success-path logs)
+
+The cleaned recv-len artifact is now installed and validated on the live
+BeagleBadge:
+
+- build summary:
+  - `components/armbian-build/output/logs/summary-kernel-39dc16a1-6251-4e4d-89c1-ad43baecea36.md`
+- package version:
+  - `6.12.57-S22fb-D0000-P5910-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #25 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+The cleaned kernel keeps the successful `Pac0a` behavior:
+
+- true SMBus block-proc-call:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- direct `I2C_RDWR | I2C_M_RECV_LEN`:
+  - `0x04 0x03 0x02 0x01 0x00`
+
+And the successful-path `recv-len` diagnostics are now gone as intended:
+
+```text
+dmesg | grep 'recv-len'
+```
+
+returns no lines after a successful direct recv-len probe.
+
+So the cleaned source/patch state preserves the fix from `Pac0a` while
+removing the temporary success-path tracing. The remaining mismatch is still
+limited to the raw `i2ctransfer` surrogate path.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
