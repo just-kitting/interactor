@@ -556,6 +556,109 @@ If reverse topology and dual-listener tests both pass, the next validation can
 move to one Zepto. If either still fails, keep the work on J6/J7 and capture the
 new `dmesg` signature.
 
+### 2026-05-11 live validation result
+
+Completed on BeagleBadge with distinct kernel artifact:
+
+- `6.12.57-S22fb-D0000-P957d-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #26 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+#### Test 1: Clean reverse topology
+
+Commands:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x30
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/validate_j7_to_j6_testunit_features.sh
+```
+
+Observed result:
+
+- true SMBus block-proc-call on `/dev/i2c-1` -> J7 target now works:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- repeated-start version read also works
+- the raw surrogate still returns an unexpected shifted form:
+  - `0x00 0x00 0x04 0x03 0x02`
+
+Important `dmesg` difference from the old failure:
+
+- the previous reverse-topology `Transmit underflow` on the J6 initiator path
+  is gone
+- `dmesg` for the successful SMBus reverse test ends with:
+
+```text
+omap_i2c 20010000.i2c: master-xfer addr=0x30 no registered slave
+```
+
+So the role IRQ-mask patch clears the old hard reverse-topology failure, but
+the raw surrogate is still malformed.
+
+#### Test 2: Dual-listener setup
+
+Target setup:
+
+- J6 target `0x30`
+- J7 target `0x31`
+
+Commands:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh start 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh start 3 0x31
+i2ctransfer -f -y 3 w1@0x30 0x00
+i2ctransfer -f -y 3 r1@0x30
+i2ctransfer -f -y 1 w1@0x31 0x00
+i2ctransfer -f -y 1 r1@0x31
+```
+
+Observed result:
+
+- both targets instantiate and bind
+- but both initiation directions still fail
+
+J7 -> J6 at `0x30`:
+
+- write: `Input/output error`
+- read: `Connection timed out`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20020000.i2c: Transmit underflow
+omap_i2c 20020000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x31 sa=0x30 ...
+```
+
+J6 -> J7 at `0x31`:
+
+- write: `Input/output error`
+- read: `Connection timed out`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20010000.i2c: Transmit underflow
+omap_i2c 20010000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x30 sa=0x31 ...
+```
+
+After both failed directions:
+
+- `present: 1-1030`, `bound: yes`
+- `present: 3-1031`, `bound: yes`
+
+So the dual-listener boundary is still not clear even after the role IRQ-mask
+patch.
+
+#### Recommendation
+
+Do **not** move to Zepto yet.
+
+The role IRQ-mask patch fixes the old reverse-topology hard failure, but the
+dual-listener setup still breaks both directions with `Transmit underflow`.
+Continue on J6/J7 until that boundary is understood.
+
 ### 2026-05-11 copied-build check
 
 The first copied build after this request did **not** satisfy the requested

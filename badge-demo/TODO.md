@@ -240,10 +240,12 @@
 - [X] Encode the role IRQ-mask BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
 - [ ] Build and copy back a distinct kernel artifact from the role IRQ-mask state (`ef2ef02` / `4fb8430`)
 - [X] Detect that the first copied rebuild after the role IRQ-mask request was still stale `P5910`
-- [ ] Install and reboot into the role IRQ-mask artifact
-- [ ] Re-test clean reverse topology with only J7 hosting `slave-testunit`
-- [ ] Re-test dual-listener J6/J7 setup after the role IRQ-mask patch
-- [ ] Decide whether the badge-only boundary is clear enough to connect one Zepto
+- [X] Install and reboot into the role IRQ-mask artifact
+- [X] Re-test clean reverse topology with only J7 hosting `slave-testunit`
+- [X] Re-test dual-listener J6/J7 setup after the role IRQ-mask patch
+- [X] Decide whether the badge-only boundary is clear enough to connect one Zepto
+- [ ] Diagnose why the raw reverse-topology surrogate now returns `0x00 0x00 0x04 0x03 0x02` even though true SMBus succeeds
+- [ ] Diagnose why the dual-listener setup still triggers `Transmit underflow` in both directions even after the role IRQ-mask patch
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

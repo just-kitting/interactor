@@ -324,6 +324,17 @@ Current live status on BeagleBadge:
   - dual-listener J6/J7 target setup binds, but either initiation direction then fails
   - the failing directions show target-side `Transmit underflow`
 
+Updated live status after the role IRQ-mask follow-up:
+
+- reverse topology is no longer a hard failure:
+  - J7 target + J6 initiator now works for true SMBus block-proc-call
+  - repeated-start version reads also work
+- but the raw reverse-topology surrogate is still malformed
+- and the dual-listener boundary is still not solved:
+  - J6 target `0x30` + J7 target `0x31` can both bind
+  - once both listeners are active, either initiation direction still fails
+  - target-side `Transmit underflow` is still observed on the non-initiating adapter
+
 Follow-up staged after that result:
 
 - `0017-Switch-OMAP-IRQ-masks-across-master-slave-roles.patch`
@@ -373,6 +384,6 @@ But the sequence matters:
 Refined recommendation after the latest J6/J7 validation:
 
 1. keep validation on J6/J7 for now
-2. fix reverse-topology and dual-listener `Transmit underflow` behavior first
+2. fix the remaining raw reverse-topology mismatch and the dual-listener `Transmit underflow` behavior first
 3. only then add Zepto into the transport path
 4. only after that move on to the bridge driver work

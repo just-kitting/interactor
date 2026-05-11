@@ -3853,6 +3853,95 @@ So the next required action is not another live-board test. It is a corrected
 host rebuild from the updated submodule state, followed by copying back a
 distinct post-`P5910` artifact.
 
+## 2026-05-11 (`P957d` changes reverse topology but not the dual-listener boundary)
+
+The distinct role IRQ-mask artifact is now installed and validated on the live
+BeagleBadge:
+
+- package version:
+  - `6.12.57-S22fb-D0000-P957d-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #26 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+### Reverse topology
+
+With:
+
+- J7 hosting `slave-testunit`
+- J6 acting as initiator
+
+the role IRQ-mask patch removes the previous hard failure.
+
+Observed results:
+
+- true SMBus block-proc-call on `/dev/i2c-1` -> J7 target:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- repeated-start version read works
+- raw surrogate is still malformed:
+  - `0x00 0x00 0x04 0x03 0x02`
+
+Important signature change:
+
+- the old reverse-topology `Transmit underflow` on J6 is gone
+- the successful reverse SMBus run ends with:
+
+```text
+omap_i2c 20010000.i2c: master-xfer addr=0x30 no registered slave
+```
+
+So the role IRQ-mask patch materially improves the reverse-topology case.
+
+### Dual-listener setup
+
+With simultaneous listeners:
+
+- J6 target `0x30`
+- J7 target `0x31`
+
+both targets still bind, but either initiation direction still fails.
+
+Observed failures:
+
+- J7 -> J6 at `0x30`:
+  - write: `Input/output error`
+  - read: `Connection timed out`
+- J6 -> J7 at `0x31`:
+  - write: `Input/output error`
+  - read: `Connection timed out`
+
+Relevant `dmesg` still shows target-side underflow on the non-initiating
+adapter:
+
+```text
+omap_i2c 20020000.i2c: Transmit underflow
+omap_i2c 20020000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x31 sa=0x30 ...
+```
+
+and in the opposite direction:
+
+```text
+omap_i2c 20010000.i2c: Transmit underflow
+omap_i2c 20010000.i2c: slave irq stat=0x04 con=0x8200 ie=0x661f oa=0x30 sa=0x31 ...
+```
+
+After both failed directions, both targets still report:
+
+- `present`
+- `bound: yes`
+
+### Current recommendation
+
+Do **not** move to Zepto yet.
+
+`P957d` clears the old reverse-topology hard failure, but the badge-only
+multi-controller boundary is still not clear because:
+
+- the raw reverse-topology surrogate is still malformed
+- dual listeners still break both directions with `Transmit underflow`
+
+So the next work should stay on J6/J7.
+
 ## 2026-05-08 (Ollama helper added as read-only analysis sidecar)
 
 An Ollama instance is now available as a read-only BadgeSnake kernel analysis
