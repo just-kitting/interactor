@@ -15,6 +15,11 @@ Copy the text below into a TI E2E forum post. Attach or paste the output from:
 Run the script on the BeagleBadge while J6 and J7 are still shorted together
 and no BeagleConnect Zepto boards are connected.
 
+Latest captured artifact set in this repo:
+
+- [run.log](/root/interactor/badge-demo/artifacts/ti-e2e/20260512T095152Z/run.log)
+- [dmesg.log](/root/interactor/badge-demo/artifacts/ti-e2e/20260512T095152Z/dmesg.log)
+
 ## Post Body
 
 I am working on BeagleBadge, based on TI AM62L, using the K3 vendor kernel

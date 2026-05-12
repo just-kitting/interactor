@@ -1,0 +1,15 @@
+[  746.961300] omap_i2c 20010000.i2c: slave irq stat=0x200 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8121 read=0 threshold=1
+[  746.961357] omap_i2c 20010000.i2c: slave irq stat=0x08 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8121 read=0 threshold=1
+[  746.961376] omap_i2c 20010000.i2c: slave irq stat=0x04 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8021 read=0 threshold=1
+[  746.961399] omap_i2c 20020000.i2c: slave irq stat=0x04 con=0x8200 ie=0x601f oa=0x31 sa=0x30 bufstat=0x8001 read=0 threshold=1
+[  748.041341] omap_i2c 20010000.i2c: slave irq stat=0x610 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8021 read=0 threshold=1
+[  748.041402] omap_i2c_slave_log_tx: 24 callbacks suppressed
+[  748.041410] omap_i2c 20010000.i2c: slave tx-requested stat=0x400 value=0x0 read=1 write=0
+[  748.041420] omap_i2c 20010000.i2c: slave tx-processed stat=0x10 value=0x0 read=1 write=0
+[  748.041432] omap_i2c 20010000.i2c: slave irq stat=0x400 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x801f read=1 threshold=1
+[  748.041569] omap_i2c 20010000.i2c: slave tx-processed stat=0x400 value=0x0 read=1 write=0
+[  748.041580] omap_i2c 20010000.i2c: slave irq stat=0x06 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8020 read=1 threshold=1
+[  748.041594] omap_i2c 20010000.i2c: slave irq stat=0x02 con=0x8000 ie=0x61f oa=0x30 sa=0x30 bufstat=0x8020 read=0 threshold=1
+[  750.157232] omap_i2c 20020000.i2c: slave tx-requested stat=0x400 value=0x0 read=1 write=0
+[  750.157283] omap_i2c 20020000.i2c: slave tx-processed stat=0x10 value=0x0 read=1 write=0
+[  750.157295] omap_i2c 20020000.i2c: slave tx-processed stat=0x400 value=0x0 read=1 write=0

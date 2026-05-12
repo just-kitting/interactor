@@ -827,6 +827,36 @@ Record:
 The log should be attached to or pasted under the TI E2E post body from
 `docs/TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md`.
 
+### 2026-05-12 live capture result
+
+The reproduction helper was run successfully on the live `Pb163` kernel:
+
+```sh
+./scripts/reproduce_omap_i2c_dual_listener_timeout.sh
+```
+
+Reported output directory:
+
+- `/tmp/badgesnake-ti-e2e-i2c-20260512T095152Z`
+
+Preserved in the repo at:
+
+- [run.log](/root/interactor/badge-demo/artifacts/ti-e2e/20260512T095152Z/run.log)
+- [dmesg.log](/root/interactor/badge-demo/artifacts/ti-e2e/20260512T095152Z/dmesg.log)
+
+Captured result:
+
+- all four dual-listener `i2ctransfer` commands exit `1`
+- both target backends remain present and bound afterward
+- filtered `dmesg` shows cleaned `ie=` values such as:
+  - `ie=0x61f`
+  - `ie=0x601f`
+- no `Transmit underflow` was recorded in this reproduction bundle
+
+This artifact set is the one to attach to or paste under the TI E2E draft in:
+
+- [TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md](/root/interactor/badge-demo/docs/TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md)
+
 ### 2026-05-11 copied-build check
 
 The first copied build after this request did **not** satisfy the requested

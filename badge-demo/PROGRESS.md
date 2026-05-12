@@ -4033,6 +4033,36 @@ The draft deliberately keeps Zepto out of scope. The question is now narrow
 enough to ask upstream because the obvious local stale-IRQ-enable issue was
 already removed by `Pb163`.
 
+## 2026-05-12 (captured TI E2E reproduction bundle on `Pb163`)
+
+The prepared reproduction helper was run on the live `Pb163` kernel:
+
+```sh
+./scripts/reproduce_omap_i2c_dual_listener_timeout.sh
+```
+
+Output directory reported by the script:
+
+- `/tmp/badgesnake-ti-e2e-i2c-20260512T095152Z`
+
+The resulting logs are preserved in the repo at:
+
+- `artifacts/ti-e2e/20260512T095152Z/run.log`
+- `artifacts/ti-e2e/20260512T095152Z/dmesg.log`
+
+This fresh capture matches the current post-`Pb163` dual-listener failure
+signature:
+
+- all four dual-listener `i2ctransfer` commands exit `1`
+- both targets remain present and bound after the attempted transfers
+- filtered `dmesg` shows cleaned role masks such as:
+  - `ie=0x61f`
+  - `ie=0x601f`
+- no `Transmit underflow` appears in this reproduction bundle
+
+So the repo now contains the exact attachment/paste material needed for the TI
+E2E draft in `docs/TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md`.
+
 ## 2026-05-11 (staged IRQENABLE clear follow-up)
 
 `P957d` changed the failure shape enough that asking TI E2E is not the next best
