@@ -729,6 +729,75 @@ If the live `ie=` values no longer contain stale role bits and the dual-listener
 case still fails, that is the point where a concise TI E2E question becomes
 worth preparing.
 
+### 2026-05-12 live validation result
+
+Completed on BeagleBadge with distinct kernel artifact:
+
+- `6.12.57-S22fb-D0000-Pb163-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `Linux beaglebadge 6.12.57-vendor-edge-k3 #27 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+#### Dual-listener setup
+
+Setup:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x31
+./scripts/bringup_i2c_slave_testunit.sh start 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh start 3 0x31
+```
+
+Observed:
+
+- both targets bind
+
+J7 -> J6 at `0x30`:
+
+- write: `Connection timed out`
+- read: `Connection timed out`
+
+Relevant `dmesg`:
+
+```text
+omap_i2c 20010000.i2c: slave irq ... ie=0x61f ...
+omap_i2c 20020000.i2c: slave irq ... ie=0x601f ...
+```
+
+J6 -> J7 at `0x31`:
+
+- write: `Connection timed out`
+- read: `Connection timed out`
+
+No `Transmit underflow` was observed in this pass.
+
+#### Reverse-topology regression check
+
+Commands:
+
+```sh
+./scripts/bringup_i2c_slave_testunit.sh stop 1 0x30
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x31
+./scripts/bringup_i2c_slave_testunit.sh stop 3 0x30
+BADGESNAKE_SLAVE_BUS=3 BADGESNAKE_MASTER_BUS=1 ./scripts/test_j7_to_j6_smbus_block_proc_call.sh
+```
+
+Observed:
+
+- reverse-topology true SMBus still works:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+- relevant `dmesg` shows only slave-side `ie=0x61f`
+- no `Transmit underflow` was observed in this regression check
+
+#### Conclusion
+
+- the stale role-bit hypothesis is now validated:
+  - old `ie=0x661f` accumulation is gone
+  - dual-listener failures remain, but the signature changed from underflow to timeout
+- reverse-topology true SMBus remains good
+- this is the point where preparing a concise TI E2E question is worth doing
+- do **not** move to Zepto yet
+
 ### 2026-05-11 copied-build check
 
 The first copied build after this request did **not** satisfy the requested

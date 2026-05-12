@@ -335,6 +335,16 @@ Updated live status after the role IRQ-mask follow-up:
   - once both listeners are active, either initiation direction still fails
   - target-side `Transmit underflow` is still observed on the non-initiating adapter
 
+Updated again after the IRQENABLE clear follow-up:
+
+- stale accumulated role bits are no longer the active problem:
+  - dual-listener logs now show cleaned `ie=` values like `0x61f` and `0x601f`
+  - the previous `ie=0x661f` accumulation is gone
+- reverse-topology true SMBus remains good
+- but dual-listener transactions still time out in both directions
+- this is now a better point to prepare a concise TI E2E question, because the
+  obvious IP-v2 set/clear IRQ-enable issue has been removed from the symptom set
+
 Next follow-up staged after that result:
 
 - `0018-Clear-OMAP-IRQ-enables-before-role-mask-writes.patch`
@@ -391,6 +401,6 @@ But the sequence matters:
 Refined recommendation after the latest J6/J7 validation:
 
 1. keep validation on J6/J7 for now
-2. fix the remaining raw reverse-topology mismatch and the dual-listener `Transmit underflow` behavior first
-3. only then add Zepto into the transport path
-4. only after that move on to the bridge driver work
+2. prepare a concise TI E2E question on the remaining dual-listener timeout behavior
+3. keep Zepto out of the path until that badge-only boundary is better understood
+4. only then add Zepto into the transport path and continue toward the bridge driver

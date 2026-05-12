@@ -249,10 +249,13 @@
 - [X] Stage an IRQENABLE clear follow-up for IP-v2 set/clear interrupt-enable semantics
 - [X] Mirror the IRQENABLE clear follow-up into the Armbian `k3-6.12` patch stack as `0018`
 - [X] Encode the IRQENABLE clear BeagleBadge validation request in `docs/BeagleBadgeRequests.md`
-- [ ] Build and copy back a distinct kernel artifact from the IRQENABLE clear state (`eb09330` / `b17e72e`)
-- [ ] Install and reboot into the IRQENABLE clear artifact
-- [ ] Re-test the dual-listener J6/J7 setup after clearing IRQ enables before role-mask writes
-- [ ] Decide whether the badge-only boundary is clear enough to connect one Zepto after the IRQENABLE clear test
+- [X] Build and copy back a distinct kernel artifact from the IRQENABLE clear state (`eb09330` / `b17e72e`)
+- [X] Install and reboot into the IRQENABLE clear artifact
+- [X] Re-test the dual-listener J6/J7 setup after clearing IRQ enables before role-mask writes
+- [X] Decide whether the badge-only boundary is clear enough to connect one Zepto after the IRQENABLE clear test
+- [X] Prove that the stale `ie=0x661f` role bits disappear on the IRQENABLE clear kernel
+- [X] Prove that reverse-topology true SMBus still works after the IRQENABLE clear patch
+- [ ] Prepare a concise TI E2E question now that stale role bits are gone but dual-listener timeouts remain
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only

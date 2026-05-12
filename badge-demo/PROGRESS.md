@@ -3942,6 +3942,74 @@ multi-controller boundary is still not clear because:
 
 So the next work should stay on J6/J7.
 
+## 2026-05-12 (`Pb163` clears stale role bits but dual-listener timeouts remain)
+
+The distinct IRQENABLE-clear artifact is now installed and validated on the
+live BeagleBadge:
+
+- package version:
+  - `6.12.57-S22fb-D0000-Pb163-C2876Hb496-HK01ba-Vc222-Be8e3-R448a`
+- `uname -a`:
+  - `Linux beaglebadge 6.12.57-vendor-edge-k3 #27 SMP PREEMPT Tue May  5 16:45:44 UTC 2026 aarch64 GNU/Linux`
+
+### Dual-listener result
+
+With:
+
+- J6 target `0x30`
+- J7 target `0x31`
+
+both targets still bind, but both initiation directions still fail.
+
+Observed results:
+
+- J7 -> J6:
+  - write: `Connection timed out`
+  - read: `Connection timed out`
+- J6 -> J7:
+  - write: `Connection timed out`
+  - read: `Connection timed out`
+
+The important change is the signature:
+
+- the previous stale role-bit pattern `ie=0x661f` is gone
+- `dmesg` now shows cleaned values like:
+  - `ie=0x61f`
+  - `ie=0x601f`
+- no `Transmit underflow` was observed in this pass
+
+So the IRQENABLE clear follow-up appears to have done what it was meant to do:
+
+- role changes now replace the live interrupt mask instead of accumulating stale bits
+
+But the dual-listener boundary is still not clear, because the transactions
+still hang even after the stale-bit issue was removed.
+
+### Reverse-topology regression
+
+The clean reverse-topology true SMBus path remains good:
+
+- J7 target `0x30`
+- J6 initiator `/dev/i2c-1`
+- result:
+  - `count=4`
+  - `data=0x03 0x02 0x01 0x00`
+
+Relevant `dmesg` shows only slave-side `ie=0x61f`, and the earlier hard
+reverse-topology failure does not regress on `Pb163`.
+
+### Current recommendation
+
+Do **not** move to Zepto yet.
+
+This is now the point where a concise TI E2E question is worth preparing:
+
+- the reverse-topology hard failure is fixed
+- stale accumulated role bits are gone
+- reverse-topology true SMBus remains good
+- but dual-listener transactions still time out in both directions on the
+  badge-only J6/J7 setup
+
 ## 2026-05-11 (staged IRQENABLE clear follow-up)
 
 `P957d` changed the failure shape enough that asking TI E2E is not the next best
