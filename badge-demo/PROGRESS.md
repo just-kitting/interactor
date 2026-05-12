@@ -4010,6 +4010,29 @@ This is now the point where a concise TI E2E question is worth preparing:
 - but dual-listener transactions still time out in both directions on the
   badge-only J6/J7 setup
 
+## 2026-05-12 (TI E2E post prepared)
+
+The TI E2E support package for the remaining AM62L OMAP I2C dual-listener
+timeout is now tracked in the repo:
+
+- `docs/TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md`
+- `scripts/reproduce_omap_i2c_dual_listener_timeout.sh`
+
+The draft asks TI whether AM62L/IP-v2 needs an additional sequence when two
+OMAP I2C controllers on the same physical bus are both left target-capable, but
+either one may temporarily become master.
+
+The reproduction helper captures:
+
+- exact dual-listener commands
+- target backend status before and after the attempted transfers
+- command exit status
+- filtered `dmesg` for OMAP I2C, IRQ-role, timeout, and arbitration messages
+
+The draft deliberately keeps Zepto out of scope. The question is now narrow
+enough to ask upstream because the obvious local stale-IRQ-enable issue was
+already removed by `Pb163`.
+
 ## 2026-05-11 (staged IRQENABLE clear follow-up)
 
 `P957d` changed the failure shape enough that asking TI E2E is not the next best

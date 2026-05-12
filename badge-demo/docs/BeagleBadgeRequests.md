@@ -798,6 +798,35 @@ Observed:
 - this is the point where preparing a concise TI E2E question is worth doing
 - do **not** move to Zepto yet
 
+## 2026-05-12: Capture TI E2E reproduction log
+
+### Purpose
+
+`bq2` prepared the TI E2E draft and a focused reproduction helper:
+
+- `docs/TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md`
+- `scripts/reproduce_omap_i2c_dual_listener_timeout.sh`
+
+Before posting, capture one fresh log from the currently validated `Pb163`
+state.
+
+### Request
+
+Keep Zepto disconnected and run:
+
+```sh
+./scripts/reproduce_omap_i2c_dual_listener_timeout.sh
+```
+
+Record:
+
+- the output directory printed by the script
+- `run.log`
+- `dmesg.log`
+
+The log should be attached to or pasted under the TI E2E post body from
+`docs/TI-E2E-OMAP-I2C-Dual-Listener-Timeout.md`.
+
 ### 2026-05-11 copied-build check
 
 The first copied build after this request did **not** satisfy the requested

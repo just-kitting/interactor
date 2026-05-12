@@ -255,7 +255,10 @@
 - [X] Decide whether the badge-only boundary is clear enough to connect one Zepto after the IRQENABLE clear test
 - [X] Prove that the stale `ie=0x661f` role bits disappear on the IRQENABLE clear kernel
 - [X] Prove that reverse-topology true SMBus still works after the IRQENABLE clear patch
-- [ ] Prepare a concise TI E2E question now that stale role bits are gone but dual-listener timeouts remain
+- [X] Prepare a concise TI E2E question now that stale role bits are gone but dual-listener timeouts remain
+- [X] Add a BeagleBadge reproduction helper for the TI E2E dual-listener timeout report
+- [ ] Run `scripts/reproduce_omap_i2c_dual_listener_timeout.sh` on BeagleBadge and attach/paste its output to the TI E2E post
+- [ ] Post the prepared AM62L OMAP I2C dual-listener timeout question to TI E2E
 - [ ] Add a clearer runtime kernel/build identity marker than current `uname` / re-versioned package naming
 - [ ] Diagnose the combined `AAS|ARDY|XUDF|XRDY` read-start condition on J6
 - [ ] Decide whether to keep a same-adapter self-test path or switch validation to J7/external-initiator only
