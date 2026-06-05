@@ -22,6 +22,9 @@
 [submodule "badge-demo/components/ti-linux-kernel"]
 	path = badge-demo/components/ti-linux-kernel
 	url = https://github.com/just-kitting/ti-linux-kernel
+[submodule "badge-demo/components/badge-launcher"]
+	path = badge-demo/components/badge-launcher
+	url = https://github.com/just-kitting/badge-launcher
 [submodule "utilities/bq2"]
 	path = utilities/bq2
 	url = https://github.com/just-kitting/bootstrap-qcow2
