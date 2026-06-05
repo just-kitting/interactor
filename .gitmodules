@@ -25,3 +25,7 @@
 [submodule "utilities/bq2"]
 	path = utilities/bq2
 	url = https://github.com/just-kitting/bootstrap-qcow2
+[submodule "badge-demo/components/badge-launcher"]
+	path = badge-demo/components/badge-launcher
+	url = https://github.com/just-kitting/badge-launcher.git
+	branch = badge-snake
