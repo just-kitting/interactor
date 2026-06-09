@@ -12,8 +12,11 @@ func TestSimulatorResetAndSnapshot(t *testing.T) {
 	if len(snapshot.Snakes) != 2 {
 		t.Fatalf("len(snakes) = %d, want 2", len(snapshot.Snakes))
 	}
-	if snapshot.Food == nil {
-		t.Fatal("food = nil, want non-nil")
+	if len(snapshot.Foods) < 2 {
+		t.Fatalf("len(foods) = %d, want at least 2", len(snapshot.Foods))
+	}
+	if snapshot.Title == "" {
+		t.Fatal("title = empty, want matchup title")
 	}
 }
 
@@ -37,5 +40,8 @@ func TestSimulatorCommands(t *testing.T) {
 	}
 	if snapshot.Mode != "LIVE" {
 		t.Fatalf("mode after reset = %q, want LIVE", snapshot.Mode)
+	}
+	if snapshot.MatchNumber < 2 {
+		t.Fatalf("match number after reset = %d, want >= 2", snapshot.MatchNumber)
 	}
 }
