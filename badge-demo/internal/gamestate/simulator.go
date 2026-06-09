@@ -7,7 +7,7 @@ import (
 
 const (
 	DefaultBoardSize = 11
-	DefaultStepMS    = 900
+	DefaultStepMS    = 700
 	MinStepMS        = 250
 	MaxStepMS        = 1800
 )
