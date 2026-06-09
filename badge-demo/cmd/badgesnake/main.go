@@ -40,6 +40,7 @@ func runUISim(args []string) {
 	statePath := "/tmp/badgesnake/state.json"
 	commandPath := "/tmp/badgesnake/command.json"
 	seed := time.Now().UnixNano()
+	doneHold := 1500 * time.Millisecond
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -89,6 +90,10 @@ func runUISim(args []string) {
 		snapshot := sim.Snapshot()
 		if snapshot.Mode == "LIVE" && time.Since(lastStepAt) >= time.Duration(snapshot.StepMS)*time.Millisecond {
 			sim.Step()
+			lastStepAt = time.Now()
+			snapshot = sim.Snapshot()
+		} else if snapshot.Mode == "DONE" && time.Since(lastStepAt) >= doneHold {
+			sim.ApplyCommand(gamestate.ControlCommand{Command: "reset"})
 			lastStepAt = time.Now()
 			snapshot = sim.Snapshot()
 		}
