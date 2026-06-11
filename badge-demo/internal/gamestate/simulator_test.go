@@ -45,3 +45,25 @@ func TestSimulatorCommands(t *testing.T) {
 		t.Fatalf("match number after reset = %d, want >= 2", snapshot.MatchNumber)
 	}
 }
+
+func TestSimulatorSetDemoMatchup(t *testing.T) {
+	sim := NewSimulator(1)
+	if err := sim.SetMatchup("demo"); err != nil {
+		t.Fatalf("SetMatchup(demo) error = %v", err)
+	}
+
+	sim.Reset()
+	snapshot := sim.Snapshot()
+	if snapshot.Title != "ZEPTO-A vs ZEPTO-B" {
+		t.Fatalf("title = %q, want demo matchup title", snapshot.Title)
+	}
+	if len(snapshot.Snakes) != 2 {
+		t.Fatalf("len(snakes) = %d, want 2", len(snapshot.Snakes))
+	}
+	if snapshot.Snakes[0].Name != "ZEPTO-A" {
+		t.Fatalf("snake 0 = %q, want ZEPTO-A", snapshot.Snakes[0].Name)
+	}
+	if snapshot.Snakes[1].Name != "ZEPTO-B" {
+		t.Fatalf("snake 1 = %q, want ZEPTO-B", snapshot.Snakes[1].Name)
+	}
+}

@@ -41,6 +41,7 @@ func runUISim(args []string) {
 	commandPath := "/tmp/badgesnake/command.json"
 	seed := time.Now().UnixNano()
 	doneHold := 1500 * time.Millisecond
+	matchupID := ""
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -66,12 +67,24 @@ func runUISim(args []string) {
 				fatal(err)
 			}
 			seed = value
+		case "--matchup":
+			i++
+			if i >= len(args) {
+				fatal(fmt.Errorf("missing value for --matchup"))
+			}
+			matchupID = args[i]
 		default:
 			fatal(fmt.Errorf("unknown ui-sim option: %s", args[i]))
 		}
 	}
 
 	sim := gamestate.NewSimulator(seed)
+	if matchupID != "" {
+		if err := sim.SetMatchup(matchupID); err != nil {
+			fatal(err)
+		}
+		sim.Reset()
+	}
 	lastSeq := int64(-1)
 	lastStepAt := time.Now()
 	_ = os.Remove(commandPath)

@@ -218,6 +218,62 @@ Initial protocol fixture set added for simulation and future tests.
 
 A demo preflight script was added.
 
+## 2026-06-11
+
+Live I2C gameplay transport work was advanced for the current fixed-role
+BeagleBadge/Zepto constraint.
+
+### Changes made
+
+- `components/battlesnake-rules` `i2c://` URLs now have two modes:
+  - `i2c://stub...` keeps the existing deterministic simulated transport
+  - `i2c://<bus>?addr=...` performs real Linux `i2ctransfer` write/read cycles
+- the live path now encodes the existing BadgeSnake frame header and token table
+  onto the wire, then decodes the framed Zepto response back into Battlesnake
+  HTTP-style responses for the rules CLI
+- a new helper script, `scripts/run_rules_cli_i2c_live.sh`, was added to launch
+  a live Zepto snake against a default simulated opponent
+
+### Current transport contract
+
+- BeagleBadge remains the I2C controller for gameplay
+- Zepto remains the I2C peripheral/target for gameplay
+- one logical request is sent as one controller write
+- one logical response is fetched with a later controller read
+- the host currently reads a fixed maximum response size and trims it using the
+  frame payload length header
+
+### Validation status
+
+- `go test ./internal/... ./cmd/...` passes in the top-level `badge-demo` module
+- direct `go test` runs for `components/battlesnake-rules/cli/commands` did not
+  complete within the imposed local timeout window, so submodule-package
+  validation is still incomplete
+
+### Additional host-only validation lane
+
+- added `firmware/zepto/zephyr/native_sim_i2c_transport/`, a Zephyr
+  `native_sim` `ztest` app that registers a BadgeSnake-style I2C target on
+  Zephyr's emulated I2C bus and exercises request/response frame traffic
+- added separate build/run wrappers:
+  - `scripts/build_zepto_zephyr_native_sim_i2c_transport.sh`
+  - `scripts/run_zepto_zephyr_native_sim_i2c_transport.sh`
+- kept `scripts/test_zepto_zephyr_native_sim_i2c_transport.sh` as the combined
+  wrapper for building and running that lane when a Zephyr workspace is present
+- this lane is explicitly scoped to transport/protocol validation and does not
+  validate BeagleBadge Linux I2C behavior or MSPM0 hardware target mode
+
+### Badge-launcher simulator demo
+
+- added a pinned simulator matchup selector in the Go UI simulator path
+- added a default `demo` matchup that publishes:
+  - `ZEPTO-A`
+  - `ZEPTO-B`
+- updated the badge-launcher Battlesnake backend scripts to launch that demo
+  matchup by default
+- deployed the local badge-launcher Battlesnake app and verified the backend now
+  publishes `/tmp/badgesnake/state.json` with title `ZEPTO-A vs ZEPTO-B`
+
 ## 2026-04-14 (rules CLI transport)
 
 BadgeSnake transport work started inside `components/battlesnake-rules`.

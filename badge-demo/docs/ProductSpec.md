@@ -13,6 +13,7 @@ The host system on BeagleBadge should preserve the Battlesnake request/response 
 - Student-facing programming environment: MicroBlocks
 - Game engine: `components/battlesnake-rules`
 - Transport model: HTTP semantics translated onto I2C transactions
+- Current live transport mode: BeagleBadge remains the I2C controller and Zepto remains the I2C peripheral for the full request/response exchange
 
 ## Initial Simulation Target
 
