@@ -4126,3 +4126,58 @@ The reason for using a full rebuild versus a local module build is now explicit.
 
 - finish one corrective rebuild so the returned packages actually contain the slave backend modules
 - after that, prefer local module-only iteration until development moves into `i2c-omap.c`
+
+## 2026-06-09 (badge-launcher IIO sensor demo and OPT3001 out-of-tree module)
+
+The badge-launcher now has a live IIO sensor demo, and the external QWIIC
+`opt3001` path works on this board without rebuilding the whole kernel.
+
+### Badge launcher/demo changes
+
+- added `applications/demos/sensor_visualizer_app.py` in the `badge-launcher`
+  submodule
+- reworked the UI for the badge e-ink panel:
+  - larger high-contrast text
+  - fewer moving elements
+  - slower refresh cadence
+  - no external-sensor panel unless the QWIIC sensor is actually detected
+- added local launcher helpers:
+  - `components/badge-launcher/scripts/deploy_local_iio_sensors.sh`
+  - `components/badge-launcher/scripts/run_local_iio_sensors.py`
+  - `components/badge-launcher/scripts/run_local_iio_sensors.sh`
+- fixed the direct-run SDL smoke tests so they resolve the launcher root
+  correctly from `tests/`
+
+### OPT3001 findings
+
+- the QWIIC `opt3001` is present on `/dev/i2c-1` at `0x44`
+- the running kernel config had `CONFIG_OPT3001` disabled
+- the in-tree Linux driver source still builds cleanly as a standalone module
+  against the installed headers for `6.12.57-vendor-edge-k3`
+
+### Added scripts
+
+- `scripts/build_opt3001_oot_module.sh`
+- `scripts/install_opt3001_oot_module.sh`
+
+These scripts now:
+
+- build `drivers/iio/light/opt3001.c` out-of-tree against
+  `/lib/modules/$(uname -r)/build`
+- install `opt3001.ko` into `/lib/modules/$(uname -r)/extra`
+- run `depmod`
+- `modprobe opt3001`
+- write `/etc/modules-load.d/opt3001.conf` so the module loads on boot
+
+### Live validation on this board
+
+- `opt3001.ko` was built and installed locally
+- the module was loaded successfully
+- binding `opt3001` on `i2c-1` created `/sys/bus/iio/devices/iio:device3`
+- the IIO node now exposes:
+  - `name=opt3001`
+  - `in_illuminance_input=38.160000`
+  - `in_illuminance_integration_time=0.800000`
+
+The badge-launcher sensor demo is now able to show the external light sensor
+through the IIO interface on this system.

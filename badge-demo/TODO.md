@@ -45,6 +45,7 @@
 - [ ] Implement ePaper rendering pipeline
 - [ ] Implement status indicators and audible feedback
 - [ ] Add structured logging for gameplay and device events
+- [X] Add a badge-launcher IIO sensor visualizer demo for the on-board light sensor, on-board accelerometer, and QWIIC OPT3001
 
 ## Zepto Firmware Track
 
