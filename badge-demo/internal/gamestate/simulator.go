@@ -1,7 +1,9 @@
 package gamestate
 
 import (
+	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -37,6 +39,7 @@ type Simulator struct {
 	stepMS      int
 	matchNumber int
 	matchIndex  int
+	matchupID   string
 	turn        int
 	paused      bool
 	title       string
@@ -48,6 +51,7 @@ type Simulator struct {
 }
 
 type snakeProfile struct {
+	ID            string
 	Name          string
 	Archetype     string
 	ForwardDir    Coord
@@ -64,6 +68,7 @@ type snakeProfile struct {
 var matchupProfiles = [][]snakeProfile{
 	{
 		{
+			ID:            "forager",
 			Name:          "FORAGER",
 			Archetype:     "Greedy",
 			ForwardDir:    Coord{X: 1, Y: 0},
@@ -77,6 +82,7 @@ var matchupProfiles = [][]snakeProfile{
 			ContestWeight: 7,
 		},
 		{
+			ID:            "hunter",
 			Name:          "HUNTER",
 			Archetype:     "Aggro",
 			ForwardDir:    Coord{X: -1, Y: 0},
@@ -92,6 +98,7 @@ var matchupProfiles = [][]snakeProfile{
 	},
 	{
 		{
+			ID:            "looper",
 			Name:          "LOOPER",
 			Archetype:     "Safe",
 			ForwardDir:    Coord{X: 1, Y: 0},
@@ -105,6 +112,7 @@ var matchupProfiles = [][]snakeProfile{
 			ContestWeight: 4,
 		},
 		{
+			ID:            "sprinter",
 			Name:          "SPRINTER",
 			Archetype:     "Burst",
 			ForwardDir:    Coord{X: -1, Y: 0},
@@ -120,6 +128,7 @@ var matchupProfiles = [][]snakeProfile{
 	},
 	{
 		{
+			ID:            "trapper",
 			Name:          "TRAPPER",
 			Archetype:     "Cutoff",
 			ForwardDir:    Coord{X: 1, Y: 0},
@@ -133,6 +142,7 @@ var matchupProfiles = [][]snakeProfile{
 			ContestWeight: 14,
 		},
 		{
+			ID:            "scavenger",
 			Name:          "SCAVENGER",
 			Archetype:     "Opportunist",
 			ForwardDir:    Coord{X: -1, Y: 0},
@@ -144,6 +154,36 @@ var matchupProfiles = [][]snakeProfile{
 			RandomWeight:  5,
 			EdgeAversion:  3,
 			ContestWeight: 9,
+		},
+	},
+	{
+		{
+			ID:            "demo-zepto-a",
+			Name:          "ZEPTO-A",
+			Archetype:     "Greedy",
+			ForwardDir:    Coord{X: 1, Y: 0},
+			Bias:          []Coord{{X: 0, Y: -1}, {X: 0, Y: 1}},
+			FoodWeight:    17,
+			EnemyWeight:   3,
+			CenterWeight:  4,
+			SpaceWeight:   9,
+			RandomWeight:  1,
+			EdgeAversion:  5,
+			ContestWeight: 8,
+		},
+		{
+			ID:            "demo-zepto-b",
+			Name:          "ZEPTO-B",
+			Archetype:     "Aggro",
+			ForwardDir:    Coord{X: -1, Y: 0},
+			Bias:          []Coord{{X: 0, Y: 1}, {X: 0, Y: -1}},
+			FoodWeight:    8,
+			EnemyWeight:   15,
+			CenterWeight:  4,
+			SpaceWeight:   5,
+			RandomWeight:  2,
+			EdgeAversion:  3,
+			ContestWeight: 16,
 		},
 	},
 }
@@ -162,6 +202,20 @@ func NewSimulator(seed int64) *Simulator {
 	return s
 }
 
+func (s *Simulator) SetMatchup(id string) error {
+	if strings.TrimSpace(id) == "" {
+		s.matchupID = ""
+		return nil
+	}
+
+	if _, ok := lookupMatchup(id); !ok {
+		return fmt.Errorf("unknown matchup %q", id)
+	}
+
+	s.matchupID = normalizeMatchupID(id)
+	return nil
+}
+
 func (s *Simulator) Reset() {
 	s.turn = 0
 	s.paused = false
@@ -170,13 +224,48 @@ func (s *Simulator) Reset() {
 	s.stepMS = DefaultStepMS
 	s.matchNumber++
 	matchup := matchupProfiles[s.matchIndex%len(matchupProfiles)]
-	s.matchIndex++
+	if s.matchupID != "" {
+		selected, ok := lookupMatchup(s.matchupID)
+		if ok {
+			matchup = selected
+		}
+	} else {
+		s.matchIndex++
+	}
 	s.title = matchup[0].Name + " vs " + matchup[1].Name
 	s.snakes = []simulatorSnake{
 		snakeFromProfile(matchup[0], []Coord{{X: 2, Y: 5}, {X: 1, Y: 5}, {X: 0, Y: 5}}),
 		snakeFromProfile(matchup[1], []Coord{{X: 8, Y: 5}, {X: 9, Y: 5}, {X: 10, Y: 5}}),
 	}
 	s.seedFoods()
+}
+
+func normalizeMatchupID(id string) string {
+	return strings.ToLower(strings.TrimSpace(id))
+}
+
+func lookupMatchup(id string) ([]snakeProfile, bool) {
+	needle := normalizeMatchupID(id)
+	if needle == "" {
+		return nil, false
+	}
+
+	for _, matchup := range matchupProfiles {
+		if len(matchup) != 2 {
+			continue
+		}
+		if normalizeMatchupID(matchup[0].ID) == needle {
+			return matchup, true
+		}
+		if normalizeMatchupID(matchup[0].Name+"-vs-"+matchup[1].Name) == needle {
+			return matchup, true
+		}
+		if needle == "demo" && normalizeMatchupID(matchup[0].ID) == "demo-zepto-a" {
+			return matchup, true
+		}
+	}
+
+	return nil, false
 }
 
 func (s *Simulator) ApplyCommand(cmd ControlCommand) {

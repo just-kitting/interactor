@@ -7,6 +7,15 @@ This document provides a quick reference around the technical architecture of Ba
 I2C is still the physical transport between BeagleBadge QWIIC connectors and up
 to 2 BeagleConnect Zepto boards, but the architectural direction has changed.
 
+For current BadgeSnake gameplay development, the practical operating mode is
+now narrower than the longer-term multi-controller target:
+
+* BeagleBadge acts only as the I2C controller
+* Zepto acts only as the I2C peripheral/target
+* the host writes one framed request, then issues a later read for the framed response
+
+That is the mode the live `i2c://` host transport now targets.
+
 The key constraint is that both the development host and the target can
 generate asynchronous messages. Because AM62L and MSPM0L both support
 multi-controller I2C, the preferred direction is now:

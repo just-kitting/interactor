@@ -4,6 +4,19 @@
 
 Keep `components/battlesnake-rules` as close to upstream as possible by translating Battlesnake HTTP semantics into a compact I2C message protocol.
 
+## Current Operating Mode
+
+For the current BeagleBadge + Zepto development path, transport is intentionally
+single-controller:
+
+- BeagleBadge is always the I2C controller for gameplay traffic
+- Zepto is always the I2C peripheral/target for gameplay traffic
+- one logical Battlesnake request is sent as one controller write transaction
+- one logical Battlesnake response is returned by a later controller read transaction
+
+This avoids depending on BeagleBadge target-role switching while keeping the
+host/runtime interface compatible with the longer-term framed transport work.
+
 ## Endpoint Mapping
 
 The Zepto player should behave as if it implements these logical Battlesnake endpoints:
@@ -43,7 +56,7 @@ Equivalent to `POST /start`.
 Equivalent to `POST /move`.
 
 1. Host writes a frame containing token `0x03` and a JSON request body
-2. Host reads back the JSON response body containing the move decision
+2. Host performs a controller read and receives a framed JSON response body containing the move decision
 
 ### End request
 
@@ -90,6 +103,10 @@ byte N  : payload bytes
 - HTTP headers are intentionally removed
 - The protocol should favor simple blocking transactions first
 - If response sizes exceed practical I2C transfer limits, chunking can be added later without changing the logical endpoint model
+- The current live `i2c://` host path reads a fixed maximum number of bytes and
+  trims the frame using the encoded payload length in the response header
+- Zepto firmware should therefore keep one response frame buffered per request
+  and pad any unread tail bytes with zeros if it uses a fixed transmit buffer
 
 ## Fixtures
 

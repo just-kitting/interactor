@@ -11,6 +11,11 @@ The first milestone is deliberately small:
 1. `blink`
 2. `I2C target echo`
 
+There is now also a separate host-only Zephyr validation lane under
+`firmware/zepto/zephyr/native_sim_i2c_transport/`. That lane is for protocol
+and I2C target callback validation only; it does not replace MSPM0 hardware
+bring-up.
+
 Do not let future MicroBlocks integration expand this first milestone.
 
 ## Current Repository State

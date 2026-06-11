@@ -66,6 +66,7 @@
 
 - [X] Add a host-side smoke test for the game engine
 - [X] Add protocol tests with recorded fixtures
+- [~] Add a Zephyr `native_sim` I2C-emulation transport test lane for host-only protocol validation
 - [X] Add a hardware bring-up checklist for a fresh board
 - [X] Add a demo-start script that validates prerequisites before launch
 - [X] Add a release checklist for live classroom/demo use
