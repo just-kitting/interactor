@@ -63,8 +63,6 @@ Live probing on this board shows the Zepto BSL is not always reachable immediate
 - one successful user-run probe only received the first ACK on attempt `13/50`
 - that delay was caused by the user invoking BSL while the probe loop was already running, not by a demonstrated intrinsic BSL startup delay
 
-Because of that, the flash wrapper now waits for the BSL to become reachable before starting `bb-imager-cli`, and it can retry the flash command several times in the same invocation.
-
 The probe now treats only `0x00` as a valid BSL ACK.
 Other returned bytes such as `0x02` or `0x06` are reported as unexpected responses rather than successful readiness.
 
@@ -79,11 +77,12 @@ The deeper MSPM0 transport changes inside `bb-imager-rs` were backed out so the 
 Live testing on 2026-06-18 found:
 
 - host-driven BSL entry now works when Grove signal pads are put in a non-`TX_DIS` GPIO-capable state
-- `bb-imager-cli flash zepto ... /dev/i2c-1` still fails after `Preparing`
-- direct protocol probing shows `connection`, `get_device_info`, and `unlock` succeed
-- the current failing step appears to be the preflash `standalone_verification` command path inside `bb-flasher-mspm0`
+- the MSPM0 I2C flasher path in `bb-flasher-mspm0` works once `standalone_verification` is skipped on I2C
+- a separate active BSL probe immediately before flashing can consume the first response packet and make the next `get_device_info` request fail
+- the wrapper therefore must not actively probe the Zepto right before invoking the Rust flasher
+- linking the full `bb-imager-cli` binary on-device can still hit the BeagleBadge memory limit, so lower-level validation was done with `bb-flasher-mspm0/examples/flash_i2c.rs`
 
-Until that is fixed in `bb-imager-rs`, this repo includes a direct raw-I2C fallback flasher:
+Until the full `bb-imager-cli` path is rebuilt and revalidated on-device, this repo still includes a direct raw-I2C fallback flasher:
 
 ```sh
 scripts/flash_zepto_bsl_direct_i2c.py <IMAGE.bin>
