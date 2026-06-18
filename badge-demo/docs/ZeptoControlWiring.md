@@ -53,7 +53,12 @@ Validated on the live board after reboot with the Zepto attached:
   - `pin 42` / `0x40840a8`: `08254007`
   - `pin 43` / `0x40840ac`: `08254007`
 
-Those live pad values are consistent with GPIO-mode pads and match the expected `GPIO0_27` / `GPIO0_28` control candidates.
+Those live pad values match the expected `GPIO0_27` / `GPIO0_28` control candidates, but they also encode an important limitation:
+
+- `MUXMODE = 7` (GPIO)
+- `TX_DIS = 1` (pad output driver disabled)
+
+That means the pads are readable as GPIO inputs but are not directly drivable as outputs until a pinctrl state reprograms the pad configuration.
 
 ## Current State
 
@@ -72,12 +77,31 @@ Neither ordering produced an MSPM0 BSL ACK at `0x48` on `/dev/i2c-1`, so one of 
 - the reset / boot timing needs adjustment
 - the Zepto side is not currently entering BSL from this host-driven sequence
 
+Additional live debugging on 2026-06-18 found that:
+
+- `gpioset` can claim `gpiochip1` lines `27/28`
+- the external `RST` signal still does not move low
+- the likely reason is that `PADCONFIG42/43` are left at `0x08254007`, which keeps `TX_DIS=1`
+- `/sys/kernel/debug/pinctrl/4084000.pinctrl-pinctrl-single/gpio-ranges` is also empty, so the pinctrl driver is not handling GPIO range transitions for these lines
+
+This is now treated as a software configuration issue rather than a wiring-only issue.
+
 ## Next Step
 
 Use the confirmed Linux lines `gpiochip1` / `27` and `28` for future BSL automation attempts.
 
 Remaining work:
 
-- tune the host-side reset / boot timing and polarity
+- install a DT overlay that programs PADCONFIG42/43 into a non-`TX_DIS` GPIO-capable state
+- reboot and re-test whether `RST` can be driven low from Linux
+- once `RST` is proven, tune the host-side reset / boot timing and polarity
 - confirm whether the Zepto expects `BSL` sampled only during a narrower reset window
 - once the correct sequence is known, add a host-side toggle script and integrate it into the flashing wrappers
+
+## Overlay Candidate
+
+This repo now includes a first overlay candidate intended to clear the boot-time `TX_DIS` state on these pads:
+
+- `overlays/beaglebadge-zepto-control.dtso`
+- `scripts/validate_zepto_control_overlay.sh`
+- `scripts/install_zepto_control_overlay.sh`

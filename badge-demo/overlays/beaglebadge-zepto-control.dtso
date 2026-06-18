@@ -1,0 +1,27 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,am62l3-badge";
+};
+
+&pmx0 {
+	zepto_control_default_pins: zepto-control-default-pins {
+		/*
+		 * PADCONFIG42/43: GPMC0_AD12/13 on G23/G22, muxed as GPIO0_27/28.
+		 *
+		 * Use raw value 0x54007 (PIN_INPUT + mode 7) so the pad output driver is not left in the
+		 * boot-time TX_DIS state. The GPIO controller can then switch the line
+		 * direction and drive level later via libgpiod.
+		 */
+		pinctrl-single,pins = <
+			0x0a8 0x54007
+			0x0ac 0x54007
+		>;
+	};
+};
+
+&main_gpio0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&lora_control_pins_default &zepto_control_default_pins>;
+};
