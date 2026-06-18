@@ -74,6 +74,29 @@ The wrapper-level wait/retry behavior is kept in this repo.
 
 The deeper MSPM0 transport changes inside `bb-imager-rs` were backed out so the actual flash sequence again follows the previously debugged upstream path.
 
+## Current live limitation
+
+Live testing on 2026-06-18 found:
+
+- host-driven BSL entry now works when Grove signal pads are put in a non-`TX_DIS` GPIO-capable state
+- `bb-imager-cli flash zepto ... /dev/i2c-1` still fails after `Preparing`
+- direct protocol probing shows `connection`, `get_device_info`, and `unlock` succeed
+- the current failing step appears to be the preflash `standalone_verification` command path inside `bb-flasher-mspm0`
+
+Until that is fixed in `bb-imager-rs`, this repo includes a direct raw-I2C fallback flasher:
+
+```sh
+scripts/flash_zepto_bsl_direct_i2c.py <IMAGE.bin>
+```
+
+That helper:
+
+- patches `PADCONFIG42/43` live with `busybox devmem`
+- drives Grove `BSL` / `RST` through `gpioset`
+- enters MSPM0 BSL over `/dev/i2c-1`
+- performs `connect`, `get_device_info`, `unlock`, `mass_erase`, `program_data`, and `start_application`
+- restores the original pad configuration on exit
+
 Flash a Zepto image:
 
 ```sh
