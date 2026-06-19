@@ -1,30 +1,34 @@
 [submodule "badge-demo/components/beaglebadge"]
 	path = badge-demo/components/beaglebadge
 	url = https://github.com/just-kitting/BeagleBadge.git
+	branch = badge-snake
 [submodule "badge-demo/components/beagleconnect-zepto"]
 	path = badge-demo/components/beagleconnect-zepto
 	url = https://openbeagle.org/beagleconnect/zepto
 [submodule "badge-demo/components/battlesnake-rules"]
 	path = badge-demo/components/battlesnake-rules
 	url = https://github.com/just-kitting/battlesnake-rules
+	branch = badge-snake
 [submodule "badge-demo/components/armbian-build"]
 	path = badge-demo/components/armbian-build
 	url = https://github.com/embedconsult/armbian-build.git
+	branch = badge-snake
 [submodule "badge-demo/components/vsx-examples"]
 	path = badge-demo/components/vsx-examples
-	url = https://github.com/beagleboard/vsx-examples
+	url = https://github.com/just-kitting/vsx-examples
+	branch = badge-snake
 [submodule "badge-demo/components/bb-imager-rs"]
 	path = badge-demo/components/bb-imager-rs
 	url = https://github.com/embedconsult/bb-imager-rs.git
+	branch = badge-snake
 [submodule "badge-demo/components/microblocks-smallvm"]
 	path = badge-demo/components/microblocks-smallvm
 	url = https://github.com/just-kitting/microblocks-smallvm.git
+	branch = badge-snake
 [submodule "badge-demo/components/ti-linux-kernel"]
 	path = badge-demo/components/ti-linux-kernel
 	url = https://github.com/just-kitting/ti-linux-kernel
-[submodule "badge-demo/components/badge-launcher"]
-	path = badge-demo/components/badge-launcher
-	url = https://github.com/just-kitting/badge-launcher
+	branch = badge-snake
 [submodule "utilities/bq2"]
 	path = utilities/bq2
 	url = https://github.com/just-kitting/bootstrap-qcow2
