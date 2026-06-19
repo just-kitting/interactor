@@ -10,8 +10,13 @@
 #define ZEPTO_GPIO_DOUTCLR31_0 0x12A0u
 #define ZEPTO_GPIO_DOUTTGL31_0 0x12B0u
 #define ZEPTO_GPIO_DOESET31_0  0x12D0u
+#define ZEPTO_GPIO_DOECLR31_0  0x12E0u
 
+#define ZEPTO_PA0_PINCM_ADDR 0x40428000u
+#define ZEPTO_PA1_PINCM_ADDR 0x40428004u
 #define ZEPTO_PA12_PINCM_ADDR 0x40428084u
+#define ZEPTO_PA0_BIT 0u
+#define ZEPTO_PA1_BIT 1u
 #define ZEPTO_PA12_BIT 12u
 
 #define ZEPTO_PINCM_PF_GPIO 0x01u
@@ -19,9 +24,14 @@
 #define ZEPTO_PINCM_INENA (1u << 18)
 
 void zepto_board_init(void);
+void zepto_clock_force_run_32mhz(void);
 void zepto_led_on(void);
 void zepto_led_off(void);
 void zepto_led_toggle(void);
+void zepto_qwiic_gpio_init(void);
+void zepto_qwiic_sda_drive_low(void);
+void zepto_qwiic_scl_drive_low(void);
+void zepto_qwiic_release(void);
 void zepto_delay_cycles(volatile uint32_t cycles);
 void zepto_delay_ms(uint32_t ms);
 

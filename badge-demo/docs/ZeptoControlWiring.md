@@ -105,3 +105,23 @@ This repo now includes a first overlay candidate intended to clear the boot-time
 - `overlays/beaglebadge-zepto-control.dtso`
 - `scripts/validate_zepto_control_overlay.sh`
 - `scripts/install_zepto_control_overlay.sh`
+
+## Zepto Qwiic Validation
+
+Additional bare-metal validation on 2026-06-19 confirms that the Zepto firmware can actively take ownership of the Qwiic bus pins from the MSPM0 side:
+
+- diagnostic builds:
+  - `firmware/zepto/examples/baremetal/qwiic_diag/`
+  - `scripts/build_zepto_qwiic_diag.sh`
+  - `scripts/flash_zepto_qwiic_diag.sh`
+- `zepto_qwiic_scl_low` was flashed successfully through the known-good raw BSL script:
+  - `scripts/flash_zepto_bsl_direct_i2c.py`
+- after booting that image, BeagleBadge host probes on `/dev/i2c-1` no longer behaved like a normal idle empty bus:
+  - `i2cdetect -y -r 1` hit the timeout wrapper
+  - `i2ctransfer -f -y 1 ...` failed with `Device or resource busy`
+
+That is strong evidence that Zepto `PA1` really is the Qwiic `SCL` line and that bare-metal firmware can drive it low from the attached Zepto.
+
+The corresponding `zepto_qwiic_sda_low` image did not produce an equally clear host-side symptom, so `PA0` ownership is not yet as strongly host-validated as `PA1`.
+
+This means the remaining blocker for Zepto-hosted I2C target mode is no longer basic Qwiic pin reachability. The remaining issue is target-mode peripheral configuration / protocol behavior after boot.
