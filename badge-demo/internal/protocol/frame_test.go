@@ -35,6 +35,26 @@ func TestDecodeFrameRejectsShortBuffer(t *testing.T) {
 	}
 }
 
+func TestDecodeFramePrefixAcceptsTrailingBytes(t *testing.T) {
+	encoded, err := NewResponseFrame(StatusSuccess, []byte(`{"ok":true}`)).Encode()
+	if err != nil {
+		t.Fatalf("Encode() error = %v", err)
+	}
+
+	encoded = append(encoded, 0x00, 0x00, 0x00)
+	decoded, err := DecodeFramePrefix(encoded)
+	if err != nil {
+		t.Fatalf("DecodeFramePrefix() error = %v", err)
+	}
+
+	if decoded.Code != StatusSuccess {
+		t.Fatalf("Code mismatch: got %d want %d", decoded.Code, StatusSuccess)
+	}
+	if string(decoded.Payload) != `{"ok":true}` {
+		t.Fatalf("Payload mismatch: got %q", string(decoded.Payload))
+	}
+}
+
 func TestLookupEndpoint(t *testing.T) {
 	endpoint, ok := LookupEndpoint(TokenStart)
 	if !ok {

@@ -8,6 +8,7 @@ Current contents:
   primitive set
 - `I2C Target Echo Example.md`: first hosted Boardie test program and matching
   Linux-side transaction
+- `BadgeSnake Live Host Workflow.md`: current 1-live-Zepto plus 1-simulated-opponent path for the launcher demo
 
 Planned contents:
 
@@ -15,7 +16,6 @@ Planned contents:
 - move-only example
 - full reference snake
 - intentionally broken example for failure testing
-- notes on how host-side flashing should load the program onto MSPM0L1117-based Zepto boards
 
 ## Simulation Workflow
 
@@ -31,3 +31,15 @@ student-firmware development before live Zepto flashing is stable.
 
 For the hosted web IDE, use `scripts/web_i2c_transaction.py` to drive controller
 transactions through the Boardie bridge while the browser UI is open.
+
+## Current Live Demo Boundary
+
+The current badge demo path is:
+
+1. author and test the protocol logic with the hosted MicroBlocks workflow
+2. manually load the program onto a Zepto
+3. run the badge-launcher Battlesnake app with the default `ui-live` backend
+4. let the live Zepto snake play against one local simulated opponent
+
+That gives us a usable end-to-end demo without depending on target-role I2C on
+BeagleBadge or on a launcher-integrated flashing flow.

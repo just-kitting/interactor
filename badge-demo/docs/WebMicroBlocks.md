@@ -105,3 +105,7 @@ See [I2CKernelSimulation.md](/root/interactor/badge-demo/docs/I2CKernelSimulatio
 - Boardie is the first browser backend for BadgeSnake simulation; it is not a
   substitute for live Zepto firmware, but it is good enough to start writing
   MicroBlocks snake logic.
+- The current live badge demo path keeps authoring/loading separate:
+  - develop protocol logic here first
+  - manually load the program onto the Zepto
+  - use the launcher Battlesnake app with `ui-live` for 1 live Zepto player plus 1 simulated opponent

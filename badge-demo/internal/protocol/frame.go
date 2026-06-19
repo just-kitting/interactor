@@ -68,3 +68,25 @@ func DecodeFrame(buf []byte) (Frame, error) {
 		Payload: payload,
 	}, nil
 }
+
+func DecodeFramePrefix(buf []byte) (Frame, error) {
+	if len(buf) < HeaderSize {
+		return Frame{}, fmt.Errorf("frame too short: %d", len(buf))
+	}
+
+	payloadLen := int(binary.LittleEndian.Uint16(buf[4:6]))
+	frameLen := HeaderSize + payloadLen
+	if len(buf) < frameLen {
+		return Frame{}, fmt.Errorf("frame length mismatch: got=%d want-at-least=%d", len(buf), frameLen)
+	}
+
+	payload := make([]byte, payloadLen)
+	copy(payload, buf[6:frameLen])
+
+	return Frame{
+		Version: buf[0],
+		Code:    buf[1],
+		Flags:   buf[2],
+		Payload: payload,
+	}, nil
+}
