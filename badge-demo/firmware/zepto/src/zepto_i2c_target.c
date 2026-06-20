@@ -125,6 +125,7 @@ enum {
 #define ZEPTO_TCTR_CLKSTRETCH           (1u << 2)
 #define ZEPTO_TCTR_TXEMPTY_ON_TREQ      (1u << 3)
 #define ZEPTO_TCTR_TXWAIT_STALE_TXFIFO  (1u << 5)
+#define ZEPTO_TCTR_WUEN                 (1u << 10)
 
 #define ZEPTO_TSR_RREQ                  (1u << 0)
 #define ZEPTO_TSR_TREQ                  (1u << 1)
@@ -167,6 +168,16 @@ static inline void zepto_sysctl_write(uint32_t offset, uint32_t value) {
 
 static inline uint32_t zepto_sysctl_read(uint32_t offset) {
     return zepto_reg_read(ZEPTO_SYSCTL_BASE + offset);
+}
+
+static void zepto_i2c_target_state_init(zepto_i2c_target_t *target) {
+    target->request_len = 0u;
+    target->response_len = 0u;
+    target->response_pos = 0u;
+    target->pad_byte = 0u;
+    target->transaction_mode = ZEPTO_I2C_MODE_IDLE;
+    target->request_ready = false;
+    target->request_overflow = false;
 }
 
 void zepto_clock_force_run_32mhz(void) {
@@ -225,17 +236,32 @@ static void zepto_i2c_write_tx_byte(uint8_t value) {
     zepto_i2c_write(ZEPTO_I2C_TXDATA_OFFSET, value);
 }
 
-static void zepto_i2c_hw_init(uint8_t address) {
+static void zepto_i2c_hw_clock_init(void) {
     zepto_i2c_write(ZEPTO_I2C_IPMODE_OFFSET, ZEPTO_IPMODE_I2C_TARGET);
     zepto_i2c_write(ZEPTO_I2C_CLKDIV_OFFSET, 0u);
     zepto_i2c_write(ZEPTO_I2C_CLKSEL_OFFSET, ZEPTO_CLKSEL_BUSCLK);
     zepto_i2c_write(ZEPTO_I2C_PDBGCTL_OFFSET, ZEPTO_PDBGCTL_FREE | ZEPTO_PDBGCTL_SOFT);
+}
+
+static void zepto_i2c_hw_address_init(uint8_t address) {
+    zepto_i2c_write(ZEPTO_I2C_OAR_OFFSET, ZEPTO_OAR_OAREN | (uint32_t)(address & 0x7Fu));
+}
+
+static void zepto_i2c_hw_enable_minimal(void) {
     zepto_i2c_write(ZEPTO_I2C_CTR_OFFSET, 0u);
     zepto_i2c_write(ZEPTO_I2C_ACKCTL_OFFSET, 0u);
     zepto_i2c_write(ZEPTO_I2C_GFCTL_OFFSET, 0u);
+    zepto_i2c_write(
+        ZEPTO_I2C_CTR_OFFSET,
+        ZEPTO_CTR_ENABLE |
+            ZEPTO_CTR_CLKSTRETCH |
+            ZEPTO_CTR_WUEN);
+}
+
+static void zepto_i2c_hw_enable_full(void) {
+    zepto_i2c_hw_enable_minimal();
     zepto_i2c_flush_fifos();
     zepto_i2c_clear(ZEPTO_I2C_CLEAR_ALL);
-    zepto_i2c_write(ZEPTO_I2C_OAR_OFFSET, ZEPTO_OAR_OAREN | (uint32_t)(address & 0x7Fu));
     zepto_i2c_write(
         ZEPTO_I2C_CTR_OFFSET,
         ZEPTO_CTR_ENABLE |
@@ -284,24 +310,58 @@ static void zepto_i2c_write_tx_byte(uint8_t value) {
     zepto_i2c_write(ZEPTO_I2C_TTXDATA_OFFSET, value);
 }
 
-static void zepto_i2c_hw_init(uint8_t address) {
+static void zepto_i2c_hw_clock_init(void) {
     zepto_i2c_write(ZEPTO_I2C_CLKDIV_OFFSET, 0u);
     zepto_i2c_write(ZEPTO_I2C_CLKSEL_OFFSET, ZEPTO_CLKSEL_BUSCLK);
     zepto_i2c_write(ZEPTO_I2C_PDBGCTL_OFFSET, ZEPTO_PDBGCTL_FREE | ZEPTO_PDBGCTL_SOFT);
+}
+
+static void zepto_i2c_hw_address_init(uint8_t address) {
+    zepto_i2c_write(ZEPTO_I2C_TOAR_OFFSET, ZEPTO_TOAR_OAREN | (uint32_t)(address & 0x7Fu));
+}
+
+static void zepto_i2c_hw_enable_minimal(void) {
     zepto_i2c_write(ZEPTO_I2C_GFCTL_OFFSET, 0u);
     zepto_i2c_write(ZEPTO_I2C_TACKCTL_OFFSET, 0u);
+    zepto_i2c_write(
+        ZEPTO_I2C_TCTR_OFFSET,
+        ZEPTO_TCTR_ACTIVE |
+            ZEPTO_TCTR_CLKSTRETCH |
+            ZEPTO_TCTR_WUEN);
+}
+
+static void zepto_i2c_hw_enable_full(void) {
+    zepto_i2c_hw_enable_minimal();
     zepto_i2c_flush_fifos();
     zepto_i2c_clear(ZEPTO_I2C_CLEAR_ALL);
-    zepto_i2c_write(ZEPTO_I2C_TOAR_OFFSET, ZEPTO_TOAR_OAREN | (uint32_t)(address & 0x7Fu));
     zepto_i2c_write(
         ZEPTO_I2C_TCTR_OFFSET,
         ZEPTO_TCTR_ACTIVE |
             ZEPTO_TCTR_TXEMPTY_ON_TREQ |
             ZEPTO_TCTR_TXWAIT_STALE_TXFIFO |
-            ZEPTO_TCTR_CLKSTRETCH);
+            ZEPTO_TCTR_CLKSTRETCH |
+            ZEPTO_TCTR_WUEN);
 }
 
 #endif
+
+static void zepto_i2c_pinmux_init(void) {
+    zepto_reg_write(ZEPTO_PA0_PINCM_ADDR, ZEPTO_PINCM_INENA | 0x03u);
+    zepto_reg_write(ZEPTO_PA1_PINCM_ADDR, ZEPTO_PINCM_INENA | 0x03u);
+}
+
+static void zepto_i2c_pinmux_connect(void) {
+    zepto_reg_write(ZEPTO_PA0_PINCM_ADDR, ZEPTO_PINCM_PC | ZEPTO_PINCM_INENA | 0x03u);
+    zepto_reg_write(ZEPTO_PA1_PINCM_ADDR, ZEPTO_PINCM_PC | ZEPTO_PINCM_INENA | 0x03u);
+}
+
+static void zepto_i2c_power_init(void) {
+    zepto_i2c_write(ZEPTO_I2C_PWREN_OFFSET, ZEPTO_PWREN_KEY | 1u);
+    zepto_delay_cycles(128u);
+    zepto_i2c_write(ZEPTO_I2C_RSTCTL_OFFSET, ZEPTO_RSTCTL_KEY | 1u);
+    zepto_i2c_write(ZEPTO_I2C_CLKCFG_OFFSET, ZEPTO_CLKCFG_KEY);
+    zepto_i2c_write(ZEPTO_I2C_RSTCTL_OFFSET, ZEPTO_RSTCTL_KEY | (1u << 1));
+}
 
 static void zepto_i2c_start_rx(zepto_i2c_target_t *target) {
     target->transaction_mode = ZEPTO_I2C_MODE_RX;
@@ -332,25 +392,44 @@ static void zepto_i2c_fill_tx_fifo(zepto_i2c_target_t *target) {
 }
 
 void zepto_i2c_target_init(zepto_i2c_target_t *target, uint8_t address) {
-    target->request_len = 0u;
-    target->response_len = 0u;
-    target->response_pos = 0u;
-    target->pad_byte = 0u;
-    target->transaction_mode = ZEPTO_I2C_MODE_IDLE;
-    target->request_ready = false;
-    target->request_overflow = false;
+    zepto_i2c_target_init_stage(target, address, ZEPTO_I2C_TARGET_STAGE_FULL);
+}
+
+void zepto_i2c_target_init_stage(zepto_i2c_target_t *target, uint8_t address, uint8_t stage) {
+    zepto_i2c_target_state_init(target);
 
     zepto_clock_force_run_32mhz();
+    zepto_i2c_pinmux_init();
+    if (stage <= ZEPTO_I2C_TARGET_STAGE_PINMUX_ONLY) {
+        return;
+    }
 
-    zepto_reg_write(ZEPTO_PA0_PINCM_ADDR, ZEPTO_PINCM_PC | ZEPTO_PINCM_INENA | 0x03u);
-    zepto_reg_write(ZEPTO_PA1_PINCM_ADDR, ZEPTO_PINCM_PC | ZEPTO_PINCM_INENA | 0x03u);
+    zepto_i2c_power_init();
+    if (stage <= ZEPTO_I2C_TARGET_STAGE_POWER_ONLY) {
+        return;
+    }
 
-    zepto_i2c_write(ZEPTO_I2C_RSTCTL_OFFSET, ZEPTO_RSTCTL_KEY | 1u);
-    zepto_i2c_write(ZEPTO_I2C_PWREN_OFFSET, ZEPTO_PWREN_KEY | 1u);
-    zepto_delay_cycles(128u);
-    zepto_i2c_write(ZEPTO_I2C_CLKCFG_OFFSET, ZEPTO_CLKCFG_KEY);
-    zepto_i2c_write(ZEPTO_I2C_RSTCTL_OFFSET, ZEPTO_RSTCTL_KEY | (1u << 1));
-    zepto_i2c_hw_init(address);
+    zepto_i2c_hw_clock_init();
+    if (stage <= ZEPTO_I2C_TARGET_STAGE_CLOCK_ONLY) {
+        return;
+    }
+
+    zepto_i2c_hw_address_init(address);
+    if (stage <= ZEPTO_I2C_TARGET_STAGE_ADDRESS_ONLY) {
+        return;
+    }
+
+    zepto_i2c_hw_enable_minimal();
+    if (stage <= ZEPTO_I2C_TARGET_STAGE_ENABLE_ONLY) {
+        return;
+    }
+
+    zepto_i2c_pinmux_connect();
+    if (stage <= ZEPTO_I2C_TARGET_STAGE_CONNECT_ONLY) {
+        return;
+    }
+
+    zepto_i2c_hw_enable_full();
 }
 
 void zepto_i2c_target_poll(zepto_i2c_target_t *target) {
