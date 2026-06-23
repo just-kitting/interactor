@@ -10,20 +10,20 @@ static inline void zepto_gpio_set_output_low(uint32_t bit) {
 }
 
 void zepto_board_init(void) {
-    zepto_reg_write(ZEPTO_PA12_PINCM_ADDR, ZEPTO_PINCM_PC | ZEPTO_PINCM_PF_GPIO);
-    zepto_gpio_set_output_low(ZEPTO_PA12_BIT);
+    zepto_reg_write(ZEPTO_PA7_PINCM_ADDR, ZEPTO_PINCM_PC | ZEPTO_PINCM_PF_GPIO);
+    zepto_gpio_set_output_low(ZEPTO_PA7_BIT);
 }
 
 void zepto_led_on(void) {
-    zepto_reg_write(ZEPTO_GPIOA_BASE + ZEPTO_GPIO_DOUTSET31_0, 1u << ZEPTO_PA12_BIT);
+    zepto_reg_write(ZEPTO_GPIOA_BASE + ZEPTO_GPIO_DOUTSET31_0, 1u << ZEPTO_PA7_BIT);
 }
 
 void zepto_led_off(void) {
-    zepto_reg_write(ZEPTO_GPIOA_BASE + ZEPTO_GPIO_DOUTCLR31_0, 1u << ZEPTO_PA12_BIT);
+    zepto_reg_write(ZEPTO_GPIOA_BASE + ZEPTO_GPIO_DOUTCLR31_0, 1u << ZEPTO_PA7_BIT);
 }
 
 void zepto_led_toggle(void) {
-    zepto_reg_write(ZEPTO_GPIOA_BASE + ZEPTO_GPIO_DOUTTGL31_0, 1u << ZEPTO_PA12_BIT);
+    zepto_reg_write(ZEPTO_GPIOA_BASE + ZEPTO_GPIO_DOUTTGL31_0, 1u << ZEPTO_PA7_BIT);
 }
 
 void zepto_qwiic_gpio_init(void) {
