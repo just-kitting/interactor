@@ -172,6 +172,13 @@ int main(void) {
         ok = rx_value == response[0];
     }
 
+    if (ok) {
+        /* Reuse the externally visible SCL-low symptom to report a passing
+         * internal loopback test back to the Beagle host. */
+        zepto_qwiic_gpio_init();
+        zepto_qwiic_scl_drive_low();
+    }
+
     while (1) {
         zepto_led_toggle();
         zepto_delay_ms(ok ? 100u : 600u);
