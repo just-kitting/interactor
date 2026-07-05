@@ -1,0 +1,3 @@
+Profile key,Provider,Model,Request seconds,Size,Aspect ratio,Delivery,Notes
+sora,sora,sora-2-pro,8,1280x720,,,OpenAI Videos API/Sora context visual profile.
+gemini_omni,gemini_omni,gemini-omni-flash-preview,,,16:9,uri,Gemini Omni Flash Interactions API context visual profile.

@@ -7,10 +7,10 @@ Production helper for the source-grounded explainer video:
 
 It does four jobs:
   1. Downloads audit/source assets and official end-card logo assets.
-  2. Generates Sora clips through the OpenAI Video API, or creates local placeholder
-     clips for editorial timing when you do not have video API access yet.
-  3. Assembles clips, exact on-screen labels, optional OpenAI TTS voiceover, and
-     an official-logo end card using ffmpeg.
+  2. Generates AI context clips through configurable provider profiles (Sora or
+     Gemini Omni Flash), or creates local placeholder clips for editorial timing.
+  3. Assembles clips deterministically against locked narration, exact on-screen
+     labels, specific images, and official-logo end cards using ffmpeg.
   4. Writes metadata outputs: a release metadata workbook, flat CSVs, source
      manifest, and a DDEX ERN-style draft XML for review.
 
@@ -19,16 +19,20 @@ recipient-profile-validated DDEX delivery package. DDEX recipients/distributors
 have profile-specific requirements, identifiers, and validation rules.
 
 Requirements:
-  - Python 3.10+
+  - Python 3.9+
   - ffmpeg and ffprobe available on PATH
-  - pip install requests pillow openpyxl
+  - pip install -r requirements_second_question.txt
   - OPENAI_API_KEY set for Sora and/or TTS generation
+  - GEMINI_API_KEY set for Gemini Omni Flash context clip generation
 
 Typical use:
   python second_question_production.py download-assets
   python second_question_production.py metadata
   python second_question_production.py generate-clips --sora
-  python second_question_production.py assemble --tts
+  python second_question_production.py assemble --sora --tts
+
+Compare Sora and Gemini Omni Flash on the configured test scenes:
+  python second_question_production.py compare-context-generators
 
 Fast local mock cut without OpenAI API:
   python second_question_production.py all --mock --no-tts
@@ -37,6 +41,7 @@ Fast local mock cut without OpenAI API:
 from __future__ import annotations
 
 import argparse
+import base64
 import csv
 import hashlib
 import json
@@ -70,12 +75,38 @@ PROJECT_SLUG = "the_second_question_of_technology"
 DEFAULT_ROOT = Path("second_question_build")
 API_BASE = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1")
 
-# Sora API docs currently show 16- and 20-second generations in the guide. The
-# script uses 8 x 20s + 1 x 16s + 6s end card = 182s before padding/voice timing.
+# Final edit target. AI-generated context clips may be shorter/lower resolution;
+# assembly loops/trims and normalizes them deterministically to the scene timing.
 DEFAULT_VIDEO_SIZE = "1920x1080"
 DEFAULT_SORA_MODEL = "sora-2-pro"
+DEFAULT_GEMINI_OMNI_MODEL = "gemini-omni-flash-preview"
 DEFAULT_FPS = 30
 END_CARD_SECONDS = 6
+
+# Model/provider selection lives here, not in CLI flags. Edit this dictionary to
+# change models, request duration, or provider-specific options. The final cut
+# does not depend on generated clip duration because normalization loops/trims
+# each context clip to the scripted scene length.
+CONTEXT_GENERATION_PROFILES: dict[str, dict[str, Any]] = {
+    "sora": {
+        "provider": "sora",
+        "model": DEFAULT_SORA_MODEL,
+        "request_seconds": 8,
+        "size": "1280x720",
+        "notes": "OpenAI Videos API/Sora context visual profile.",
+    },
+    "gemini_omni": {
+        "provider": "gemini_omni",
+        "model": DEFAULT_GEMINI_OMNI_MODEL,
+        "aspect_ratio": "16:9",
+        "delivery": "uri",
+        "notes": "Gemini Omni Flash Interactions API context visual profile.",
+    },
+}
+DEFAULT_FULL_AI_PROFILE = "sora"
+COMPARE_CONTEXT_PROFILES = ("sora", "gemini_omni")
+COMPARE_CONTEXT_SCENE_IDS = (3, 5)
+LOCKED_LOCAL_SCENE_IDS = {1, 8, 9}
 
 MASTER_SORA_STYLE = """
 Create a serious editorial explainer video about technological dependence and tight coupling.
@@ -92,8 +123,11 @@ political framing. Do not include the phrase "necessity is the mother of inventi
 
 Use a restrained visual system: black and graphite backgrounds, white technical linework,
 subtle grey panels, and one red dependency path that breaks and later becomes a resilient
-network. Exact on-screen labels will be composited in post-production, so do not render
-permanent text except generic unlabeled diagram shapes and blank callout spaces.
+network. Generate context visuals only. Exact narration, on-screen labels, logos, and
+specific images will be composited in post-production. Do not render permanent text,
+logos, trademarks, subtitles, captions, or UI brand names; use generic unlabeled diagram
+shapes and blank callout spaces. No dialogue or narration is needed; any generated audio
+will be stripped in assembly.
 """.strip()
 
 VOICEOVER_SCRIPT = """The second question in technology is the one we ask after the wreckage: why did it fail?
@@ -311,6 +345,20 @@ SOURCES: list[Source] = [
         "Release Delivery is defined in ERN and includes release, resources, and deal terms.",
         "Metadata workbook and ERN-style draft mapping.",
     ),
+    Source(
+        "openai_sora_docs",
+        "OpenAI Video generation with Sora API documentation",
+        "https://developers.openai.com/api/docs/guides/video-generation",
+        "Sora video generation uses asynchronous video jobs and downloadable MP4 content; current docs note deprecation timing.",
+        "Context video provider audit/reference.",
+    ),
+    Source(
+        "gemini_omni_docs",
+        "Google Gemini Omni Flash video generation documentation",
+        "https://ai.google.dev/gemini-api/docs/omni",
+        "Gemini Omni Flash uses the Interactions API for text/image-to-video and supports URI delivery for large videos.",
+        "Context video provider audit/reference.",
+    ),
 ]
 
 DOWNLOAD_ASSETS: list[DownloadAsset] = [
@@ -358,7 +406,7 @@ SCENES: list[Scene] = [
         "cold_open_second_question",
         20,
         "The second question in technology is the one we ask after the wreckage: why did it fail? Challenger. Chernobyl. Fukushima.",
-        "Black screen. Slow reveal of an empty callout area for the phrase WHY DID IT FAIL, then cut into abstract technical mechanism visuals: seal cross-section, feedback-loop diagram, flooded backup-power schematic. Mechanism visuals only, no disaster spectacle.",
+        "LOCKED LOCAL RENDER, NOT SORA BY DEFAULT. Black screen. Centered phrase WHY DID IT FAIL appears, then cut into abstract technical mechanism visuals: pressure-seal cross-section, feedback-loop diagram, flooded backup-power schematic. Mechanism visuals only, no disaster spectacle.",
         ["WHY DID IT FAIL?"],
         ["challenger", "chernobyl", "fukushima"],
     ),
@@ -718,7 +766,7 @@ def create_sora_reference_images(root: Path, size: str) -> None:
     w, h = read_size(size)
     src = root / "assets/public_domain/invention_kauffmann.jpg"
     if not src.exists():
-        log("WARNING: Invention image missing; clip 8 will be generated without input_reference.")
+        log("WARNING: Invention image missing; locked scene 8 will use a neutral placeholder unless you add the asset.")
         return
     out = root / "assets/reference_frames" / f"invention_ref_{w}x{h}.jpg"
     ensure_dir(out.parent)
@@ -754,10 +802,32 @@ def command_download_assets(args: argparse.Namespace) -> None:
     log(f"Wrote {manifest_path}")
 
 # -----------------------------------------------------------------------------
-# Sora generation and mock clips
+# Context video generation and mock clips
 # -----------------------------------------------------------------------------
 
-def sora_prompt(scene: Scene) -> str:
+def profile_for(key: str) -> dict[str, Any]:
+    try:
+        return CONTEXT_GENERATION_PROFILES[key]
+    except KeyError as e:
+        choices = ", ".join(sorted(CONTEXT_GENERATION_PROFILES))
+        raise RuntimeError(f"Unknown context generation profile {key!r}. Choose in code from: {choices}") from e
+
+
+def provider_output_name(provider_key: str) -> str:
+    return "omni" if provider_key == "gemini_omni" else provider_key
+
+
+def context_clips_dir(root: Path, provider_key: Optional[str]) -> Path:
+    if provider_key is None:
+        return root / "clips" / "mock"
+    return root / "clips" / provider_output_name(provider_key)
+
+
+def scene_is_locked_local(scene: Scene) -> bool:
+    return scene.id in LOCKED_LOCAL_SCENE_IDS
+
+
+def context_visual_prompt(scene: Scene, provider_key: str) -> str:
     source_notes = []
     src_by_key = {s.key: s for s in SOURCES}
     for key in scene.source_keys:
@@ -766,10 +836,13 @@ def sora_prompt(scene: Scene) -> str:
             source_notes.append(f"- {s.claim}")
     notes = "\n".join(source_notes)
     labels = "\n".join([f"- {x}" for x in scene.labels])
+    provider_hint = "Gemini Omni Flash" if provider_key == "gemini_omni" else "Sora"
     return f"""{MASTER_SORA_STYLE}
 
+Provider context: {provider_hint}. This clip is background/context footage only. The final script, timing, labels, logos, cited images, and voiceover are locked in post-production.
+
 Scene {scene.id}: {scene.slug.replace('_', ' ')}
-Duration: {scene.seconds} seconds.
+Target scene duration in final edit: {scene.seconds} seconds. The generated clip can be shorter; it will be looped or trimmed deterministically in assembly.
 
 Visual direction:
 {scene.prompt}
@@ -779,28 +852,65 @@ Source-grounding notes for visual mechanism accuracy:
 
 Exact labels that will be composited in post, not rendered by the model:
 {labels}
+
+Additional constraints: no on-screen words, no captions, no lower thirds, no logos, no trademarks, no brand UI, no narration, no dialogue, no generated title cards, no disaster spectacle.
 """.strip()
 
 
-def write_sora_requests(root: Path, model: str, size: str) -> None:
-    out = root / "sora" / "sora_requests.jsonl"
+def sora_prompt(scene: Scene) -> str:
+    return context_visual_prompt(scene, "sora")
+
+
+def gemini_omni_prompt(scene: Scene) -> str:
+    return context_visual_prompt(scene, "gemini_omni")
+
+
+def requested_seconds_for(profile: dict[str, Any], scene: Scene) -> int:
+    # AI context footage is intentionally decoupled from final timing.
+    # Keep request length short for iteration/cost; assembly conforms duration.
+    val = profile.get("request_seconds", min(scene.seconds, 8))
+    try:
+        return max(1, int(val))
+    except Exception:
+        return min(scene.seconds, 8)
+
+
+def write_context_requests(root: Path, provider_key: str, size: str, scenes: Optional[list[Scene]] = None) -> None:
+    profile = profile_for(provider_key)
+    provider_dir = root / provider_output_name(provider_key)
+    out = provider_dir / f"{provider_output_name(provider_key)}_requests.jsonl"
     ensure_dir(out.parent)
+    scenes = scenes or SCENES
     with out.open("w", encoding="utf-8") as f:
-        for scene in SCENES:
-            body: dict[str, Any] = {
-                "model": model,
-                "prompt": sora_prompt(scene),
-                "size": size,
-                "seconds": str(scene.seconds),
-            }
-            ref = local_reference_for_scene(root, scene, size)
-            if ref:
-                body["input_reference"] = str(ref)
-            f.write(json.dumps({"scene_id": scene.id, "custom_id": f"scene-{scene.id:02d}", "body": body}) + "\n")
-    log(f"Wrote dry-run Sora request plan: {out}")
+        for scene in scenes:
+            if scene_is_locked_local(scene):
+                body = {"local_render": True, "reason": "locked local scene; no AI call"}
+            elif provider_key == "sora":
+                body = {
+                    "model": profile["model"],
+                    "prompt": context_visual_prompt(scene, provider_key),
+                    "size": profile.get("size", size),
+                    "seconds": str(requested_seconds_for(profile, scene)),
+                }
+                ref = local_reference_for_scene(root, scene, size)
+                if ref:
+                    body["input_reference"] = str(ref)
+            elif provider_key == "gemini_omni":
+                body = gemini_omni_payload(scene, profile, root, include_binary=False)
+            else:
+                body = {"error": f"Unsupported provider {provider_key}"}
+            f.write(json.dumps({"scene_id": scene.id, "custom_id": f"scene-{scene.id:02d}", "provider": provider_key, "body": body}) + "\n")
+    log(f"Wrote dry-run {provider_key} request plan: {out}")
+
+
+def write_sora_requests(root: Path, model: str, size: str) -> None:
+    # Compatibility wrapper for older scripts; model selection now lives in CONTEXT_GENERATION_PROFILES.
+    write_context_requests(root, "sora", size)
 
 
 def local_reference_for_scene(root: Path, scene: Scene, size: str) -> Optional[Path]:
+    # Specific images are rendered/composited locally in the final pipeline. This
+    # function remains for experiments, but locked local scenes should not call AI.
     if scene.reference_asset_key == "invention_jpg":
         w, h = read_size(size)
         p = root / "assets/reference_frames" / f"invention_ref_{w}x{h}.jpg"
@@ -816,29 +926,43 @@ def openai_headers() -> dict[str, str]:
     return {"Authorization": f"Bearer {key}"}
 
 
-def create_sora_job(scene: Scene, root: Path, model: str, size: str) -> str:
+def gemini_key() -> str:
+    key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+    if not key:
+        raise RuntimeError("GEMINI_API_KEY is not set. GOOGLE_API_KEY is also accepted.")
+    return key
+
+
+def file_to_data_url(path: Path) -> str:
+    """Return a base64 data URL usable as Videos API input_reference.image_url."""
+    mime = mimetypes.guess_type(str(path))[0] or "application/octet-stream"
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{mime};base64,{encoded}"
+
+
+def create_sora_job(scene: Scene, root: Path, profile: dict[str, Any], final_size: str) -> str:
     url = f"{API_BASE}/videos"
-    prompt = sora_prompt(scene)
-    data = {"model": model, "prompt": prompt, "size": size, "seconds": str(scene.seconds)}
-    ref = local_reference_for_scene(root, scene, size)
-    files = None
-    fobj = None
-    try:
-        if ref:
-            mime = mimetypes.guess_type(str(ref))[0] or "image/jpeg"
-            fobj = ref.open("rb")
-            files = {"input_reference": (ref.name, fobj, mime)}
-        r = requests.post(url, headers=openai_headers(), data=data, files=files, timeout=120)
-        if r.status_code >= 400:
-            raise RuntimeError(f"Sora create failed for scene {scene.id}: HTTP {r.status_code}\n{r.text}")
-        obj = r.json()
-        job_id = obj.get("id")
-        if not job_id:
-            raise RuntimeError(f"Sora create response missing id: {obj}")
-        return job_id
-    finally:
-        if fobj:
-            fobj.close()
+    payload: dict[str, Any] = {
+        "model": profile["model"],
+        "prompt": context_visual_prompt(scene, "sora"),
+        "size": profile.get("size", final_size),
+        "seconds": str(requested_seconds_for(profile, scene)),
+    }
+    ref = local_reference_for_scene(root, scene, final_size)
+    if ref:
+        # The Videos API create endpoint accepts JSON. For image guidance,
+        # input_reference should be an object with either image_url or file_id.
+        # A local reference image can be sent as a base64 data URL.
+        payload["input_reference"] = {"image_url": file_to_data_url(ref)}
+
+    r = requests.post(url, headers=openai_headers(), json=payload, timeout=120)
+    if r.status_code >= 400:
+        raise RuntimeError(f"Sora create failed for scene {scene.id}: HTTP {r.status_code}\n{r.text}")
+    obj = r.json()
+    job_id = obj.get("id")
+    if not job_id:
+        raise RuntimeError(f"Sora create response missing id: {obj}")
+    return job_id
 
 
 def poll_sora_job(job_id: str, poll_seconds: int = 15, timeout_minutes: int = 90) -> dict[str, Any]:
@@ -874,44 +998,238 @@ def download_sora_content(job_id: str, dest: Path) -> None:
             for chunk in r.iter_content(chunk_size=1024 * 1024):
                 if chunk:
                     f.write(chunk)
-    log(f"Downloaded Sora clip: {dest}")
+    log(f"Downloaded Sora context clip: {dest}")
+
+
+def gemini_omni_payload(scene: Scene, profile: dict[str, Any], root: Path, include_binary: bool = True) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "model": profile["model"],
+        "input": gemini_omni_prompt(scene),
+        "response_format": {
+            "type": "video",
+            "aspect_ratio": profile.get("aspect_ratio", "16:9"),
+            "delivery": profile.get("delivery", "uri"),
+        },
+        # Fast synchronous context generation. Leave store=True in the profile if
+        # you want to use previous_interaction_id for conversational edits.
+        "background": bool(profile.get("background", False)),
+        "store": bool(profile.get("store", False)),
+        "stream": bool(profile.get("stream", False)),
+    }
+    task = profile.get("task")
+    if task:
+        payload["generation_config"] = {"video_config": {"task": task}}
+    if not include_binary:
+        return payload
+    return payload
+
+
+def extract_gemini_video_object(obj: dict[str, Any]) -> dict[str, Any]:
+    direct = obj.get("output_video")
+    if isinstance(direct, dict):
+        return direct
+    for step in obj.get("steps", []) or []:
+        if not isinstance(step, dict):
+            continue
+        for item in step.get("content", []) or []:
+            if isinstance(item, dict) and item.get("type") == "video":
+                return item
+    raise RuntimeError(f"Gemini Omni response did not include a video object: {json.dumps(obj)[:2000]}")
+
+
+def download_gemini_uri(uri: str, dest: Path, poll_seconds: int, timeout_minutes: int) -> None:
+    ensure_dir(dest.parent)
+    key = gemini_key()
+    base = os.getenv("GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta")
+    file_id_match = re.search(r"files/([^/:?]+)", uri)
+    if file_id_match:
+        file_id = file_id_match.group(1)
+        deadline = time.time() + timeout_minutes * 60
+        last_state = None
+        while True:
+            r = requests.get(f"{base}/files/{file_id}", params={"key": key}, timeout=60)
+            if r.status_code >= 400:
+                raise RuntimeError(f"Gemini file status failed for {file_id}: HTTP {r.status_code}\n{r.text}")
+            status_obj = r.json()
+            state = status_obj.get("state")
+            if isinstance(state, dict):
+                state = state.get("name")
+            if state != last_state:
+                log(f"Gemini file {file_id}: state={state}")
+                last_state = state
+            if state in ("ACTIVE", "SUCCEEDED", "READY"):
+                break
+            if state in ("FAILED", "ERROR"):
+                raise RuntimeError(f"Gemini file failed: {status_obj}")
+            if time.time() > deadline:
+                raise TimeoutError(f"Timed out waiting for Gemini file {file_id}")
+            time.sleep(poll_seconds)
+        download_url = f"{base}/files/{file_id}:download"
+        with requests.get(download_url, params={"alt": "media", "key": key}, stream=True, timeout=300) as r:
+            if r.status_code >= 400:
+                raise RuntimeError(f"Gemini file download failed for {file_id}: HTTP {r.status_code}\n{r.text}")
+            with dest.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+        return
+    # Fallback: try the URI directly. Some responses provide a complete download URI.
+    with requests.get(uri, params={"key": key}, stream=True, timeout=300) as r:
+        if r.status_code >= 400:
+            raise RuntimeError(f"Gemini URI download failed: HTTP {r.status_code}\n{r.text}")
+        with dest.open("wb") as f:
+            for chunk in r.iter_content(chunk_size=1024 * 1024):
+                if chunk:
+                    f.write(chunk)
+
+
+def create_gemini_omni_clip(scene: Scene, root: Path, profile: dict[str, Any], dest: Path, poll_seconds: int, timeout_minutes: int) -> dict[str, Any]:
+    base = os.getenv("GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta")
+    url = f"{base}/interactions"
+    headers = {"x-goog-api-key": gemini_key(), "Content-Type": "application/json"}
+    payload = gemini_omni_payload(scene, profile, root)
+    log(f"Starting Gemini Omni context clip for scene {scene.id}: {scene.slug}")
+    r = requests.post(url, headers=headers, json=payload, timeout=300)
+    if r.status_code >= 400:
+        raise RuntimeError(f"Gemini Omni create failed for scene {scene.id}: HTTP {r.status_code}\n{r.text}")
+    obj = r.json()
+    log_dir = root / "gemini_omni"
+    ensure_dir(log_dir)
+    (log_dir / f"scene_{scene.id:02d}_interaction.json").write_text(json.dumps(obj, indent=2), encoding="utf-8")
+    video = extract_gemini_video_object(obj)
+    ensure_dir(dest.parent)
+    if video.get("data"):
+        dest.write_bytes(base64.b64decode(video["data"]))
+    elif video.get("uri"):
+        download_gemini_uri(video["uri"], dest, poll_seconds, timeout_minutes)
+    else:
+        raise RuntimeError(f"Gemini video object had neither data nor uri: {video}")
+    log(f"Downloaded Gemini Omni context clip: {dest}")
+    return obj
+
+
+def render_locked_local_scene(scene: Scene, root: Path, out: Path, size: str, fps: int = DEFAULT_FPS) -> None:
+    if scene.id == 1:
+        render_locked_cold_open(scene, out, size, fps=fps)
+    elif scene.id == 8:
+        render_locked_invention_reveal(scene, root, out, size, fps=fps)
+    elif scene.id == 9:
+        render_locked_alternatives_network(scene, root, out, size, fps=fps)
+    else:
+        render_mock_clip(scene, out, size, fps=fps)
+
+
+def generate_ai_context_clip(provider_key: str, scene: Scene, root: Path, out: Path, size: str, poll_seconds: int, timeout_minutes: int, force: bool = False, fps: int = DEFAULT_FPS) -> None:
+    profile = profile_for(provider_key)
+    if scene_is_locked_local(scene):
+        if out.exists() and not force:
+            log(f"Locked local clip exists, skipping: {out}")
+            return
+        render_locked_local_scene(scene, root, out, size, fps=fps)
+        return
+    if out.exists() and not force:
+        log(f"Context clip exists, skipping: {out}")
+        return
+    if provider_key == "sora":
+        jobs_path = root / "sora" / "jobs.json"
+        jobs: dict[str, Any] = {}
+        if jobs_path.exists() and not force:
+            jobs = json.loads(jobs_path.read_text(encoding="utf-8"))
+        jid = jobs.get(str(scene.id), {}).get("job_id")
+        if not jid or force:
+            log(f"Starting Sora context job for scene {scene.id}: {scene.slug}")
+            jid = create_sora_job(scene, root, profile, size)
+            jobs[str(scene.id)] = {"job_id": jid, "scene": scene.slug, "created_at": datetime.now(timezone.utc).isoformat(), "profile": provider_key, "model": profile.get("model")}
+            ensure_dir(jobs_path.parent)
+            jobs_path.write_text(json.dumps(jobs, indent=2), encoding="utf-8")
+        poll_sora_job(jid, poll_seconds=poll_seconds, timeout_minutes=timeout_minutes)
+        download_sora_content(jid, out)
+    elif provider_key == "gemini_omni":
+        create_gemini_omni_clip(scene, root, profile, out, poll_seconds=poll_seconds, timeout_minutes=timeout_minutes)
+    else:
+        raise RuntimeError(f"Unsupported context provider: {provider_key}")
 
 
 def command_generate_clips(args: argparse.Namespace) -> None:
     root = Path(args.root)
-    clips_dir = root / "clips" / ("sora" if args.sora else "mock")
-    ensure_dir(clips_dir)
-    if args.dry_run:
-        write_sora_requests(root, args.model, args.size)
-        return
-    if args.sora:
-        create_sora_reference_images(root, args.size)
-        jobs_path = root / "sora" / "jobs.json"
-        jobs: dict[str, Any] = {}
-        if jobs_path.exists() and not args.force:
-            jobs = json.loads(jobs_path.read_text(encoding="utf-8"))
-        for scene in SCENES:
-            out = clips_dir / scene.filename
-            if out.exists() and not args.force:
-                log(f"Clip exists, skipping: {out}")
-                continue
-            jid = jobs.get(str(scene.id), {}).get("job_id")
-            if not jid or args.force:
-                log(f"Starting Sora job for scene {scene.id}: {scene.slug}")
-                jid = create_sora_job(scene, root, args.model, args.size)
-                jobs[str(scene.id)] = {"job_id": jid, "scene": scene.slug, "created_at": datetime.now(timezone.utc).isoformat()}
-                ensure_dir(jobs_path.parent)
-                jobs_path.write_text(json.dumps(jobs, indent=2), encoding="utf-8")
-            poll_sora_job(jid, poll_seconds=args.poll_seconds, timeout_minutes=args.timeout_minutes)
-            download_sora_content(jid, out)
+    provider_key: Optional[str]
+    if getattr(args, "sora", False) and getattr(args, "omni", False):
+        raise RuntimeError("Choose only one provider flag: --sora or --omni.")
+    if getattr(args, "sora", False):
+        provider_key = "sora"
+    elif getattr(args, "omni", False):
+        provider_key = "gemini_omni"
     else:
-        for scene in SCENES:
+        provider_key = None
+    clips_dir = context_clips_dir(root, provider_key)
+    ensure_dir(clips_dir)
+    only_scene = getattr(args, "only_scene", None)
+    scenes = [scene for scene in SCENES if only_scene in (None, 0) or scene.id == only_scene]
+    if not scenes:
+        raise RuntimeError(f"No scene found for --only-scene {only_scene}")
+    if args.dry_run:
+        if provider_key is None:
+            log("Dry run for mock/local clips: no API requests to write.")
+        else:
+            write_context_requests(root, provider_key, args.size, scenes=scenes)
+        return
+    if provider_key:
+        create_sora_reference_images(root, args.size)
+        for scene in scenes:
             out = clips_dir / scene.filename
-            if out.exists() and not args.force:
+            generate_ai_context_clip(provider_key, scene, root, out, args.size, args.poll_seconds, args.timeout_minutes, force=args.force, fps=args.fps)
+    else:
+        for scene in scenes:
+            out = clips_dir / scene.filename
+            if scene_is_locked_local(scene):
+                if out.exists() and not args.force:
+                    log(f"Locked local clip exists, skipping: {out}")
+                else:
+                    render_locked_local_scene(scene, root, out, args.size, fps=args.fps)
+            elif out.exists() and not args.force:
                 log(f"Mock clip exists, skipping: {out}")
             else:
                 render_mock_clip(scene, out, args.size, fps=args.fps)
 
+
+def command_compare_context_generators(args: argparse.Namespace) -> None:
+    """Generate the same configured test scenes with both AI providers.
+
+    Provider/model choices are controlled by COMPARE_CONTEXT_PROFILES and
+    CONTEXT_GENERATION_PROFILES near the top of the file, not by CLI options.
+    """
+    root = Path(args.root)
+    create_sora_reference_images(root, args.size)
+    scenes = [scene for scene in SCENES if scene.id in COMPARE_CONTEXT_SCENE_IDS]
+    if args.dry_run:
+        for provider_key in COMPARE_CONTEXT_PROFILES:
+            write_context_requests(root, provider_key, args.size, scenes=scenes)
+        return
+    for provider_key in COMPARE_CONTEXT_PROFILES:
+        compare_dir = root / "clips" / "compare" / provider_output_name(provider_key)
+        ensure_dir(compare_dir)
+        for scene in scenes:
+            out = compare_dir / scene.filename
+            generate_ai_context_clip(provider_key, scene, root, out, args.size, args.poll_seconds, args.timeout_minutes, force=args.force, fps=args.fps)
+    write_compare_readme(root, scenes)
+
+
+def write_compare_readme(root: Path, scenes: list[Scene]) -> None:
+    out = root / "clips" / "compare" / "README_compare_context_generators.md"
+    ensure_dir(out.parent)
+    lines = [
+        "# Context generator comparison\n",
+        "Generated the same configured test scenes with each provider. The final cut should still strip generated audio, normalize duration, and burn labels/logos/images locally.\n",
+        "## Scenes\n",
+    ]
+    for scene in scenes:
+        lines.append(f"- Scene {scene.id}: `{scene.slug}` ({scene.seconds}s target)\n")
+    lines.append("\n## Providers\n")
+    for key in COMPARE_CONTEXT_PROFILES:
+        profile = profile_for(key)
+        lines.append(f"- `{key}`: model `{profile.get('model')}`; outputs in `clips/compare/{provider_output_name(key)}/`\n")
+    out.write_text("".join(lines), encoding="utf-8")
+    log(f"Wrote comparison notes: {out}")
 
 def render_mock_clip(scene: Scene, out: Path, size: str, fps: int = DEFAULT_FPS) -> None:
     check_cmd("ffmpeg")
@@ -982,6 +1300,358 @@ def render_mock_clip(scene: Scene, out: Path, size: str, fps: int = DEFAULT_FPS)
     ])
     log(f"Rendered mock clip: {out}")
 
+
+def render_locked_cold_open(scene: Scene, out: Path, size: str, fps: int = DEFAULT_FPS) -> None:
+    """Render scene 1 locally so the opening cannot drift from the script.
+
+    Sora is useful for atmospheric mechanism visuals, but the cold open is a
+    thesis-setting beat. This deterministic renderer keeps the black opening,
+    exact title text, and three mechanism proof-point hints under editorial
+    control. It produces a silent MP4; assembly later strips any source clip
+    audio anyway and muxes the locked narration.
+    """
+    check_cmd("ffmpeg")
+    w, h = read_size(size)
+    ensure_dir(out.parent)
+    work = out.parent / f".{out.stem}_locked_frames"
+    ensure_dir(work)
+
+    bg = (4, 4, 7)
+    panel = (16, 18, 22)
+    white = (245, 245, 245)
+    grey = (142, 148, 156)
+    dim = (60, 64, 72)
+    red = (205, 60, 60)
+    blue = (70, 125, 180)
+
+    title_font = pil_font(max(56, w // 17), bold=True)
+    tiny_font = pil_font(max(16, w // 96), bold=False)
+
+    def base() -> Image.Image:
+        img = Image.new("RGB", (w, h), bg)
+        d = ImageDraw.Draw(img)
+        step = max(90, w // 18)
+        for x in range(0, w, step):
+            d.line((x, 0, x, h), fill=(10, 11, 15), width=1)
+        for y in range(0, h, step):
+            d.line((0, y, w, y), fill=(10, 11, 15), width=1)
+        return img
+
+    def centered_text(draw: ImageDraw.ImageDraw, text: str, y: int, font: ImageFont.ImageFont, fill: tuple[int, int, int]) -> None:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        draw.text(((w - (bbox[2] - bbox[0])) // 2, y), text, font=font, fill=fill)
+
+    def arrow(draw: ImageDraw.ImageDraw, a: tuple[int, int], b: tuple[int, int], fill=red, width_px: int = 5) -> None:
+        draw.line((a[0], a[1], b[0], b[1]), fill=fill, width=width_px)
+        import math
+        ang = math.atan2(b[1] - a[1], b[0] - a[0])
+        size_arrow = max(10, w // 100)
+        p1 = (b[0] - size_arrow * math.cos(ang - 0.45), b[1] - size_arrow * math.sin(ang - 0.45))
+        p2 = (b[0] - size_arrow * math.cos(ang + 0.45), b[1] - size_arrow * math.sin(ang + 0.45))
+        draw.polygon([b, p1, p2], fill=fill)
+
+    def save_still(name: str, img: Image.Image) -> Path:
+        path = work / name
+        img.save(path)
+        return path
+
+    # 0.0-1.2: true black.
+    img0 = Image.new("RGB", (w, h), bg)
+    p0 = save_still("00_black.png", img0)
+
+    # 1.2-6.8: locked title card.
+    img1 = Image.new("RGB", (w, h), bg)
+    d = ImageDraw.Draw(img1)
+    centered_text(d, "WHY DID IT FAIL?", int(h * 0.43), title_font, white)
+    d.line((int(w * 0.32), int(h * 0.55), int(w * 0.68), int(h * 0.55)), fill=red, width=max(3, w // 400))
+    p1 = save_still("01_why.png", img1)
+
+    # 6.8-11.2: pressure-seal cross-section visual hint.
+    img2 = base(); d = ImageDraw.Draw(img2)
+    cx, cy = int(w * 0.50), int(h * 0.52)
+    # Rocket motor shell and joint
+    d.rounded_rectangle((int(w*0.18), int(h*0.36), int(w*0.82), int(h*0.66)), radius=18, outline=grey, width=3, fill=panel)
+    d.rectangle((int(w*0.46), int(h*0.31), int(w*0.54), int(h*0.71)), outline=white, width=4, fill=(24, 26, 31))
+    d.ellipse((cx-int(w*0.035), cy-int(w*0.035), cx+int(w*0.035), cy+int(w*0.035)), outline=white, width=4)
+    # Hot gas path and broken integrity route
+    arrow(d, (int(w*0.28), cy), (cx-int(w*0.045), cy), fill=red, width_px=max(4, w//320))
+    arrow(d, (cx+int(w*0.045), cy), (int(w*0.74), int(h*0.45)), fill=red, width_px=max(4, w//320))
+    for x in [int(w*0.25), int(w*0.37), int(w*0.63), int(w*0.75)]:
+        d.rectangle((x-28, int(h*0.25), x+28, int(h*0.29)), outline=dim, width=2)
+        d.line((x, int(h*0.29), x, int(h*0.36)), fill=dim, width=2)
+    p2 = save_still("02_seal.png", img2)
+
+    # 11.2-15.6: feedback-loop visual hint.
+    img3 = base(); d = ImageDraw.Draw(img3)
+    points = [
+        (int(w*0.50), int(h*0.22)),
+        (int(w*0.72), int(h*0.45)),
+        (int(w*0.60), int(h*0.72)),
+        (int(w*0.35), int(h*0.68)),
+        (int(w*0.28), int(h*0.40)),
+    ]
+    for i, a in enumerate(points):
+        b = points[(i + 1) % len(points)]
+        arrow(d, a, b, fill=red if i in (1,2) else grey, width_px=max(3, w//420))
+    for i, (x, y) in enumerate(points):
+        r = int(w * (0.032 if i == 0 else 0.026))
+        d.ellipse((x-r, y-r, x+r, y+r), outline=white, width=3, fill=panel)
+        # Blank callout boxes, labels added later in post-production.
+        if i % 2 == 0:
+            d.rounded_rectangle((x+int(w*0.035), y-int(h*0.025), x+int(w*0.16), y+int(h*0.025)), radius=6, outline=dim, width=2)
+        else:
+            d.rounded_rectangle((x-int(w*0.16), y-int(h*0.025), x-int(w*0.035), y+int(h*0.025)), radius=6, outline=dim, width=2)
+    p3 = save_still("03_loop.png", img3)
+
+    # 15.6-20.0: flooded backup-power schematic visual hint.
+    img4 = base(); d = ImageDraw.Draw(img4)
+    ground = int(h * 0.66)
+    water = int(h * 0.72)
+    d.rectangle((int(w*0.12), ground, int(w*0.88), int(h*0.82)), fill=(9, 15, 23), outline=dim)
+    d.rectangle((int(w*0.12), water, int(w*0.88), int(h*0.82)), fill=(20, 60, 88), outline=None)
+    # Plant and backup blocks
+    d.rectangle((int(w*0.20), int(h*0.34), int(w*0.34), ground), outline=white, width=3, fill=panel)
+    d.rectangle((int(w*0.45), int(h*0.45), int(w*0.56), ground), outline=grey, width=3, fill=(25, 28, 33))
+    d.rectangle((int(w*0.62), int(h*0.45), int(w*0.73), ground), outline=grey, width=3, fill=(25, 28, 33))
+    arrow(d, (int(w*0.34), int(h*0.52)), (int(w*0.45), int(h*0.52)), fill=grey, width_px=max(3, w//440))
+    arrow(d, (int(w*0.56), int(h*0.52)), (int(w*0.62), int(h*0.52)), fill=grey, width_px=max(3, w//440))
+    # Shared hazard cuts both primary and backup paths.
+    d.line((int(w*0.12), water, int(w*0.88), water), fill=blue, width=max(5, w//300))
+    for x in [int(w*0.50), int(w*0.67)]:
+        d.line((x-int(w*0.035), int(h*0.44), x+int(w*0.035), int(h*0.63)), fill=red, width=max(5, w//300))
+        d.line((x+int(w*0.035), int(h*0.44), x-int(w*0.035), int(h*0.63)), fill=red, width=max(5, w//300))
+    p4 = save_still("04_flood.png", img4)
+
+    # Use deterministic still durations. The final repeated file is required by
+    # the concat demuxer for the last duration to take effect.
+    concat = work / "concat.txt"
+    schedule = [(p0, 1.2), (p1, 5.6), (p2, 4.4), (p3, 4.4), (p4, 4.4)]
+    with concat.open("w", encoding="utf-8") as f:
+        for path, dur in schedule:
+            f.write(f"file '{path.resolve().as_posix()}'\n")
+            f.write(f"duration {dur:.3f}\n")
+        f.write(f"file '{p4.resolve().as_posix()}'\n")
+    run_cmd([
+        "ffmpeg", "-y",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", str(concat),
+        "-vf", f"fps={fps},format=yuv420p",
+        "-t", f"{scene.seconds:.3f}",
+        "-an",
+        "-c:v", "libx264",
+        "-preset", "medium",
+        "-crf", "18",
+        "-movflags", "+faststart",
+        str(out),
+    ])
+    log(f"Rendered locked cold-open clip: {out}")
+
+
+def render_still_schedule(schedule: list[tuple[Path, float]], out: Path, seconds: float, fps: int) -> None:
+    """Render a deterministic silent video from a list of stills and durations."""
+    check_cmd("ffmpeg")
+    ensure_dir(out.parent)
+    concat = out.parent / f".{out.stem}_concat.txt"
+    with concat.open("w", encoding="utf-8") as f:
+        for path, dur in schedule:
+            f.write(f"file '{path.resolve().as_posix()}'\n")
+            f.write(f"duration {dur:.3f}\n")
+        # concat demuxer requires a final repeated file for the last duration.
+        f.write(f"file '{schedule[-1][0].resolve().as_posix()}'\n")
+    run_cmd([
+        "ffmpeg", "-y",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", str(concat),
+        "-vf", f"fps={fps},format=yuv420p",
+        "-t", f"{seconds:.3f}",
+        "-an",
+        "-c:v", "libx264",
+        "-preset", "medium",
+        "-crf", "18",
+        "-movflags", "+faststart",
+        str(out),
+    ])
+
+
+def render_locked_invention_reveal(scene: Scene, root: Path, out: Path, size: str, fps: int = DEFAULT_FPS) -> None:
+    """Render the Kauffmann/first-question beat locally.
+
+    This keeps the specific painting under source/asset control instead of asking
+    an AI video model to reproduce it. Text remains out of the footage and is
+    added through the ASS label pass.
+    """
+    w, h = read_size(size)
+    ensure_dir(out.parent)
+    work = out.parent / f".{out.stem}_locked_frames"
+    ensure_dir(work)
+    bg = (4, 4, 7)
+    panel = (16, 18, 22)
+    white = (245, 245, 245)
+    grey = (142, 148, 156)
+    dim = (60, 64, 72)
+    red = (205, 60, 60)
+
+    def base() -> Image.Image:
+        img = Image.new("RGB", (w, h), bg)
+        d = ImageDraw.Draw(img)
+        step = max(90, w // 18)
+        for x in range(0, w, step):
+            d.line((x, 0, x, h), fill=(10, 11, 15), width=1)
+        for y in range(0, h, step):
+            d.line((0, y, w, y), fill=(10, 11, 15), width=1)
+        return img
+
+    def save(name: str, img: Image.Image) -> Path:
+        path = work / name
+        img.save(path)
+        return path
+
+    img1 = base(); d = ImageDraw.Draw(img1)
+    art_path = root / "assets/public_domain/invention_kauffmann.jpg"
+    if art_path.exists():
+        art = Image.open(art_path).convert("RGB")
+        art.thumbnail((int(w * 0.58), int(h * 0.72)), Image.LANCZOS)
+        ax, ay = int(w * 0.10), int(h * 0.14)
+        d.rounded_rectangle((ax - 18, ay - 18, ax + art.width + 18, ay + art.height + 18), radius=12, outline=dim, width=2, fill=panel)
+        img1.paste(art, (ax, ay))
+    else:
+        ax, ay = int(w * 0.10), int(h * 0.14)
+        d.rounded_rectangle((ax, ay, int(w * 0.58), int(h * 0.80)), radius=12, outline=dim, width=2, fill=panel)
+        for i in range(8):
+            d.arc((ax + i*18, ay + i*14, int(w*0.55)-i*18, int(h*0.78)-i*14), start=210, end=330, fill=grey, width=2)
+    # Blank exact-question area; text composited later.
+    d.rounded_rectangle((int(w*0.67), int(h*0.30), int(w*0.92), int(h*0.58)), radius=18, outline=dim, width=2, fill=(10, 12, 16))
+    d.line((int(w*0.70), int(h*0.47), int(w*0.89), int(h*0.47)), fill=red, width=max(3, w//380))
+    p1 = save("01_invention.png", img1)
+
+    img2 = base(); d = ImageDraw.Draw(img2)
+    # Product/platform fades away toward need: use boxes with no text.
+    boxes = [
+        (int(w*0.10), int(h*0.38), int(w*0.30), int(h*0.53)),
+        (int(w*0.40), int(h*0.38), int(w*0.60), int(h*0.53)),
+        (int(w*0.70), int(h*0.34), int(w*0.90), int(h*0.57)),
+    ]
+    for i, box in enumerate(boxes):
+        d.rounded_rectangle(box, radius=14, outline=grey if i < 2 else white, width=3, fill=panel)
+        if i < 2:
+            d.line((box[0]+15, box[1]+15, box[2]-15, box[3]-15), fill=dim, width=3)
+            d.line((box[2]-15, box[1]+15, box[0]+15, box[3]-15), fill=dim, width=3)
+    for i in range(2):
+        x1 = boxes[i][2]
+        x2 = boxes[i+1][0]
+        y = (boxes[i][1] + boxes[i][3]) // 2
+        d.line((x1, y, x2, y), fill=red if i == 1 else grey, width=max(4, w//380))
+        d.polygon([(x2, y), (x2-14, y-9), (x2-14, y+9)], fill=red if i == 1 else grey)
+    p2 = save("02_need_not_product.png", img2)
+
+    img3 = base(); d = ImageDraw.Draw(img3)
+    center = (int(w*0.50), int(h*0.30))
+    d.ellipse((center[0]-38, center[1]-38, center[0]+38, center[1]+38), outline=white, width=3, fill=panel)
+    branch_y = int(h*0.62)
+    xs = [int(w*(0.14 + i*0.145)) for i in range(6)]
+    for x in xs:
+        d.line((center[0], center[1]+38, x, branch_y-32), fill=grey, width=3)
+        d.ellipse((x-32, branch_y-32, x+32, branch_y+32), outline=white, width=3, fill=panel)
+        # Each need gets several small alternative nodes, unlabeled.
+        for j in range(3):
+            ox = x + (j-1)*int(w*0.035)
+            oy = branch_y + int(h*0.12) + (j % 2)*int(h*0.04)
+            d.line((x, branch_y+32, ox, oy-18), fill=dim, width=2)
+            d.ellipse((ox-18, oy-18, ox+18, oy+18), outline=dim, width=2, fill=(10, 12, 16))
+    p3 = save("03_needs_branch.png", img3)
+
+    render_still_schedule([(p1, 7.0), (p2, 5.0), (p3, scene.seconds - 12.0)], out, scene.seconds, fps)
+    log(f"Rendered locked invention/need reveal clip: {out}")
+
+
+def render_locked_alternatives_network(scene: Scene, root: Path, out: Path, size: str, fps: int = DEFAULT_FPS) -> None:
+    """Render the alternatives-network conclusion locally without labels/logos."""
+    w, h = read_size(size)
+    ensure_dir(out.parent)
+    work = out.parent / f".{out.stem}_locked_frames"
+    ensure_dir(work)
+    bg = (4, 4, 7)
+    panel = (16, 18, 22)
+    white = (245, 245, 245)
+    grey = (142, 148, 156)
+    dim = (60, 64, 72)
+    red = (205, 60, 60)
+    green = (105, 180, 130)
+
+    def base() -> Image.Image:
+        img = Image.new("RGB", (w, h), bg)
+        d = ImageDraw.Draw(img)
+        step = max(90, w // 18)
+        for x in range(0, w, step):
+            d.line((x, 0, x, h), fill=(10, 11, 15), width=1)
+        for y in range(0, h, step):
+            d.line((0, y, w, y), fill=(10, 11, 15), width=1)
+        return img
+
+    def save(name: str, img: Image.Image) -> Path:
+        path = work / name
+        img.save(path)
+        return path
+
+    def arrow(d: ImageDraw.ImageDraw, a: tuple[int,int], b: tuple[int,int], color=red, width_px=5) -> None:
+        d.line((a[0], a[1], b[0], b[1]), fill=color, width=width_px)
+        import math
+        ang = math.atan2(b[1]-a[1], b[0]-a[0])
+        size_arrow = max(10, w // 110)
+        p1 = (b[0] - size_arrow * math.cos(ang - 0.45), b[1] - size_arrow * math.sin(ang - 0.45))
+        p2 = (b[0] - size_arrow * math.cos(ang + 0.45), b[1] - size_arrow * math.sin(ang + 0.45))
+        d.polygon([b, p1, p2], fill=color)
+
+    # Single brittle path.
+    img1 = base(); d = ImageDraw.Draw(img1)
+    y = int(h*0.50)
+    xs = [int(w*x) for x in (0.16, 0.38, 0.60, 0.82)]
+    for i, x in enumerate(xs):
+        d.rounded_rectangle((x-70, y-42, x+70, y+42), radius=14, outline=white if i in (0,3) else grey, width=3, fill=panel)
+        if i < len(xs)-1:
+            arrow(d, (x+70, y), (xs[i+1]-70, y), red, max(5, w//360))
+    p1 = save("01_single_path.png", img1)
+
+    # Broken path.
+    img2 = img1.copy(); d = ImageDraw.Draw(img2)
+    bx = int((xs[1] + xs[2]) / 2)
+    d.line((bx-35, y-48, bx+35, y+48), fill=red, width=max(8, w//240))
+    d.line((bx+35, y-48, bx-35, y+48), fill=red, width=max(8, w//240))
+    d.rectangle((xs[2]-70, y-42, xs[3]+80, y+45), outline=None, fill=(2, 2, 4))
+    p2 = save("02_broken_path.png", img2)
+
+    # Network of alternatives.
+    img3 = base(); d = ImageDraw.Draw(img3)
+    nodes = [
+        (int(w*0.20), int(h*0.28)), (int(w*0.40), int(h*0.20)), (int(w*0.62), int(h*0.25)),
+        (int(w*0.78), int(h*0.43)), (int(w*0.65), int(h*0.66)), (int(w*0.42), int(h*0.72)),
+        (int(w*0.20), int(h*0.58)), (int(w*0.50), int(h*0.48)),
+    ]
+    edges = [(0,1),(1,2),(2,3),(3,4),(4,5),(5,6),(6,0),(0,7),(1,7),(2,7),(3,7),(4,7),(5,7),(6,7)]
+    for a,b in edges:
+        d.line((nodes[a][0], nodes[a][1], nodes[b][0], nodes[b][1]), fill=dim, width=3)
+    for i,(x,y0) in enumerate(nodes):
+        r = 34 if i == 7 else 26
+        d.ellipse((x-r, y0-r, x+r, y0+r), outline=white, width=3, fill=panel)
+    # Reroute highlight.
+    for a,b in [(0,7),(7,3),(3,4)]:
+        d.line((nodes[a][0], nodes[a][1], nodes[b][0], nodes[b][1]), fill=green, width=max(5, w//360))
+    p3 = save("03_network.png", img3)
+
+    # One node fails; network reroutes.
+    img4 = img3.copy(); d = ImageDraw.Draw(img4)
+    fx, fy = nodes[7]
+    d.line((fx-48, fy-48, fx+48, fy+48), fill=red, width=max(7, w//300))
+    d.line((fx+48, fy-48, fx-48, fy+48), fill=red, width=max(7, w//300))
+    for a,b in [(0,1),(1,2),(2,3),(3,4)]:
+        d.line((nodes[a][0], nodes[a][1], nodes[b][0], nodes[b][1]), fill=green, width=max(5, w//360))
+    p4 = save("04_reroute.png", img4)
+
+    render_still_schedule([(p1, 3.5), (p2, 3.5), (p3, 4.5), (p4, scene.seconds - 11.5)], out, scene.seconds, fps)
+    log(f"Rendered locked alternatives-network clip: {out}")
+
 # -----------------------------------------------------------------------------
 # Audio/TTS
 # -----------------------------------------------------------------------------
@@ -1030,14 +1700,24 @@ def make_silent_audio(out: Path, seconds: float) -> None:
 # Assembly
 # -----------------------------------------------------------------------------
 
-def normalize_clip(in_path: Path, out_path: Path, size: str, fps: int) -> None:
+def normalize_clip(in_path: Path, out_path: Path, size: str, fps: int, target_seconds: Optional[float] = None) -> None:
+    """Normalize a clip and conform it to the scripted scene duration.
+
+    AI context clips are allowed to be shorter than the scripted scene. This
+    function loops short clips and trims long clips, strips any generated audio,
+    and applies final size/fps.
+    """
     check_cmd("ffmpeg")
     w, h = read_size(size)
     ensure_dir(out_path.parent)
     vf = f"scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},fps={fps},setsar=1,format=yuv420p"
-    run_cmd([
-        "ffmpeg", "-y",
-        "-i", str(in_path),
+    cmd = ["ffmpeg", "-y"]
+    if target_seconds is not None:
+        cmd += ["-stream_loop", "-1"]
+    cmd += ["-i", str(in_path)]
+    if target_seconds is not None:
+        cmd += ["-t", f"{target_seconds:.3f}"]
+    cmd += [
         "-vf", vf,
         "-an",
         "-c:v", "libx264",
@@ -1045,7 +1725,8 @@ def normalize_clip(in_path: Path, out_path: Path, size: str, fps: int) -> None:
         "-crf", "18",
         "-movflags", "+faststart",
         str(out_path),
-    ])
+    ]
+    run_cmd(cmd)
 
 
 def concat_videos(paths: list[Path], out: Path) -> None:
@@ -1179,6 +1860,11 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     t = 0.0
     for scene in SCENES:
         labels = scene.labels or []
+        # Scene 1 is rendered locally with the title card already locked in.
+        # Do not burn a second WHY DID IT FAIL? subtitle over it.
+        if scene.id == 1:
+            t += scene.seconds
+            continue
         if not labels:
             t += scene.seconds
             continue
@@ -1251,7 +1937,10 @@ def extend_video_with_endcard(root: Path, base_video: Path, end_card: Path, targ
 
 def command_assemble(args: argparse.Namespace) -> None:
     root = Path(args.root)
-    source_dir = root / "clips" / ("sora" if args.sora else "mock")
+    if getattr(args, "sora", False) and getattr(args, "omni", False):
+        raise RuntimeError("Choose only one clip source: --sora or --omni.")
+    provider_key = "sora" if getattr(args, "sora", False) else ("gemini_omni" if getattr(args, "omni", False) else None)
+    source_dir = context_clips_dir(root, provider_key)
     if not source_dir.exists():
         raise RuntimeError(f"Missing clips directory: {source_dir}. Run generate-clips first.")
     assembly_dir = root / "assembly"
@@ -1265,7 +1954,7 @@ def command_assemble(args: argparse.Namespace) -> None:
             raise RuntimeError(f"Missing clip for scene {scene.id}: {src}")
         out = norm_dir / scene.filename
         if not out.exists() or args.force:
-            normalize_clip(src, out, args.size, args.fps)
+            normalize_clip(src, out, args.size, args.fps, target_seconds=scene.seconds)
         normalized.append(out)
 
     end_card = create_end_card(root, args.size, END_CARD_SECONDS, args.fps)
@@ -1405,7 +2094,7 @@ def write_metadata_workbook(root: Path, md: dict[str, str]) -> None:
         ["PartyReference", "Name", "Role", "DDEX role idea", "Identifier", "Notes"],
         ["P1", "TBD", "Creator / Writer", "ComposerLyricist or Author-style proprietary mapping", "TBD", "DDEX roles are music-industry oriented; confirm recipient mapping for educational video."],
         ["P2", "TBD", "Narrator", "Narrator / AssociatedPerformer if supported", "TBD", "If OpenAI TTS is used, disclose according to platform policy."],
-        ["P3", "OpenAI Sora", "Generative video tool", "Proprietary annotation", "", "Do not credit as a human contributor unless your platform requires AI tool disclosure fields."],
+        ["P3", "Configured AI context video generators", "Generative video tools", "Proprietary annotation", "", "Sora/Gemini Omni Flash clips are context visuals only; do not credit as human contributors unless your platform requires AI tool disclosure fields."],
     ])
 
     ws = wb.create_sheet("Rights_And_License")
@@ -1572,11 +2261,13 @@ def command_all(args: argparse.Namespace) -> None:
     command_download_assets(args)
     command_metadata(args)
     gen_args = argparse.Namespace(**vars(args))
-    gen_args.sora = not args.mock
+    gen_args.sora = (not args.mock and DEFAULT_FULL_AI_PROFILE == "sora")
+    gen_args.omni = (not args.mock and DEFAULT_FULL_AI_PROFILE == "gemini_omni")
     gen_args.dry_run = False
     command_generate_clips(gen_args)
     asm_args = argparse.Namespace(**vars(args))
-    asm_args.sora = not args.mock
+    asm_args.sora = (not args.mock and DEFAULT_FULL_AI_PROFILE == "sora")
+    asm_args.omni = (not args.mock and DEFAULT_FULL_AI_PROFILE == "gemini_omni")
     asm_args.tts = not args.no_tts
     command_assemble(asm_args)
 
@@ -1591,8 +2282,9 @@ def add_common(p: argparse.ArgumentParser) -> None:
     p.add_argument("--force", action="store_true", help="Regenerate outputs that already exist.")
 
 
-def add_openai_video(p: argparse.ArgumentParser) -> None:
-    p.add_argument("--model", default=DEFAULT_SORA_MODEL, help="Sora model, e.g. sora-2-pro or sora-2.")
+def add_context_generation_timing(p: argparse.ArgumentParser) -> None:
+    # Model names are intentionally not CLI options. Edit
+    # CONTEXT_GENERATION_PROFILES near the top of this file.
     p.add_argument("--poll-seconds", type=int, default=15)
     p.add_argument("--timeout-minutes", type=int, default=90)
 
@@ -1615,12 +2307,20 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("--no-source-pages", action="store_true", help="Skip downloading audit/source pages; still writes source manifest.")
     p.set_defaults(func=command_download_assets)
 
-    p = sub.add_parser("generate-clips", help="Generate Sora clips or local mock clips.")
+    p = sub.add_parser("generate-clips", help="Generate AI context clips or local mock clips.")
     add_common(p)
-    add_openai_video(p)
-    p.add_argument("--sora", action="store_true", help="Use OpenAI Video API. Default is local mock clips.")
-    p.add_argument("--dry-run", action="store_true", help="Write Sora request JSONL only; do not call API.")
+    add_context_generation_timing(p)
+    p.add_argument("--sora", action="store_true", help="Use the Sora context profile from CONTEXT_GENERATION_PROFILES.")
+    p.add_argument("--omni", action="store_true", help="Use the Gemini Omni Flash context profile from CONTEXT_GENERATION_PROFILES.")
+    p.add_argument("--dry-run", action="store_true", help="Write provider request JSONL only; do not call an API.")
+    p.add_argument("--only-scene", type=int, default=0, help="Generate only one scene by numeric id; 0 means all scenes.")
     p.set_defaults(func=command_generate_clips)
+
+    p = sub.add_parser("compare-context-generators", help="Generate configured test scenes with both Sora and Gemini Omni Flash.")
+    add_common(p)
+    add_context_generation_timing(p)
+    p.add_argument("--dry-run", action="store_true", help="Write provider request JSONL only; do not call APIs.")
+    p.set_defaults(func=command_compare_context_generators)
 
     p = sub.add_parser("voiceover", help="Generate OpenAI TTS voiceover.")
     add_common(p)
@@ -1631,6 +2331,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     add_common(p)
     add_tts(p)
     p.add_argument("--sora", action="store_true", help="Use clips from clips/sora instead of clips/mock.")
+    p.add_argument("--omni", action="store_true", help="Use clips from clips/omni instead of clips/mock.")
     p.set_defaults(func=command_assemble)
 
     p = sub.add_parser("metadata", help="Write XLSX, CSV, and ERN-style draft XML metadata.")
@@ -1639,7 +2340,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("all", help="Run assets, metadata, clips, and assembly.")
     add_common(p)
-    add_openai_video(p)
+    add_context_generation_timing(p)
     add_tts(p)
     p.add_argument("--mock", action="store_true", help="Use local mock clips instead of Sora.")
     p.add_argument("--no-source-pages", action="store_true", help="Skip downloading audit/source pages.")

@@ -1,0 +1,390 @@
+{
+  "project_title": "The Second Question of Technology",
+  "generated_utc": "2026-07-05T02:15:13+00:00",
+  "ai_video_role": "context_visuals_only",
+  "locked_local_scene_ids": [
+    1,
+    8,
+    9
+  ],
+  "compare_context_scene_ids": [
+    3,
+    5
+  ],
+  "provider_profiles": {
+    "sora": {
+      "provider": "sora",
+      "model": "sora-2-pro",
+      "request_seconds": 8,
+      "size": "1280x720",
+      "notes": "OpenAI Videos API/Sora context visual profile."
+    },
+    "gemini_omni": {
+      "provider": "gemini_omni",
+      "model": "gemini-omni-flash-preview",
+      "aspect_ratio": "16:9",
+      "delivery": "uri",
+      "notes": "Gemini Omni Flash Interactions API context visual profile."
+    }
+  },
+  "sources": [
+    {
+      "key": "challenger",
+      "title": "NASA Rogers Commission - Challenger accident sequence",
+      "url": "https://www.nasa.gov/history/rogersrep/v1ch4.htm",
+      "claim": "Right SRM aft field joint pressure seal failure and hot gas leak.",
+      "use_in_video": "Mechanism diagram: pressure seal failure -> hot gas leak -> no alternate vehicle integrity.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "chernobyl",
+      "title": "OECD/NEA Chernobyl accident sequence",
+      "url": "https://oecd-nea.org/jcms/pl_28271/chernobyl-chapter-i-the-site-and-accident-sequence",
+      "claim": "RBMK positive void coefficient and steam/reactivity feedback under test conditions.",
+      "use_in_video": "Feedback-loop diagram: more steam -> more reactivity -> more heat -> more steam.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "fukushima",
+      "title": "TEPCO Fukushima accident sequence",
+      "url": "https://www.tepco.co.jp/en/hd/decommission/project/accident/index-e.html",
+      "claim": "Earthquake shutdown followed by off-site power loss and tsunami flooding of emergency power/cooling systems.",
+      "use_in_video": "Power-chain diagram: grid, diesel, tsunami flooding, battery/cooling loss.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "737max",
+      "title": "Boeing 737 MAX MCAS explanation",
+      "url": "https://www.boeing.com/content/dam/microsites/static/737-max-updates/mcas/index.html",
+      "claim": "Original MCAS used one angle-of-attack input and could repeatedly command nose-down trim.",
+      "use_in_video": "Single-sensor automation diagram.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "deepwater",
+      "title": "U.S. Chemical Safety Board Deepwater Horizon BOP findings",
+      "url": "https://www.csb.gov/csb-board-approves-final-report-finding-deepwater-horizon-blowout-preventer-failed-due-to-unrecognized-pipe-buckling-phenomenon-during-emergency-well-control-efforts-on-april-20-2010-leading-to-environmental-disaster-in-gulf-of-mexico/",
+      "claim": "Blind shear ram did not seal buckled/off-center drill pipe; last barrier failed.",
+      "use_in_video": "Well/BOP cutaway: last barrier failed -> no fast containment path.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "blackout2003",
+      "title": "U.S.-Canada Task Force 2003 Northeast Blackout report summary",
+      "url": "https://www.osti.gov/etdeweb/biblio/20461178",
+      "claim": "Disturbance and line trips propagated into a broader cascade with situational-awareness failures.",
+      "use_in_video": "Grid cascade diagram.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "tacoma",
+      "title": "WSDOT Tacoma Narrows Bridge failure explanation",
+      "url": "https://wsdot.wa.gov/TNBhistory/bridges-failure.htm",
+      "claim": "Aeroelastic/torsional flutter; wind energy coupled into flexible deck motion.",
+      "use_in_video": "Flexible deck motion diagram; avoid simple resonance wording.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "hyatt",
+      "title": "NBS/NIST Hyatt Regency collapse investigation summary",
+      "url": "https://digital.library.unt.edu/ark:/67531/metadc38324/m1/262/",
+      "claim": "Hanger rod design change doubled fourth-floor box-beam connection load; no reserve capacity.",
+      "use_in_video": "Connection diagram: continuous rod vs interrupted rods.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "molasses",
+      "title": "City of Boston archive - Great Molasses Flood",
+      "url": "https://www.boston.gov/news/100-years-ago-today-molasses-crashes-through-bostons-north-end",
+      "claim": "Large molasses tank failed in dense neighborhood with no secondary containment.",
+      "use_in_video": "Stored hazard + failed vessel + no containment diagram.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "amazon_lawsuit",
+      "title": "Cross v. Amazon complaint via FarmSTAND",
+      "url": "https://farmstand.org/wp-content/uploads/2024/04/Cross-v-Amazon-Complaint.pdf",
+      "claim": "Lawsuit alleges pace and tracking prevented reasonable bathroom breaks.",
+      "use_in_video": "Route map labeled exactly: lawsuit alleges: work pace + tracking prevented breaks.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "smart_fridge_ads",
+      "title": "Samsung support - Family Hub cover screen ads",
+      "url": "https://www.samsung.com/us/support/answer/ANS10007562/",
+      "claim": "Support page describes ads on Family Hub cover screen and how to turn them off.",
+      "use_in_video": "Purchased appliance -> software update/policy -> ads on screen.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "mellow",
+      "title": "GearBrain - Mellow sous-vide subscription coverage",
+      "url": "https://www.gearbrain.com/mellow-sous-vide-subscription-2646825555.html",
+      "claim": "Owners reported smart features became subscription-gated with manual control fallback.",
+      "use_in_video": "Paid device -> server features -> subscription required -> manual mode only.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "insteon",
+      "title": "WIRED - Insteon smart-home shutdown",
+      "url": "https://www.wired.com/story/insteon-shutdown/",
+      "claim": "Connected switches and sensors lost server connectivity after cloud shutdown.",
+      "use_in_video": "Home control coupled to vendor survival.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "uber_unsw",
+      "title": "UNSW BusinessThink - Uber algorithmic management",
+      "url": "https://businessthink.unsw.edu.au/articles/uber-algorithmic-management",
+      "claim": "Research summary describes ratings, GPS monitoring, rider allocation, dynamic pricing, and chatbot support.",
+      "use_in_video": "Work coupled to opaque platform rules.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "invention_image",
+      "title": "Wikimedia Commons - Angelica Kauffmann, Invention",
+      "url": "https://commons.wikimedia.org/wiki/File:Angelica_Kauffmann_(1741-1807)_-_Invention_-_03-1128_-_Royal_Academy_of_Arts.jpg",
+      "claim": "Faithful reproduction of public-domain painting, used for first-question reveal.",
+      "use_in_video": "First question reveal still image.",
+      "license_note": "Public domain work reproduction per Commons page; verify before redistribution."
+    },
+    {
+      "key": "osi_brand",
+      "title": "Open Source Initiative brand and trademark guidelines",
+      "url": "https://opensource.org/about/brand-and-trademark-guidelines",
+      "claim": "Use must avoid implied endorsement and follow trademark/logo usage guidelines.",
+      "use_in_video": "End-card logo asset and trademark note.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "oshwa_logo",
+      "title": "Open Source Hardware Logo - OSHWA",
+      "url": "https://oshwa.org/resources/open-source-hardware-logo/",
+      "claim": "Open hardware gear logo downloads and use conditions; logo may be used if hardware complies with OSHW Definition.",
+      "use_in_video": "End-card logo asset and trademark note.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "beagle_brand",
+      "title": "BeagleBoard.org Brand Use",
+      "url": "https://www.beagleboard.org/brand-use",
+      "claim": "Brand use rules prohibit false endorsement impressions and altered/subtly different uses.",
+      "use_in_video": "End-card logo asset and trademark note.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "ddex_ern",
+      "title": "DDEX Electronic Release Notification Message Suite",
+      "url": "https://kb.ddex.net/implementing-each-standard/electronic-release-notification-message-suite-%28ern%29/",
+      "claim": "ERN communicates release/resource metadata and terms to DSPs; most recent version published is ERN 4.3.2.",
+      "use_in_video": "Metadata workbook and ERN-style draft mapping.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "ddex_release_delivery",
+      "title": "DDEX Release Delivery standard overview",
+      "url": "https://ddex-standards.net/standards/release-delivery/",
+      "claim": "Release Delivery is defined in ERN and includes release, resources, and deal terms.",
+      "use_in_video": "Metadata workbook and ERN-style draft mapping.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "openai_sora_docs",
+      "title": "OpenAI Video generation with Sora API documentation",
+      "url": "https://developers.openai.com/api/docs/guides/video-generation",
+      "claim": "Sora video generation uses asynchronous video jobs and downloadable MP4 content; current docs note deprecation timing.",
+      "use_in_video": "Context video provider audit/reference.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    },
+    {
+      "key": "gemini_omni_docs",
+      "title": "Google Gemini Omni Flash video generation documentation",
+      "url": "https://ai.google.dev/gemini-api/docs/omni",
+      "claim": "Gemini Omni Flash uses the Interactions API for text/image-to-video and supports URI delivery for large videos.",
+      "use_in_video": "Context video provider audit/reference.",
+      "license_note": "Source/audit reference; check source terms before reusing media."
+    }
+  ],
+  "scenes": [
+    {
+      "id": 1,
+      "slug": "cold_open_second_question",
+      "seconds": 20,
+      "voiceover": "The second question in technology is the one we ask after the wreckage: why did it fail? Challenger. Chernobyl. Fukushima.",
+      "prompt": "LOCKED LOCAL RENDER, NOT SORA BY DEFAULT. Black screen. Centered phrase WHY DID IT FAIL appears, then cut into abstract technical mechanism visuals: pressure-seal cross-section, feedback-loop diagram, flooded backup-power schematic. Mechanism visuals only, no disaster spectacle.",
+      "labels": [
+        "WHY DID IT FAIL?"
+      ],
+      "source_keys": [
+        "challenger",
+        "chernobyl",
+        "fukushima"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 2,
+      "slug": "catastrophic_mechanisms_one",
+      "seconds": 20,
+      "voiceover": "At Challenger, pressure escaped where the vehicle could not stay whole. At Chernobyl, cooling conditions fed back into reactor power. At Fukushima, shutdown worked, but power for cooling was trapped behind one flooded assumption.",
+      "prompt": "Clean animated technical diagrams. First, right solid rocket motor aft field joint pressure-seal cross-section: pressure boundary, hot gas leak, vehicle integrity path breaks. Second, reactor feedback loop: steam bubbles increase reactivity, heat increases steam. Third, coastal nuclear power chain: earthquake shutdown, grid power lost, diesel generators, tsunami water flooding backup systems, batteries and cooling fading.",
+      "labels": [
+        "PRESSURE SEAL FAILURE -> HOT GAS LEAK -> NO ALTERNATE VEHICLE INTEGRITY",
+        "ONE FEEDBACK LOOP",
+        "COOLING CONDITION COUPLED TO REACTOR POWER",
+        "ONE FLOOD",
+        "PRIMARY AND BACKUP POWER EXPOSED TO SAME HAZARD"
+      ],
+      "source_keys": [
+        "challenger",
+        "chernobyl",
+        "fukushima"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 3,
+      "slug": "catastrophic_mechanisms_two",
+      "seconds": 20,
+      "voiceover": "On the MAX, one angle-of-attack vane could feed repeated automated trim. On Deepwater Horizon, the last barrier could not seal. In the blackout, one disturbance became a regionwide cascade.",
+      "prompt": "Editorial technical animations. A single angle-of-attack vane sends data into an automated flight-control box; repeated nose-down trim arrows. Deepwater oil well cutaway: wellbore, blowout preventer, blind shear ram, buckled off-center pipe, and failure to seal. Grid map: one line trip shifts load to neighboring lines; more lines trip; map dims in cascade.",
+      "labels": [
+        "ONE SENSOR",
+        "SINGLE SENSOR -> AUTOMATED AUTHORITY -> REPEATED COMMAND",
+        "ONE FINAL BARRIER",
+        "LAST BARRIER FAILED -> NO FAST CONTAINMENT PATH",
+        "ONE GRID CASCADE",
+        "DISTURBANCE NOT CONTAINED -> CASCADE"
+      ],
+      "source_keys": [
+        "737max",
+        "deepwater",
+        "blackout2003"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 4,
+      "slug": "catastrophic_mechanisms_three",
+      "seconds": 20,
+      "voiceover": "Tacoma Narrows turned wind energy into self-excited deck motion. Hyatt Regency moved twice the load into a connection with no reserve. Boston stored a moving wall of molasses inside one failed vessel.",
+      "prompt": "Three restrained mechanism animations. Tacoma Narrows bridge as simplified flexible narrow deck cross-section: wind flow couples into twisting deck motion; do not show spectacular collapse. Hyatt Regency hanger rods: original continuous rod beside constructed interrupted rods; animate doubled load at fourth-floor box-beam connection. Molasses tank in dense city blocks: single storage vessel fails; streets show absence of secondary containment.",
+      "labels": [
+        "WIND ENERGY COUPLED INTO FLEXIBLE DECK MOTION",
+        "ONE CONNECTION",
+        "CONNECTION OVERLOAD -> NO RESERVE CAPACITY -> PROGRESSIVE COLLAPSE",
+        "STORED HAZARD + FAILED VESSEL + NO CONTAINMENT"
+      ],
+      "source_keys": [
+        "tacoma",
+        "hyatt",
+        "molasses"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 5,
+      "slug": "agency_and_alternatives",
+      "seconds": 20,
+      "voiceover": "And sometimes no one dies, so we stop calling it disaster: the Wi-Fi goes out and the house goes dumb. A lawsuit alleges a delivery route has no bathroom slack. A refrigerator becomes an ad screen. A paid-for smart cooker becomes a subscription. A cloud shutdown turns switches into paperweights. An app becomes the boss.",
+      "prompt": "Fast but calm sequence of everyday dependency failures. Smart home at night: Wi-Fi icon drops, lights and thermostat become unresponsive. Delivery route map with 200+ stops, countdown timers, bathroom icon off-route, surveillance dots. Smart refrigerator screen changes from family calendar to ad panel. Smart cooker diagram: paid device, remote server features, subscription gate, manual-only fallback. Cloud smart-home switches depend on vendor cloud; cloud disappears. Rideshare driver phone shows abstract ratings, GPS tracking, dispatch, dynamic pricing, support bot, deactivation risk. Include a half-second visual metaphor only: a giant carnival teddy bear behind one narrow path, no narration, no technological-failure label.",
+      "labels": [
+        "HOUSE CONTROL COUPLED TO WI-FI",
+        "LAWSUIT ALLEGES: WORK PACE + TRACKING PREVENTED BREAKS",
+        "APPLIANCE COUPLED TO VENDOR SOFTWARE POLICY",
+        "DEVICE INTELLIGENCE LIVES SOMEWHERE ELSE",
+        "HOME CONTROL COUPLED TO VENDOR SURVIVAL",
+        "WORK COUPLED TO OPAQUE PLATFORM RULES"
+      ],
+      "source_keys": [
+        "amazon_lawsuit",
+        "smart_fridge_ads",
+        "mellow",
+        "insteon",
+        "uber_unsw"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 6,
+      "slug": "reveal_structure",
+      "seconds": 20,
+      "voiceover": "These look like different failures. They are not. In each case, something became too essential, and there was no meaningful alternative path. That is tight coupling: failure stops being local because there is no meaningful substitute.",
+      "prompt": "Transform prior examples into simplified dependency diagrams. Many different systems collapse into the same structure: need, single solution, failure point, cascading harm. Diagram tiles align into a single red dependency path. The red path breaks; downstream nodes go dark.",
+      "labels": [
+        "NEED -> SINGLE SOLUTION -> FAILURE POINT -> CASCADING HARM",
+        "NO MEANINGFUL ALTERNATIVE",
+        "TIGHT COUPLING",
+        "FAILURE STOPS BEING LOCAL"
+      ],
+      "source_keys": [
+        "challenger",
+        "chernobyl",
+        "fukushima",
+        "737max",
+        "deepwater",
+        "blackout2003"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 7,
+      "slug": "experts_build_tight_coupling",
+      "seconds": 20,
+      "voiceover": "The trigger may be bad design, bad incentives, bad luck, bad maintenance, bad assumptions, or unexpected conditions. But collapse occurs when there is no bypass, reserve, repair path, manual override, interoperability, or exit. And here is the terrifying part: experts build this. We all do. We call it efficiency, integration, convenience, optimization. But when alternatives disappear, those words become dependence. So how do we avoid building tight coupling?",
+      "prompt": "Editorial montage of engineering drawings, control dashboards, clean industrial diagrams, smart-home marketing layouts, route-optimization screens, platform app abstractions, and generic non-branded seamless integration copy. Backup paths fade out one by one. Bypass, reserve, repair path, manual override, interoperability, and exit each disappear from the diagram. Finish on near-black frame.",
+      "labels": [
+        "EFFICIENCY",
+        "INTEGRATION",
+        "CONVENIENCE",
+        "OPTIMIZATION",
+        "DEPENDENCE",
+        "HOW DO WE AVOID IT?"
+      ],
+      "source_keys": [
+        "ddex_ern"
+      ],
+      "reference_asset_key": null
+    },
+    {
+      "id": 8,
+      "slug": "first_question_reveal",
+      "seconds": 20,
+      "voiceover": "Only now do we return to the first question of technology: what need are we actually trying to satisfy? Not the product. Not the platform. The need. Power. Communication. Transportation. Heat. Work. Safety.",
+      "prompt": "Use the input reference image of Angelica Kauffmann's Invention as a still-image visual anchor. Slow, respectful push-in. Do not add cliché phrases about invention. Let the classical image carry the idea. Then dissolve from the painting into a clean diagram: PRODUCT fades away, PLATFORM fades away, NEED remains. Needs appear as six columns: Power, Communication, Transportation, Heat, Work, Safety. Branching alternatives begin.",
+      "labels": [
+        "WHAT NEED ARE WE ACTUALLY TRYING TO SATISFY?",
+        "NOT THE PRODUCT",
+        "NOT THE PLATFORM",
+        "THE NEED",
+        "POWER  COMMUNICATION  TRANSPORTATION  HEAT  WORK  SAFETY"
+      ],
+      "source_keys": [
+        "invention_image"
+      ],
+      "reference_asset_key": "invention_jpg"
+    },
+    {
+      "id": 9,
+      "slug": "alternatives_network",
+      "seconds": 16,
+      "voiceover": "Power may be grid, battery, generator, solar, or local fallback. Communication may be internet, phone, mesh, radio, or a place to meet. Transportation may be walking, bike, transit, car, rideshare, or delivery. Heat may be utility service, backup heat, insulation, or passive design. Work may be an employer, clients, cooperative platforms, local networks, and tools owned by the worker. Safety may be sensors, procedures, human override, independent checks, and fail-safe design. A need is not reliably solved by one brittle answer. It is solved by a system of alternatives: backups, substitutes, repair, local control, open standards, interoperability, manual overrides, and exits. The trigger of failure changes. The structural source is the same: no meaningful alternative. If the need matters, the solution must survive the failure of any single part. If the need matters, build alternatives.",
+      "prompt": "A single red dependency path becomes a resilient network. One node fails; the system reroutes through other nodes. Branching alternatives appear as icon-like generic nodes: grid, battery, generator, solar, local fallback; internet, phone, mesh, radio, physical meeting; walking, bike, transit, car, rideshare, delivery; utility heat, backup heater, insulation, passive design; employer, clients, cooperative platforms, local networks, worker-owned tools; sensors, procedures, human override, independent checks, fail-safe design. End with blank placeholder area for official logos to be composited later; do not generate logos.",
+      "labels": [
+        "POWER: GRID | BATTERY | GENERATOR | SOLAR | LOCAL FALLBACK",
+        "COMMUNICATION: INTERNET | PHONE | MESH | RADIO | MEETING",
+        "TRANSPORTATION: WALKING | BIKE | TRANSIT | CAR | RIDESHARE | DELIVERY",
+        "HEAT: UTILITY | BACKUP HEATER | INSULATION | PASSIVE DESIGN",
+        "WORK: EMPLOYER | CLIENTS | COOPERATIVES | LOCAL NETWORKS | OWNED TOOLS",
+        "SAFETY: SENSORS | PROCEDURES | HUMAN OVERRIDE | CHECKS | FAIL-SAFE DESIGN",
+        "IF THE NEED MATTERS, BUILD ALTERNATIVES"
+      ],
+      "source_keys": [
+        "osi_brand",
+        "oshwa_logo",
+        "beagle_brand"
+      ],
+      "reference_asset_key": null
+    }
+  ]
+}
