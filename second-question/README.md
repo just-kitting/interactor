@@ -145,3 +145,24 @@ docs/LICENSE_SELECTION_NOTE.md         Reminder to choose final Creative Commons
 ```
 
 For macOS Python 3.9 environments that use LibreSSL, the requirements file pins `urllib3<2` to avoid the urllib3 v2 `NotOpenSSLWarning`.
+
+## Gemini Omni URI delivery fix
+
+This build forces `store=true` whenever the Gemini Omni profile requests `response_format.delivery = "uri"`. The Gemini API currently rejects URI video delivery without `store=true`, so the provider profile and generated request plans now reflect that requirement. Model/provider selection remains in `CONTEXT_GENERATION_PROFILES` inside the script, not in CLI flags.
+
+## Gemini Omni URI delivery hotfix
+
+This build writes every Gemini Omni request JSON before making the API call:
+
+```text
+second_question_build/gemini_omni/scene_XX_request.json
+```
+
+For URI video delivery, the request must include top-level `"store": true`. The script now forces this in code when `response_format.delivery` is `"uri"`, logs the audited value before the request, and retries once if an older/edited profile accidentally sends `store=false`. If Gemini still rejects URI delivery, it retries once with inline/base64 delivery by omitting `response_format.delivery`.
+
+When checking that the correct script is installed, run:
+
+```bash
+grep -n "Gemini request audit" second_question_production.py
+python second_question_production.py compare-context-generators --force
+```

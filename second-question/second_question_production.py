@@ -100,6 +100,11 @@ CONTEXT_GENERATION_PROFILES: dict[str, dict[str, Any]] = {
         "model": DEFAULT_GEMINI_OMNI_MODEL,
         "aspect_ratio": "16:9",
         "delivery": "uri",
+        # Current Gemini Omni validation requires store=true when URI video
+        # delivery is requested. Keep this in code rather than CLI so provider
+        # behavior remains flexible without exposing model/provider details to
+        # production commands.
+        "store": True,
         "notes": "Gemini Omni Flash Interactions API context visual profile.",
     },
 }
@@ -1002,18 +1007,30 @@ def download_sora_content(job_id: str, dest: Path) -> None:
 
 
 def gemini_omni_payload(scene: Scene, profile: dict[str, Any], root: Path, include_binary: bool = True) -> dict[str, Any]:
+    delivery = profile.get("delivery", "uri")
+
+    response_format: dict[str, Any] = {
+        "type": "video",
+        "aspect_ratio": profile.get("aspect_ratio", "16:9"),
+    }
+    # Omit delivery entirely for inline/base64 delivery; the Gemini Omni docs
+    # show inline video as the default response shape and URI delivery as an
+    # explicit opt-in.
+    if delivery and delivery not in ("inline", "base64", "data"):
+        response_format["delivery"] = delivery
+
+    # Gemini Omni REST validation now rejects response_format.delivery="uri"
+    # unless store=true is present. Keep this forced in code rather than as a
+    # CLI option, because model/provider selection is intentionally code-level.
+    store_required_for_uri = response_format.get("delivery") == "uri"
+    store_value = True if store_required_for_uri else bool(profile.get("store", False))
+
     payload: dict[str, Any] = {
         "model": profile["model"],
         "input": gemini_omni_prompt(scene),
-        "response_format": {
-            "type": "video",
-            "aspect_ratio": profile.get("aspect_ratio", "16:9"),
-            "delivery": profile.get("delivery", "uri"),
-        },
-        # Fast synchronous context generation. Leave store=True in the profile if
-        # you want to use previous_interaction_id for conversational edits.
+        "response_format": response_format,
         "background": bool(profile.get("background", False)),
-        "store": bool(profile.get("store", False)),
+        "store": store_value,
         "stream": bool(profile.get("stream", False)),
     }
     task = profile.get("task")
@@ -1083,18 +1100,59 @@ def download_gemini_uri(uri: str, dest: Path, poll_seconds: int, timeout_minutes
                     f.write(chunk)
 
 
+def _gemini_request_debug_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    # Keep the full prompt for auditability but avoid ever writing API keys.
+    return json.loads(json.dumps(payload))
+
+
+def _post_gemini_interaction(url: str, headers: dict[str, str], payload: dict[str, Any]) -> requests.Response:
+    return requests.post(url, headers=headers, json=payload, timeout=300)
+
+
 def create_gemini_omni_clip(scene: Scene, root: Path, profile: dict[str, Any], dest: Path, poll_seconds: int, timeout_minutes: int) -> dict[str, Any]:
     base = os.getenv("GEMINI_API_BASE", "https://generativelanguage.googleapis.com/v1beta")
     url = f"{base}/interactions"
     headers = {"x-goog-api-key": gemini_key(), "Content-Type": "application/json"}
     payload = gemini_omni_payload(scene, profile, root)
-    log(f"Starting Gemini Omni context clip for scene {scene.id}: {scene.slug}")
-    r = requests.post(url, headers=headers, json=payload, timeout=300)
-    if r.status_code >= 400:
-        raise RuntimeError(f"Gemini Omni create failed for scene {scene.id}: HTTP {r.status_code}\n{r.text}")
-    obj = r.json()
     log_dir = root / "gemini_omni"
     ensure_dir(log_dir)
+    request_path = log_dir / f"scene_{scene.id:02d}_request.json"
+    request_path.write_text(json.dumps(_gemini_request_debug_payload(payload), indent=2), encoding="utf-8")
+
+    delivery = payload.get("response_format", {}).get("delivery", "inline")
+    log(f"Starting Gemini Omni context clip for scene {scene.id}: {scene.slug}")
+    log(f"Gemini request audit: delivery={delivery} store={payload.get('store')} path={request_path}")
+
+    r = _post_gemini_interaction(url, headers, payload)
+
+    # Defensive repair for older local copies or edited provider profiles: if URI
+    # delivery is rejected because store=true was missing/false, force it and retry
+    # once. The current payload builder already does this, so seeing this branch
+    # means either an older profile was edited or the server validation changed.
+    if r.status_code == 400 and "store=true" in r.text and payload.get("store") is not True:
+        payload["store"] = True
+        request_path.write_text(json.dumps(_gemini_request_debug_payload(payload), indent=2), encoding="utf-8")
+        log("Gemini URI delivery requires store=true; retrying once with store=true.")
+        r = _post_gemini_interaction(url, headers, payload)
+
+    # Last-resort fallback: if the API still rejects the URI-delivery request with
+    # a store=true validation error even though the outgoing JSON says store=true,
+    # retry once using the default inline/base64 delivery shape from the Omni docs.
+    if r.status_code == 400 and "store=true" in r.text and payload.get("store") is True:
+        inline_payload = json.loads(json.dumps(payload))
+        inline_payload["response_format"].pop("delivery", None)
+        inline_payload["store"] = bool(profile.get("store", False))
+        inline_request_path = log_dir / f"scene_{scene.id:02d}_request_inline_fallback.json"
+        inline_request_path.write_text(json.dumps(_gemini_request_debug_payload(inline_payload), indent=2), encoding="utf-8")
+        log(f"Gemini URI delivery rejected despite store=true; retrying inline/base64 delivery: {inline_request_path}")
+        r = _post_gemini_interaction(url, headers, inline_payload)
+
+    if r.status_code >= 400:
+        raise RuntimeError(
+            f"Gemini Omni create failed for scene {scene.id}: HTTP {r.status_code}\n{r.text}\n"
+            f"Request JSON was written to: {request_path}"
+        )
+    obj = r.json()
     (log_dir / f"scene_{scene.id:02d}_interaction.json").write_text(json.dumps(obj, indent=2), encoding="utf-8")
     video = extract_gemini_video_object(obj)
     ensure_dir(dest.parent)

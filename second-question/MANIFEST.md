@@ -23,3 +23,8 @@ Generated UTC: 2026-07-05T02:15:13+00:00
 | `request_plans/sora/sora_requests.jsonl` | 19652 | `ee2c453be0b5bec5b860fa59b16546225716acd15997aee2c1368e6447741f84` |
 | `requirements_second_question.txt` | 83 | `ff5cc1a7355536611b3e32f4e5f5778c4f4b75388a70f41f4ab024a1791cb4f4` |
 | `second_question_production.py` | 110765 | `439451b838401fa3dd481296a4885e339e4a62dfbaf68a8b69c45969344b6dcd` |
+
+
+## Omni store=true fix
+
+Patched Gemini Omni URI-delivery requests so `store` is `true` when `delivery` is `uri`. Updated script, request plans, provider profile CSV, and metadata workbook.
